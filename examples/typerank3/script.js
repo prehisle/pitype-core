@@ -8,6 +8,7 @@ import { createResultModal } from './ui/resultModal.js';
 import { initInfoModal } from './ui/infoModal.js';
 import { createTextRenderer } from './ui/textRenderer.js';
 import { createSessionController } from './ui/sessionController.js';
+import { createLocaleHelpers } from './ui/localeUtils.js';
 
 let currentText = '';
 let cursor = null;
@@ -23,13 +24,12 @@ const urlParams = new URLSearchParams(window.location.search);
 const forcedTextIndexParam = urlParams.get('text');
 const forcedTextIndex = forcedTextIndexParam !== null ? Number(forcedTextIndexParam) : null;
 const textLibrary = window.texts || [];
-const getLocaleText =
-  typeof window.getText === 'function' ? (key) => window.getText(key) : () => '';
-const applyLanguageFn =
-  typeof window.applyLanguage === 'function' ? (lang) => window.applyLanguage(lang) : () => {};
-const updatePageTextFn =
-  typeof window.updatePageText === 'function' ? () => window.updatePageText() : () => {};
-const statsPanel = createStatsPanel({ getLocaleText });
+const localeHelpers = createLocaleHelpers({
+  getText: window.getText,
+  updatePageText: window.updatePageText,
+  applyLanguage: window.applyLanguage
+});
+const statsPanel = createStatsPanel({ getLocaleText: localeHelpers.getText });
 const textRenderer = createTextRenderer(textDisplay);
 let cursorAdapter = null;
 const sessionController = createSessionController({
@@ -124,6 +124,7 @@ initInfoModal({
   closeButton: infoCloseBtn,
   infoMap: infoData
 });
+localeHelpers.refreshLocaleText();
 
 function createCursor() {
   // 创建光标
@@ -257,8 +258,8 @@ window.addEventListener('load', function () {
 // 初始化
 document.addEventListener('DOMContentLoaded', function () {
   initLanguageSelector({
-    applyLanguage: applyLanguageFn,
-    updatePageText: updatePageTextFn
+    applyLanguage: localeHelpers.applyLanguage,
+    updatePageText: localeHelpers.refreshLocaleText
   }); // 初始化语言选择器
   initThemeSelector(); // 初始化主题选择器
   init(); // 初始化应用
