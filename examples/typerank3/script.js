@@ -1,4 +1,4 @@
-import { createTextSource } from './vendor/index.js';
+import { createSessionRuntime, createTextSource } from './vendor/index.js';
 import { initThemeSelector } from './ui/themeController.js';
 import { initLanguageSelector, getActiveLanguage } from './ui/languageController.js';
 import { createStatsPanel } from './ui/statsPanel.js';
@@ -7,7 +7,6 @@ import { createInputController } from './ui/inputController.js';
 import { createResultModal } from './ui/resultModal.js';
 import { initInfoModal } from './ui/infoModal.js';
 import { createTextRenderer } from './ui/textRenderer.js';
-import { createSessionController } from './ui/sessionController.js';
 import { createLocaleHelpers } from './ui/localeUtils.js';
 
 let currentText = '';
@@ -32,13 +31,13 @@ const localeHelpers = createLocaleHelpers({
 const statsPanel = createStatsPanel({ getLocaleText: localeHelpers.getText });
 const textRenderer = createTextRenderer(textDisplay);
 let cursorAdapter = null;
-const sessionController = createSessionController({
-  onEvaluate: (index, correct) => {
-    textRenderer.applySpanState(index, correct);
+const sessionRuntime = createSessionRuntime({
+  onEvaluate: (event) => {
+    textRenderer.applySpanState(event.index, event.correct);
     cursorAdapter?.scheduleRefresh();
   },
-  onUndo: (index) => {
-    textRenderer.resetSpanState(index);
+  onUndo: (event) => {
+    textRenderer.resetSpanState(event.index);
     cursorAdapter?.scheduleRefresh();
   },
   onComplete: (snapshot) => {
@@ -70,7 +69,7 @@ cursorAdapter = createCursorAdapter({
   setSpans: (spans) => textRenderer.setSpans(spans)
 });
 const inputController = createInputController({
-  getTypingSession: () => sessionController.getSession(),
+  getTypingSession: () => sessionRuntime.getSession(),
   isResultModalVisible: () => resultModal?.style.display === 'flex',
   onCompositionEnd: () => cursorAdapter.updatePosition()
 });
@@ -95,7 +94,7 @@ if (restartIcon) {
 }
 
 function getCurrentPosition() {
-  const session = sessionController.getSession();
+  const session = sessionRuntime.getSession();
   if (!session) return 0;
   return session.getState().position;
 }
@@ -164,7 +163,7 @@ function init() {
     id: selectedTextIndex !== null ? `text-${selectedTextIndex}` : undefined,
     locale: getActiveLanguage()
   });
-  sessionController.dispose();
+  sessionRuntime.dispose();
 
   textRenderer.render(currentSource);
 
@@ -182,7 +181,7 @@ function init() {
     inputField = null;
   }
 
-  sessionController.startSession(currentSource);
+  sessionRuntime.startSession(currentSource);
 
   // 使用多层嵌套的requestAnimationFrame确保DOM完全更新
   // 第一次requestAnimationFrame确保DOM开始更新
@@ -228,7 +227,7 @@ function init() {
   resultModal.style.display = 'none';
 }
 
-function showResults(snapshot = sessionController.getLatestSnapshot()) {
+function showResults(snapshot = sessionRuntime.getLatestSnapshot()) {
   if (!snapshot || !statsPanel) return;
   statsPanel.renderResults(snapshot);
   resultModalController.show();

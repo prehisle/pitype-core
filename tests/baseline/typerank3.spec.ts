@@ -50,7 +50,14 @@ test.describe('typerank3 baseline', () => {
   });
 
   test('user can完成中文多行练习', async ({ page }) => {
-    await page.goto('/index.html?text=3');
+    await page.goto('/index.html');
+    const textIndex = await page.evaluate((target) => {
+      const list = Array.isArray(window.texts) ? window.texts : [];
+      return list.findIndex((entry) => entry === target);
+    }, SAMPLE_TEXT_CN);
+    expect(textIndex).toBeGreaterThanOrEqual(0);
+
+    await page.goto(`/index.html?text=${textIndex}`);
     await page.waitForSelector('#text-display span');
     await page.click('#text-display');
     await page.keyboard.type(SAMPLE_TEXT_CN);
