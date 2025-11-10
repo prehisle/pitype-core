@@ -488,13 +488,14 @@ body {
     box-sizing: border-box;
     pointer-events: none;
     z-index: 10;
-    animation: blink 1s infinite;
     will-change: transform, width, height;
     transform: translate3d(0, 0, 0);
-    transition:
-        transform 0.05s cubic-bezier(0.4, 0, 0.2, 1),
-        width 0.08s ease,
-        height 0.08s ease;
+    visibility: hidden;
+}
+
+.cursor.cursor-visible {
+    visibility: visible;
+    animation: blink 1s infinite;
 }
 
 @keyframes blink {

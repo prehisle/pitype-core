@@ -13,10 +13,29 @@ let potentialCompositionStart = false;
 let allCharSpans = [];
 let lastCursorY = 0;
 let cursorUpdateScheduled = false;
+let cursorAnimationFrameId = null;
+let currentCursorMetrics = null;
 let currentTheme = localStorage.getItem('theme') || 'dracula'; // 默认主题
 let resizeObserver = null;
 let resizeRefreshRaf = null;
 let hasWindowResizeHandler = false;
+const cursorAnimationPreferenceKey = 'cursorAnimationMode';
+const cursorAnimationDurations = {
+  off: 0,
+  slow: 150,
+  medium: 115,
+  fast: 85
+};
+const cursorMinimums = {
+  width: 2,
+  height: 16,
+  inputWidth: 30,
+  widthMultiplier: 1.5
+};
+const reduceMotionQuery =
+  typeof window !== 'undefined' && window.matchMedia
+    ? window.matchMedia('(prefers-reduced-motion: reduce)')
+    : null;
 const textLibrary = window.texts || [];
 const getLocaleText =
   typeof window.getText === 'function' ? (key) => window.getText(key) : () => '';
@@ -72,6 +91,102 @@ function stopStatsTimer() {
     clearInterval(statsTimer);
     statsTimer = null;
   }
+}
+
+function getCursorAnimationDuration() {
+  const stored = localStorage.getItem(cursorAnimationPreferenceKey);
+  if (stored && stored in cursorAnimationDurations) {
+    return cursorAnimationDurations[stored];
+  }
+  return cursorAnimationDurations.fast;
+}
+
+function shouldReduceMotion() {
+  return !!(reduceMotionQuery && reduceMotionQuery.matches);
+}
+
+function lerp(from, to, progress) {
+  return from + (to - from) * progress;
+}
+
+function easeOutCubic(t) {
+  return 1 - Math.pow(1 - t, 3);
+}
+
+function cancelCursorAnimation() {
+  if (cursorAnimationFrameId) {
+    cancelAnimationFrame(cursorAnimationFrameId);
+    cursorAnimationFrameId = null;
+  }
+}
+
+function resetCursorAnimationState() {
+  cancelCursorAnimation();
+  currentCursorMetrics = null;
+}
+
+function applyCursorMetrics(metrics) {
+  if (!cursor || !inputField) return;
+  const snapshot = {
+    left: metrics.left,
+    top: metrics.top,
+    width: metrics.width,
+    height: metrics.height
+  };
+
+  cursor.style.width = `${snapshot.width}px`;
+  cursor.style.height = `${snapshot.height}px`;
+  cursor.style.transform = `translate3d(${snapshot.left}px, ${snapshot.top}px, 0)`;
+
+  const inputWidth = Math.max(snapshot.width * cursorMinimums.widthMultiplier, cursorMinimums.inputWidth);
+  inputField.style.width = `${inputWidth}px`;
+  inputField.style.height = `${snapshot.height}px`;
+  inputField.style.transform = `translate3d(${snapshot.left}px, ${snapshot.top}px, 0)`;
+
+  currentCursorMetrics = snapshot;
+}
+
+function animateCursorTo(targetMetrics, options = { immediate: false }) {
+  if (!cursor || !inputField) return;
+
+  const duration = getCursorAnimationDuration();
+  const skipAnimation =
+    options.immediate || shouldReduceMotion() || duration === 0 || !currentCursorMetrics;
+
+  cancelCursorAnimation();
+
+  if (skipAnimation) {
+    applyCursorMetrics(targetMetrics);
+    return;
+  }
+
+  const from = { ...currentCursorMetrics };
+  const target = { ...targetMetrics };
+  const startTime = performance.now();
+
+  const tick = (now) => {
+    const elapsed = now - startTime;
+    const progress = Math.min(1, elapsed / duration);
+    const eased = easeOutCubic(progress);
+
+    const nextState = {
+      left: lerp(from.left, target.left, eased),
+      top: lerp(from.top, target.top, eased),
+      width: lerp(from.width, target.width, eased),
+      height: lerp(from.height, target.height, eased)
+    };
+
+    applyCursorMetrics(nextState);
+
+    if (progress < 1) {
+      cursorAnimationFrameId = requestAnimationFrame(tick);
+    } else {
+      cursorAnimationFrameId = null;
+      applyCursorMetrics(target);
+    }
+  };
+
+  cursorAnimationFrameId = requestAnimationFrame(tick);
 }
 
 // 主题切换功能
@@ -222,6 +337,7 @@ function createCursor() {
   cursor = document.createElement('div');
   cursor.className = 'cursor';
   textDisplay.appendChild(cursor);
+  resetCursorAnimationState();
 
   // 创建输入框（如果不存在）
   if (!document.getElementById('input-field')) {
@@ -278,7 +394,7 @@ function createCursor() {
   }
 }
 
-function updateCursorPosition() {
+function updateCursorPosition(options = { immediate: false }) {
   if (!cursor || !inputField || !textDisplay) return;
 
   if (allCharSpans.length === 0) {
@@ -295,16 +411,22 @@ function updateCursorPosition() {
   const charRect = currentChar.getBoundingClientRect();
   const top = charRect.top - textRect.top + textDisplay.scrollTop;
   const left = charRect.left - textRect.left + textDisplay.scrollLeft;
-  const width = Math.max(charRect.width, 2);
-  const height = Math.max(charRect.height, 16);
+  const width = Math.max(charRect.width, cursorMinimums.width);
+  const height = Math.max(charRect.height, cursorMinimums.height);
 
-  cursor.style.width = `${width}px`;
-  cursor.style.height = `${height}px`;
-  cursor.style.transform = `translate3d(${left}px, ${top}px, 0)`;
+  animateCursorTo(
+    {
+      left,
+      top,
+      width,
+      height
+    },
+    { immediate: options.immediate }
+  );
 
-  inputField.style.width = `${Math.max(width * 1.5, 30)}px`;
-  inputField.style.height = `${height}px`;
-  inputField.style.transform = `translate3d(${left}px, ${top}px, 0)`;
+  if (!cursor.classList.contains('cursor-visible')) {
+    cursor.classList.add('cursor-visible');
+  }
 
   const previousCursorY = lastCursorY;
   const currentCursorY = charRect.top;
@@ -343,7 +465,7 @@ function scheduleLayoutRefresh() {
     resizeRefreshRaf = null;
     cacheAllCharSpans();
     lastCursorY = 0;
-    updateCursorPosition();
+    updateCursorPosition({ immediate: true });
   });
 }
 
@@ -497,6 +619,7 @@ function init() {
     cursor.remove();
     cursor = null;
   }
+  resetCursorAnimationState();
 
   if (document.getElementById('input-field')) {
     document.getElementById('input-field').remove();
@@ -532,7 +655,7 @@ function init() {
         }
 
         // 确保光标定位准确
-        updateCursorPosition();
+        updateCursorPosition({ immediate: true });
 
         // 设置移动设备支持
         setupMobileSupport();
@@ -582,6 +705,7 @@ function handleSessionEvent(event) {
         cursor.remove();
         cursor = null;
       }
+      resetCursorAnimationState();
       showResults();
       break;
     case 'session:reset':
@@ -854,7 +978,7 @@ function cacheAllCharSpans() {
 window.addEventListener('load', function () {
   // 页面完全加载后重新初始化光标位置
   if (allCharSpans.length > 0 && cursor && inputField) {
-    updateCursorPosition();
+    updateCursorPosition({ immediate: true });
     // 聚焦输入框
     inputField.focus();
   } else {
@@ -864,7 +988,7 @@ window.addEventListener('load', function () {
         cacheAllCharSpans();
       }
       if (cursor && inputField) {
-        updateCursorPosition();
+        updateCursorPosition({ immediate: true });
         inputField.focus();
       }
     });
