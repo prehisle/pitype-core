@@ -9,13 +9,10 @@ const rootDir = dirname(__dirname);
 const distDir = join(rootDir, 'packages', 'pitype-core', 'dist');
 const vendorDir = join(rootDir, 'examples', 'typerank3', 'vendor');
 
-if (!existsSync(distDir)) {
-  throw new Error('pitype-core dist 目录不存在，请先运行 npm run build:core');
-}
-
-mkdirSync(vendorDir, { recursive: true });
-
 function emptyDir(dir) {
+  if (!existsSync(dir)) {
+    return;
+  }
   for (const entry of readdirSync(dir)) {
     rmSync(join(dir, entry), { recursive: true, force: true });
   }
@@ -35,6 +32,34 @@ function copyRecursive(src, dest) {
   }
 }
 
-emptyDir(vendorDir);
-copyRecursive(distDir, vendorDir);
-console.log(`Synced ${distDir} -> ${vendorDir}`);
+export function syncDemo({ skipDistCheck = false, verbose = true } = {}) {
+  if (!existsSync(distDir)) {
+    if (skipDistCheck) {
+      if (verbose) {
+        console.warn('[sync-demo] dist 目录不存在，等待构建完成...');
+      }
+      return false;
+    }
+    throw new Error('pitype-core dist 目录不存在，请先运行 npm run build:core');
+  }
+
+  mkdirSync(vendorDir, { recursive: true });
+  emptyDir(vendorDir);
+  copyRecursive(distDir, vendorDir);
+  if (verbose) {
+    console.log(`Synced ${distDir} -> ${vendorDir}`);
+  }
+  return true;
+}
+
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+  try {
+    const synced = syncDemo();
+    if (!synced) {
+      process.exitCode = 1;
+    }
+  } catch (error) {
+    console.error(error instanceof Error ? error.message : error);
+    process.exitCode = 1;
+  }
+}
