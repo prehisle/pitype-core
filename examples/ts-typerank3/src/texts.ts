@@ -146,14 +146,3 @@ Bye-bye.`,
   }
 }`
 ];
-
-// 导出给全局使用 (兼容原代码)
-declare global {
-  interface Window {
-    texts: string[];
-  }
-}
-
-if (typeof window !== 'undefined') {
-  window.texts = texts;
-}

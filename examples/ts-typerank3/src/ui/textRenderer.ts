@@ -1,5 +1,4 @@
-import { TextSource } from '../vendor/textSource';
-import { Token } from '../vendor/tokenizer';
+import { type TextSource, type TextToken } from '@pitype/core';
 
 export interface TextRenderer {
   render(source: TextSource): void;
@@ -122,7 +121,7 @@ export function createTextRenderer(textDisplay: HTMLElement): TextRenderer {
   };
 }
 
-function createTokenSpan(token: Token): HTMLSpanElement {
+function createTokenSpan(token: TextToken): HTMLSpanElement {
   if (token.type === 'space') {
     const wrapper = document.createElement('span');
     wrapper.classList.add(token.attachToPrevious ? 'no-break' : 'word-space');

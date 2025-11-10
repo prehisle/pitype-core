@@ -3,8 +3,8 @@ import {
   createTextSource,
   createDomInputController,
   createDomStatsPanel,
-  StatsSnapshot
-} from './vendor/index';
+  type StatsSnapshot
+} from '@pitype/core';
 import { initThemeSelector } from './ui/themeController';
 import {
   initLanguageSelector,
@@ -15,17 +15,8 @@ import { createResultModal } from './ui/resultModal';
 import { initInfoModal } from './ui/infoModal';
 import { createTextRenderer } from './ui/textRenderer';
 import { createLocaleHelpers } from './ui/localeUtils';
-import './texts';
-import './language';
-
-declare global {
-  interface Window {
-    texts: string[];
-    getText: (path: string) => string;
-    updatePageText: () => void;
-    applyLanguage: (lang: string) => void;
-  }
-}
+import { texts } from './texts';
+import { getText, updatePageText, applyLanguage } from './language';
 
 let currentText = '';
 let cursor: HTMLElement | null = null;
@@ -40,12 +31,12 @@ const urlParams = new URLSearchParams(window.location.search);
 const forcedTextIndexParam = urlParams.get('text');
 const forcedTextIndex =
   forcedTextIndexParam !== null ? Number(forcedTextIndexParam) : null;
-const textLibrary = window.texts || [];
+const textLibrary = texts;
 
 const localeHelpers = createLocaleHelpers({
-  getText: window.getText,
-  updatePageText: window.updatePageText,
-  applyLanguage: window.applyLanguage
+  getText,
+  updatePageText,
+  applyLanguage
 });
 
 const statsPanel = createDomStatsPanel({
@@ -99,7 +90,7 @@ const sessionRuntime = createSessionRuntime({
   onReset: () => {
     cursorAdapter?.resetAnimation();
   },
-  onSnapshot: (snapshot) => {
+  onSnapshot: (snapshot: StatsSnapshot | null) => {
     if (!snapshot) {
       statsPanel.reset();
       return;
@@ -269,10 +260,11 @@ function init(): void {
 }
 
 function showResults(
-  snapshot: StatsSnapshot = sessionRuntime.getLatestSnapshot()!
+  snapshot?: StatsSnapshot | null
 ): void {
-  if (!snapshot || !statsPanel) return;
-  statsPanel.renderResults(snapshot);
+  const finalSnapshot = snapshot ?? sessionRuntime.getLatestSnapshot();
+  if (!finalSnapshot || !statsPanel) return;
+  statsPanel.renderResults(finalSnapshot);
   resultModalController.show();
 }
 

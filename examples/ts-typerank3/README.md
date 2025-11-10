@@ -22,14 +22,6 @@
 ```
 ts-typerank3/
 ├── src/
-│   ├── vendor/          # 核心功能模块
-│   │   ├── dom/        # DOM 相关适配器
-│   │   ├── tokenizer.ts
-│   │   ├── textSource.ts
-│   │   ├── typingSession.ts
-│   │   ├── statsTracker.ts
-│   │   ├── sessionRuntime.ts
-│   │   └── index.ts
 │   ├── ui/             # UI 组件
 │   │   ├── textRenderer.ts
 │   │   ├── cursorAdapter.ts
@@ -48,11 +40,19 @@ ts-typerank3/
 └── package.json
 ```
 
+**核心功能**: 直接使用 `@pitype/core` workspace 包，而不是复制代码，确保与仓库核心逻辑保持同步。
+
 ## 开发
 
 ### 安装依赖
 
 ```bash
+# 首先需要构建 @pitype/core 包
+cd ../../packages/pitype-core
+npm run build
+
+# 然后安装依赖
+cd ../../examples/ts-typerank3
 npm install
 ```
 
@@ -86,24 +86,26 @@ npm run preview
 2. **更好的 IDE 支持**: 完整的类型提示和自动补全
 3. **构建系统**: 使用 Vite 替代原生 ES 模块
 4. **开发体验**: 热更新、快速构建
+5. **代码复用**: 直接使用 `@pitype/core` workspace 包，不重复维护核心逻辑
 
-## 核心模块说明
+## 模块说明
 
-### vendor 目录
+### 核心依赖 (@pitype/core)
 
-- `tokenizer.ts`: 文本分词器，支持中英文混合
-- `textSource.ts`: 文本源管理
-- `typingSession.ts`: 打字会话核心逻辑
-- `statsTracker.ts`: 统计数据追踪
-- `sessionRuntime.ts`: 会话运行时管理
-- `dom/inputController.ts`: 输入控制器
-- `dom/statsPanel.ts`: 统计面板渲染
+本项目直接使用仓库中的 `@pitype/core` 包，包含：
+- 文本分词器 (tokenizeText)
+- 文本源管理 (createTextSource)
+- 打字会话 (TypingSession)
+- 统计追踪 (createStatsTracker)
+- 会话运行时 (createSessionRuntime)
+- DOM 输入控制器 (createDomInputController)
+- DOM 统计面板 (createDomStatsPanel)
 
-### ui 目录
+### UI 组件 (ui/)
 
 - `textRenderer.ts`: 文本渲染引擎
-- `cursorAdapter.ts`: 光标适配器
-- `themeController.ts`: 主题控制器
+- `cursorAdapter.ts`: 光标适配器（支持动画和自适应）
+- `themeController.ts`: 主题切换控制器
 - `languageController.ts`: 语言切换控制器
 - `resultModal.ts`: 结果弹窗
 - `infoModal.ts`: 信息弹窗
