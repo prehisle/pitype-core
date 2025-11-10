@@ -478,6 +478,8 @@ body {
 
 .cursor {
     position: absolute;
+    top: 0;
+    left: 0;
     width: 22px;
     height: 33px;
     background-color: rgba(108, 124, 219, 0.1);
@@ -487,8 +489,12 @@ body {
     pointer-events: none;
     z-index: 10;
     animation: blink 1s infinite;
-    will-change: top, left;
-    transition: left 0.02s linear, top 0.02s linear, height 0.02s linear; /* 平滑动画效果 */
+    will-change: transform, width, height;
+    transform: translate3d(0, 0, 0);
+    transition:
+        transform 0.05s cubic-bezier(0.4, 0, 0.2, 1),
+        width 0.08s ease,
+        height 0.08s ease;
 }
 
 @keyframes blink {
@@ -498,6 +504,8 @@ body {
 
 #input-field {
     position: absolute;
+    top: 0;
+    left: 0;
     width: 40px;
     height: 33px;
     box-sizing: border-box;
@@ -512,6 +520,7 @@ body {
     margin: 0;
     font-size: 18px;
     z-index: 20;
+    transform: translate3d(0, 0, 0);
 }
 
 .correct {

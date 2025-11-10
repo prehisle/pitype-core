@@ -12,6 +12,7 @@ let inputField = null; // 将在创建时获取引用
 let potentialCompositionStart = false;
 let allCharSpans = [];
 let lastCursorY = 0;
+let cursorUpdateScheduled = false;
 let currentTheme = localStorage.getItem('theme') || 'dracula'; // 默认主题
 let resizeObserver = null;
 let resizeRefreshRaf = null;
@@ -25,6 +26,7 @@ const updatePageTextFn =
   typeof window.updatePageText === 'function' ? () => window.updatePageText() : () => {};
 const getActiveLanguage = () => localStorage.getItem('language') || 'zh-CN';
 
+const textContainer = document.querySelector('.text-container');
 const textDisplay = document.getElementById('text-display');
 // 移除初始引用，因为元素将被动态创建
 // const inputField = document.getElementById('input-field');
@@ -277,62 +279,46 @@ function createCursor() {
 }
 
 function updateCursorPosition() {
-  if (!cursor || !inputField) return;
+  if (!cursor || !inputField || !textDisplay) return;
 
-  // 确保已经缓存了字符元素
   if (allCharSpans.length === 0) {
     allCharSpans = document.querySelectorAll('#text-display span');
   }
 
-  // 检查当前位置是否有效
   const currentPosition = getCurrentPosition();
-  if (currentPosition >= 0 && currentPosition < allCharSpans.length) {
-    const currentChar = allCharSpans[currentPosition];
-    const rect = currentChar.getBoundingClientRect();
+  if (currentPosition < 0 || currentPosition >= allCharSpans.length) return;
 
-    // 保存上一次光标的Y位置，用于检测换行
-    const previousCursorY = lastCursorY;
-    const currentCursorY = rect.top;
+  const currentChar = allCharSpans[currentPosition];
+  if (!currentChar) return;
 
-    // 获取文本容器和文本显示区的边界
-    const textContainer = document.querySelector('.text-container');
-    const textDisplay = document.getElementById('text-display');
-    const textRect = textDisplay.getBoundingClientRect();
+  const textRect = textDisplay.getBoundingClientRect();
+  const charRect = currentChar.getBoundingClientRect();
+  const top = charRect.top - textRect.top + textDisplay.scrollTop;
+  const left = charRect.left - textRect.left + textDisplay.scrollLeft;
+  const width = Math.max(charRect.width, 2);
+  const height = Math.max(charRect.height, 16);
 
-    // 计算相对于父容器的绝对位置
-    const top = rect.top - textRect.top + textDisplay.scrollTop;
-    const left = rect.left - textRect.left + textDisplay.scrollLeft;
+  cursor.style.width = `${width}px`;
+  cursor.style.height = `${height}px`;
+  cursor.style.transform = `translate3d(${left}px, ${top}px, 0)`;
 
-    // 直接设置绝对位置，不使用复杂的计算
-    cursor.style.width = `${rect.width}px`;
-    cursor.style.height = `${rect.height}px`;
-    cursor.style.top = `${top}px`;
-    cursor.style.left = `${left}px`;
+  inputField.style.width = `${Math.max(width * 1.5, 30)}px`;
+  inputField.style.height = `${height}px`;
+  inputField.style.transform = `translate3d(${left}px, ${top}px, 0)`;
 
-    // 同步设置输入框位置
-    inputField.style.width = `${rect.width * 1.5}px`; // 适当宽度
-    inputField.style.height = `${rect.height}px`;
-    inputField.style.top = `${top}px`;
-    inputField.style.left = `${left}px`;
+  const previousCursorY = lastCursorY;
+  const currentCursorY = charRect.top;
+  const isLineChange = previousCursorY !== 0 && Math.abs(currentCursorY - previousCursorY) > 5;
 
-    // 检测是否发生换行 - 仅在换行时进行滚动
-    const isLineChange = previousCursorY !== 0 && Math.abs(currentCursorY - previousCursorY) > 5;
-
-    if (isLineChange) {
-      // 行变化时，滚动到适当位置，使当前行在视窗中居中
-      const containerHeight = textContainer.clientHeight;
-
-      textContainer.scrollTo({
-        top: top - containerHeight / 2 + rect.height / 2,
-        behavior: 'smooth'
-      });
-
-      // 更新当前光标Y坐标
-      lastCursorY = currentCursorY;
-    } else if (lastCursorY === 0) {
-      // 初始化lastCursorY
-      lastCursorY = currentCursorY;
-    }
+  if (isLineChange && textContainer) {
+    const containerHeight = textContainer.clientHeight;
+    textContainer.scrollTo({
+      top: top - containerHeight / 2 + height / 2,
+      behavior: 'smooth'
+    });
+    lastCursorY = currentCursorY;
+  } else if (lastCursorY === 0) {
+    lastCursorY = currentCursorY;
   }
 }
 
@@ -608,10 +594,11 @@ function handleSessionEvent(event) {
 }
 
 function scheduleCursorRefresh() {
+  if (cursorUpdateScheduled) return;
+  cursorUpdateScheduled = true;
   requestAnimationFrame(() => {
-    requestAnimationFrame(() => {
-      updateCursorPosition();
-    });
+    cursorUpdateScheduled = false;
+    updateCursorPosition();
   });
 }
 
