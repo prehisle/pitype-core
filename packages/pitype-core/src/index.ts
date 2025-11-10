@@ -138,7 +138,7 @@ export class TypingSession {
   }
 
   private emit(event: TypingEvent): void {
-    this.listeners.forEach(listener => listener(event));
+    this.listeners.forEach((listener) => listener(event));
   }
 
   private equalsInput(expected: string, actual: string): boolean {
@@ -181,7 +181,7 @@ class StatsTrackerImpl implements StatsTracker {
   private completed = false;
 
   constructor(session: TypingSession) {
-    session.subscribe(event => this.handleEvent(event));
+    session.subscribe((event) => this.handleEvent(event));
   }
 
   getSnapshot(): StatsSnapshot {
@@ -193,10 +193,11 @@ class StatsTrackerImpl implements StatsTracker {
       durationMs,
       correctChars: this.correctChars,
       totalChars: this.totalChars,
-      accuracy: this.totalChars === 0 ? 100 : Math.round((this.correctChars / this.totalChars) * 100),
+      accuracy:
+        this.totalChars === 0 ? 100 : Math.round((this.correctChars / this.totalChars) * 100),
       correctCpm: minutes > 0 ? Math.round(this.correctChars / minutes) : 0,
       totalCpm: minutes > 0 ? Math.round(this.totalChars / minutes) : 0,
-      wpm: minutes > 0 ? Math.round((this.correctChars / minutes) / 5) : 0,
+      wpm: minutes > 0 ? Math.round(this.correctChars / minutes / 5) : 0,
       completed: this.completed
     };
   }

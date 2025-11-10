@@ -85,7 +85,7 @@ export class TypingSession {
         this.emit({ type: 'session:start', timestamp: this.startedAt });
     }
     emit(event) {
-        this.listeners.forEach(listener => listener(event));
+        this.listeners.forEach((listener) => listener(event));
     }
     equalsInput(expected, actual) {
         if (expected === actual)
@@ -108,7 +108,7 @@ class StatsTrackerImpl {
         this.correctChars = 0;
         this.totalChars = 0;
         this.completed = false;
-        session.subscribe(event => this.handleEvent(event));
+        session.subscribe((event) => this.handleEvent(event));
     }
     getSnapshot() {
         const durationMs = this.computeDuration();
@@ -121,7 +121,7 @@ class StatsTrackerImpl {
             accuracy: this.totalChars === 0 ? 100 : Math.round((this.correctChars / this.totalChars) * 100),
             correctCpm: minutes > 0 ? Math.round(this.correctChars / minutes) : 0,
             totalCpm: minutes > 0 ? Math.round(this.totalChars / minutes) : 0,
-            wpm: minutes > 0 ? Math.round((this.correctChars / minutes) / 5) : 0,
+            wpm: minutes > 0 ? Math.round(this.correctChars / minutes / 5) : 0,
             completed: this.completed
         };
     }

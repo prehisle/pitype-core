@@ -47,8 +47,8 @@ const watcher = chokidar.watch(distDir, {
   ignoreInitial: true,
   awaitWriteFinish: {
     stabilityThreshold: 200,
-    pollInterval: 50,
-  },
+    pollInterval: 50
+  }
 });
 
 watcher

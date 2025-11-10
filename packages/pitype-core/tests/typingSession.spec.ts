@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { TypingSession, createStatsTracker, createTextSource, type TypingEvent, tokenizeText } from '../src';
+import {
+  TypingSession,
+  createStatsTracker,
+  createTextSource,
+  type TypingEvent,
+  tokenizeText
+} from '../src';
 
 class FakeClock {
   private current = 0;
@@ -14,7 +20,7 @@ class FakeClock {
 
 const collectEvents = (session: TypingSession) => {
   const events: TypingEvent[] = [];
-  session.subscribe(evt => events.push(evt));
+  session.subscribe((evt) => events.push(evt));
   return events;
 };
 
@@ -28,7 +34,7 @@ describe('TypingSession', () => {
 
     session.input('Hi!');
 
-    expect(events.filter(e => e.type === 'input:evaluate')).toHaveLength(tokens.length);
+    expect(events.filter((e) => e.type === 'input:evaluate')).toHaveLength(tokens.length);
     expect(session.isComplete()).toBe(true);
   });
 
@@ -47,7 +53,7 @@ describe('TypingSession', () => {
 
     session.input('ab');
 
-    expect(events.map(e => e.type)).toEqual([
+    expect(events.map((e) => e.type)).toEqual([
       'session:start',
       'input:evaluate',
       'input:evaluate'
@@ -81,7 +87,7 @@ describe('TypingSession', () => {
 
     session.input('ab');
 
-    expect(events.some(e => e.type === 'session:complete')).toBe(true);
+    expect(events.some((e) => e.type === 'session:complete')).toBe(true);
     expect(session.isComplete()).toBe(true);
   });
 });

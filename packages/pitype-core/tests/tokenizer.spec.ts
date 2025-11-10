@@ -9,7 +9,7 @@ const normalizeChar = (char: string) => {
 };
 
 const snapshot = (tokens: TextToken[]) =>
-  tokens.map(token => ({
+  tokens.map((token) => ({
     char: normalizeChar(token.char),
     type: token.type,
     attachToPrevious: token.attachToPrevious ?? false,
@@ -161,21 +161,21 @@ describe('tokenizeText', () => {
 
   it('保留连续空格并各自绑定上一 token', () => {
     const tokens = tokenizeText('word  gap');
-    const spaces = tokens.filter(t => t.type === 'space');
+    const spaces = tokens.filter((t) => t.type === 'space');
     expect(spaces).toHaveLength(2);
-    expect(spaces.every(space => space.attachToPrevious)).toBe(true);
+    expect(spaces.every((space) => space.attachToPrevious)).toBe(true);
   });
 
   it('识别全角标点与混合文本', () => {
     const tokens = tokenizeText('中文：text（テキスト）！');
-    const puncts = tokens.filter(t => t.type === 'punctuation');
-    expect(puncts.map(p => p.char)).toContain('：');
-    expect(puncts.map(p => p.char)).toContain('！');
+    const puncts = tokens.filter((t) => t.type === 'punctuation');
+    expect(puncts.map((p) => p.char)).toContain('：');
+    expect(puncts.map((p) => p.char)).toContain('！');
   });
 
   it('保留 IME 输入常见的 `\\u3000` 全角空格', () => {
     const tokens = tokenizeText('中文　中文'); // 中间为全角空格
-    const spaceToken = tokens.find(t => t.char === '　');
+    const spaceToken = tokens.find((t) => t.char === '　');
     expect(spaceToken?.type).toBe('space');
     expect(spaceToken?.attachToPrevious).toBe(true);
   });

@@ -1,24 +1,24 @@
 window.texts = [
-    // 全英文示例 - 短句
-    "The quick brown fox jumps over the lazy dog.",
-    "Programming is the process of creating a set of instructions that tell a computer how to perform a task.",
-    "Technology continues to evolve at a rapid pace, changing how we live our lives.",
+  // 全英文示例 - 短句
+  'The quick brown fox jumps over the lazy dog.',
+  'Programming is the process of creating a set of instructions that tell a computer how to perform a task.',
+  'Technology continues to evolve at a rapid pace, changing how we live our lives.',
 
-    // 添加带有换行符的中文示例文本
-    `打字练习：
+  // 添加带有换行符的中文示例文本
+  `打字练习：
 这是一个包含换行符的示例文本。
 每一行结束后都会有一个换行符。
 你可以通过按回车键来输入它们。
 这样可以练习在实际使用中的换行操作。`,
 
-    // 添加带有换行符的英文示例文本
-    `Typing Practice:
+  // 添加带有换行符的英文示例文本
+  `Typing Practice:
 This is a sample text with line breaks.
 Each line ends with a line break.
 You can press Enter key to input them.
 This helps you practice line breaks in real-world use.`,
 
-    `Module 1
+  `Module 1
 
 Unit 1: I'm Sam.
 
@@ -45,7 +45,7 @@ Goodbye, Sam!
 Hello.
 Hi.
 Goodbye.
-Bye-bye.`,
+Bye-bye.`
 ];
 
 // const texts = [
