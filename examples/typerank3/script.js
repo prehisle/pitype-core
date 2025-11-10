@@ -6,6 +6,7 @@ import { createCursorAdapter } from './ui/cursorAdapter.js';
 import { createInputController } from './ui/inputController.js';
 import { createResultModal } from './ui/resultModal.js';
 import { initInfoModal } from './ui/infoModal.js';
+import { createTextRenderer } from './ui/textRenderer.js';
 
 let currentText = '';
 let cursor = null;
@@ -15,7 +16,6 @@ let sessionUnsubscribe = null;
 let statsTimer = null;
 let currentSource = null;
 let inputField = null; // 将在创建时获取引用
-let allCharSpans = [];
 const textContainer = document.querySelector('.text-container');
 const textDisplay = document.getElementById('text-display');
 // 移除初始引用，因为元素将被动态创建
@@ -33,16 +33,15 @@ const applyLanguageFn =
 const updatePageTextFn =
   typeof window.updatePageText === 'function' ? () => window.updatePageText() : () => {};
 const statsPanel = createStatsPanel({ getLocaleText });
+const textRenderer = createTextRenderer(textDisplay);
 const cursorAdapter = createCursorAdapter({
   textDisplay,
   textContainer,
   getCurrentPosition,
   getCursor: () => cursor,
   getInput: () => inputField,
-  getSpans: () => allCharSpans,
-  setSpans: (spans) => {
-    allCharSpans = spans;
-  }
+  getSpans: () => textRenderer.getSpans(),
+  setSpans: (spans) => textRenderer.setSpans(spans)
 });
 const inputController = createInputController({
   getTypingSession: () => typingSession,
@@ -141,105 +140,6 @@ function createCursor() {
   }
 }
 
-function renderTokenizedContent(source) {
-  if (!source) return;
-  const tokens = source.tokens;
-  const fragment = document.createDocumentFragment();
-  let currentWord = null;
-
-  const flushWord = () => {
-    if (currentWord) {
-      fragment.appendChild(currentWord);
-      currentWord = null;
-    }
-  };
-
-  const ensureWord = (language) => {
-    if (!currentWord) {
-      currentWord = document.createElement('span');
-      currentWord.classList.add('word');
-      if (language === 'english') {
-        currentWord.classList.add('english-word');
-      }
-      if (language === 'chinese') {
-        currentWord.classList.add('chinese-char');
-      }
-      currentWord.dataset.language = language || 'other';
-    }
-    return currentWord;
-  };
-
-  tokens.forEach((token) => {
-    if (token.type === 'newline') {
-      flushWord();
-      const wrapper = document.createElement('span');
-      wrapper.classList.add('word');
-      const lineBreak = document.createElement('span');
-      lineBreak.classList.add('line-break');
-      lineBreak.setAttribute('data-char', '\n');
-      wrapper.appendChild(lineBreak);
-      fragment.appendChild(wrapper);
-      fragment.appendChild(document.createElement('br'));
-      return;
-    }
-
-    const shouldReuseWord =
-      token.type === 'char' &&
-      token.language === 'english' &&
-      currentWord &&
-      currentWord.dataset.language === 'english';
-
-    if (!shouldReuseWord && !(token.attachToPrevious && currentWord)) {
-      flushWord();
-    }
-
-    const word = token.attachToPrevious && currentWord ? currentWord : ensureWord(token.language);
-
-    const span = createTokenSpan(token);
-    word.appendChild(span);
-
-    if (token.language === 'chinese' && token.type === 'char') {
-      flushWord();
-    }
-
-    if (token.type === 'space' || token.type === 'punctuation') {
-      flushWord();
-    }
-  });
-
-  flushWord();
-  textDisplay.innerHTML = '';
-  textDisplay.appendChild(fragment);
-}
-
-function createTokenSpan(token) {
-  if (token.type === 'space') {
-    const wrapper = document.createElement('span');
-    wrapper.classList.add(token.attachToPrevious ? 'no-break' : 'word-space');
-    wrapper.setAttribute('data-char', ' ');
-    const inner = document.createElement('span');
-    inner.classList.add('char-space');
-    inner.innerHTML = '&nbsp;';
-    wrapper.appendChild(inner);
-    return wrapper;
-  }
-
-  if (token.type === 'punctuation') {
-    const punctuation = document.createElement('span');
-    punctuation.setAttribute('data-char', token.char);
-    punctuation.textContent = token.char;
-    if (token.attachToPrevious) {
-      punctuation.classList.add('no-break');
-    }
-    return punctuation;
-  }
-
-  const span = document.createElement('span');
-  span.setAttribute('data-char', token.char);
-  span.textContent = token.char;
-  return span;
-}
-
 function init() {
   let selectedTextIndex = null;
   if (
@@ -260,7 +160,7 @@ function init() {
   stopStatsTimer();
   disposeSession();
 
-  renderTokenizedContent(currentSource);
+  textRenderer.render(currentSource);
 
   // 在设置新的内容前，清除现有的光标和输入框
   if (cursor) {
@@ -290,7 +190,7 @@ function init() {
         // 首先缓存所有字符元素
         cursorAdapter.cacheCharSpans();
 
-        if (allCharSpans.length === 0) {
+        if (textRenderer.getSpans().length === 0) {
           console.error('未找到任何字符元素，无法创建光标');
           return;
         }
@@ -334,12 +234,12 @@ function handleSessionEvent(event) {
       updateStats();
       break;
     case 'input:evaluate':
-      applySpanState(event.index, event.correct);
+      textRenderer.applySpanState(event.index, event.correct);
       updateStats();
       cursorAdapter.scheduleRefresh();
       break;
     case 'input:undo':
-      resetSpanState(event.index);
+      textRenderer.resetSpanState(event.index);
       updateStats();
       cursorAdapter.scheduleRefresh();
       break;
@@ -360,25 +260,6 @@ function handleSessionEvent(event) {
     default:
       break;
   }
-}
-
-function getSpanByIndex(index) {
-  if (index == null) return null;
-  if (index < 0 || index >= allCharSpans.length) return null;
-  return allCharSpans[index];
-}
-
-function applySpanState(index, correct) {
-  const span = getSpanByIndex(index);
-  if (!span) return;
-  span.classList.remove('correct', 'incorrect');
-  span.classList.add(correct ? 'correct' : 'incorrect');
-}
-
-function resetSpanState(index) {
-  const span = getSpanByIndex(index);
-  if (!span) return;
-  span.classList.remove('correct', 'incorrect');
 }
 
 // 统一使用此updateStats函数
@@ -404,14 +285,14 @@ function showResults() {
 // 添加window.onload事件处理
 window.addEventListener('load', function () {
   // 页面完全加载后重新初始化光标位置
-  if (allCharSpans.length > 0 && cursor && inputField) {
+  if (textRenderer.getSpans().length > 0 && cursor && inputField) {
     cursorAdapter.updatePosition({ immediate: true });
     // 聚焦输入框
     inputField.focus();
   } else {
     // 如果还没有初始化，等待DOM更新
     requestAnimationFrame(() => {
-      if (allCharSpans.length === 0) {
+      if (textRenderer.getSpans().length === 0) {
         cursorAdapter.cacheCharSpans();
       }
       if (cursor && inputField) {
