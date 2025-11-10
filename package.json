@@ -1,0 +1,35 @@
+{
+  "name": "pitype-core-monorepo",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Monorepo for pitype-core typing engine and demos.",
+  "license": "MIT",
+  "scripts": {
+    "build:core": "npm run --workspace @pitype/core build",
+    "sync:demo": "npm run build:core && node scripts/sync-demo.mjs",
+    "test": "npm run test:baseline && npm run test:unit",
+    "test:baseline": "playwright test",
+    "test:unit": "vitest --run --passWithNoTests",
+    "baseline:serve": "http-server examples/typerank3 -p 4173 -c-1",
+    "pretest:baseline": "npm run sync:demo",
+    "lint": "eslint . --ext .js,.ts,.mjs",
+    "format": "prettier --write \"**/*.{js,ts,mjs,cjs,json,md}\""
+  },
+  "workspaces": [
+    "packages/*",
+    "examples/*"
+  ],
+  "devDependencies": {
+    "@eslint/js": "^9.39.1",
+    "@playwright/test": "^1.47.2",
+    "@typescript-eslint/eslint-plugin": "^8.46.3",
+    "@typescript-eslint/parser": "^8.46.3",
+    "eslint": "^9.39.1",
+    "eslint-config-prettier": "^10.1.8",
+    "globals": "^16.5.0",
+    "http-server": "^14.1.1",
+    "prettier": "^3.6.2",
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.4"
+  }
+}
