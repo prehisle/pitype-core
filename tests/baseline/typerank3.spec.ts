@@ -22,6 +22,11 @@ test.describe('typerank3 baseline', () => {
         }
       };
     });
+    page.on('console', (message) => {
+      if (message.type() === 'error') {
+        console.error(`Browser console error: ${message.text()}`);
+      }
+    });
   });
 
   test('initial stats show zero state', async ({ page }) => {

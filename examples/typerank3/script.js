@@ -1,7 +1,11 @@
-import { createSessionRuntime, createTextSource, createDomInputController } from './vendor/index.js';
+import {
+  createSessionRuntime,
+  createTextSource,
+  createDomInputController,
+  createDomStatsPanel
+} from './vendor/index.js';
 import { initThemeSelector } from './ui/themeController.js';
 import { initLanguageSelector, getActiveLanguage } from './ui/languageController.js';
-import { createStatsPanel } from './ui/statsPanel.js';
 import { createCursorAdapter } from './ui/cursorAdapter.js';
 import { createResultModal } from './ui/resultModal.js';
 import { initInfoModal } from './ui/infoModal.js';
@@ -27,7 +31,25 @@ const localeHelpers = createLocaleHelpers({
   updatePageText: window.updatePageText,
   applyLanguage: window.applyLanguage
 });
-const statsPanel = createStatsPanel({ getLocaleText: localeHelpers.getText });
+const statsPanel = createDomStatsPanel({
+  getLocaleText: localeHelpers.getText,
+  realtime: {
+    cpm: document.getElementById('cpm'),
+    totalCpm: document.getElementById('total-cpm'),
+    wpm: document.getElementById('wpm'),
+    accuracy: document.getElementById('accuracy'),
+    time: document.getElementById('time'),
+    chars: document.getElementById('char-count')
+  },
+  result: {
+    time: document.getElementById('final-time'),
+    cpm: document.getElementById('final-cpm'),
+    totalCpm: document.getElementById('final-total-cpm'),
+    wpm: document.getElementById('final-wpm'),
+    accuracy: document.getElementById('final-accuracy'),
+    chars: document.getElementById('final-char-count')
+  }
+});
 const textRenderer = createTextRenderer(textDisplay);
 let cursorAdapter = null;
 const sessionRuntime = createSessionRuntime({
