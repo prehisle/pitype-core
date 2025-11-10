@@ -15,6 +15,11 @@ export {
   type SessionRuntime,
   type SessionRuntimeOptions
 } from './sessionRuntime.js';
+export {
+  createDomInputController,
+  type DomInputController,
+  type DomInputControllerOptions
+} from './dom/inputController.js';
 export * from './tokenizer.js';
 export { createTextSource } from './textSource.js';
 export type { TextSource } from './textSource.js';

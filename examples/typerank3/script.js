@@ -1,9 +1,8 @@
-import { createSessionRuntime, createTextSource } from './vendor/index.js';
+import { createSessionRuntime, createTextSource, createDomInputController } from './vendor/index.js';
 import { initThemeSelector } from './ui/themeController.js';
 import { initLanguageSelector, getActiveLanguage } from './ui/languageController.js';
 import { createStatsPanel } from './ui/statsPanel.js';
 import { createCursorAdapter } from './ui/cursorAdapter.js';
-import { createInputController } from './ui/inputController.js';
 import { createResultModal } from './ui/resultModal.js';
 import { initInfoModal } from './ui/infoModal.js';
 import { createTextRenderer } from './ui/textRenderer.js';
@@ -68,7 +67,7 @@ cursorAdapter = createCursorAdapter({
   getSpans: () => textRenderer.getSpans(),
   setSpans: (spans) => textRenderer.setSpans(spans)
 });
-const inputController = createInputController({
+const inputController = createDomInputController({
   getTypingSession: () => sessionRuntime.getSession(),
   isResultModalVisible: () => resultModal?.style.display === 'flex',
   onCompositionEnd: () => cursorAdapter.updatePosition()
