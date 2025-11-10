@@ -4,6 +4,8 @@ import { initLanguageSelector, getActiveLanguage } from './ui/languageController
 import { createStatsPanel } from './ui/statsPanel.js';
 import { createCursorAdapter } from './ui/cursorAdapter.js';
 import { createInputController } from './ui/inputController.js';
+import { createResultModal } from './ui/resultModal.js';
+import { initInfoModal } from './ui/infoModal.js';
 
 let currentText = '';
 let cursor = null;
@@ -47,10 +49,23 @@ const inputController = createInputController({
   isResultModalVisible: () => resultModal?.style.display === 'flex',
   onCompositionEnd: () => cursorAdapter.updatePosition()
 });
+const resultModalController = createResultModal({
+  modal: resultModal,
+  restartButton: restartBtn,
+  onRestart: () => init()
+});
 
 if (textDisplay) {
   textDisplay.addEventListener('click', () => {
     inputController.focusInput();
+  });
+}
+
+const restartIcon = document.getElementById('restart-icon');
+if (restartIcon) {
+  restartIcon.addEventListener('click', () => {
+    resultModalController.hide();
+    init();
   });
 }
 
@@ -80,17 +95,6 @@ function stopStatsTimer() {
   }
 }
 
-// 重新开始图标事件监听
-const restartIcon = document.getElementById('restart-icon');
-if (restartIcon) {
-  restartIcon.addEventListener('click', function () {
-    // 移除回车键监听器
-    document.removeEventListener('keydown', handleResultsKeydown);
-    // 重新开始练习
-    init();
-  });
-}
-
 // 指标说明图标事件监听
 const infoElements = document.querySelectorAll('[data-info]');
 const infoModal = document.getElementById('info-modal');
@@ -107,67 +111,13 @@ const infoData = {
   }
 };
 
-// 为每个具有data-info属性的元素添加点击事件
-infoElements.forEach((element) => {
-  element.addEventListener('click', function (event) {
-    // 阻止事件冒泡，避免点击事件被父元素捕获
-    event.stopPropagation();
-
-    const infoType = this.getAttribute('data-info');
-    if (infoData[infoType]) {
-      infoTitle.textContent = infoData[infoType].title;
-      infoContent.textContent = infoData[infoType].content;
-
-      // 先显示弹窗
-      infoModal.style.display = 'flex';
-
-      // 使用动画效果
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          infoModal.classList.add('show');
-        });
-      });
-    }
-  });
-});
-
-// 关闭信息弹窗按钮
-if (infoCloseBtn) {
-  infoCloseBtn.addEventListener('click', function () {
-    // 移除show类触发动画
-    infoModal.classList.remove('show');
-
-    // 等待动画完成后隐藏弹窗
-    setTimeout(() => {
-      infoModal.style.display = 'none';
-    }, 300);
-  });
-}
-
-// 点击弹窗外部关闭弹窗
-window.addEventListener('click', function (event) {
-  if (event.target === infoModal) {
-    // 移除show类触发动画
-    infoModal.classList.remove('show');
-
-    // 等待动画完成后隐藏弹窗
-    setTimeout(() => {
-      infoModal.style.display = 'none';
-    }, 300);
-  }
-});
-
-// 添加Escape键关闭弹窗
-document.addEventListener('keydown', function (e) {
-  if (e.key === 'Escape' && infoModal.style.display === 'flex') {
-    // 移除show类触发动画
-    infoModal.classList.remove('show');
-
-    // 等待动画完成后隐藏弹窗
-    setTimeout(() => {
-      infoModal.style.display = 'none';
-    }, 300);
-  }
+initInfoModal({
+  triggers: infoElements,
+  modal: infoModal,
+  titleElement: infoTitle,
+  contentElement: infoContent,
+  closeButton: infoCloseBtn,
+  infoMap: infoData
 });
 
 function createCursor() {
@@ -448,54 +398,8 @@ function showResults() {
   const snapshot = statsTracker.getSnapshot();
   statsPanel.renderResults(snapshot);
 
-  // 先显示弹窗
-  resultModal.style.display = 'flex';
-
-  // 使用requestAnimationFrame确保DOM更新后再添加show类
-  requestAnimationFrame(() => {
-    requestAnimationFrame(() => {
-      resultModal.classList.add('show');
-    });
-  });
-
-  // 添加回车键监听
-  document.addEventListener('keydown', handleResultsKeydown);
+  resultModalController.show();
 }
-
-// 处理结果页面上的按键事件
-function handleResultsKeydown(e) {
-  // 如果按下回车键
-  if (e.key === 'Enter') {
-    // 移除事件监听器以避免重复
-    document.removeEventListener('keydown', handleResultsKeydown);
-
-    // 先移除show类来触发动画
-    resultModal.classList.remove('show');
-
-    // 等待动画完成后再隐藏弹窗并重新开始
-    setTimeout(() => {
-      resultModal.style.display = 'none';
-      // 重新开始练习
-      init();
-    }, 300); // 与CSS中的过渡时间相匹配
-  }
-}
-
-// 修改restart按钮的点击事件
-restartBtn.addEventListener('click', function () {
-  // 移除回车键监听器
-  document.removeEventListener('keydown', handleResultsKeydown);
-
-  // 触发动画
-  resultModal.classList.remove('show');
-
-  // 等待动画完成后再隐藏弹窗并重新开始
-  setTimeout(() => {
-    resultModal.style.display = 'none';
-    // 重新开始练习
-    init();
-  }, 300); // 与CSS中的过渡时间相匹配
-});
 
 // 添加window.onload事件处理
 window.addEventListener('load', function () {
