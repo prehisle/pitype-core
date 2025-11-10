@@ -3,6 +3,7 @@ import { initThemeSelector } from './ui/themeController.js';
 import { initLanguageSelector, getActiveLanguage } from './ui/languageController.js';
 import { createStatsPanel } from './ui/statsPanel.js';
 import { createCursorAdapter } from './ui/cursorAdapter.js';
+import { createInputController } from './ui/inputController.js';
 
 let currentText = '';
 let cursor = null;
@@ -11,9 +12,7 @@ let statsTracker = null;
 let sessionUnsubscribe = null;
 let statsTimer = null;
 let currentSource = null;
-let isComposing = false;
 let inputField = null; // 将在创建时获取引用
-let potentialCompositionStart = false;
 let allCharSpans = [];
 const textContainer = document.querySelector('.text-container');
 const textDisplay = document.getElementById('text-display');
@@ -43,6 +42,17 @@ const cursorAdapter = createCursorAdapter({
     allCharSpans = spans;
   }
 });
+const inputController = createInputController({
+  getTypingSession: () => typingSession,
+  isResultModalVisible: () => resultModal?.style.display === 'flex',
+  onCompositionEnd: () => cursorAdapter.updatePosition()
+});
+
+if (textDisplay) {
+  textDisplay.addEventListener('click', () => {
+    inputController.focusInput();
+  });
+}
 
 function getCurrentPosition() {
   if (!typingSession) return 0;
@@ -175,50 +185,9 @@ function createCursor() {
     newInputField.setAttribute('autofocus', '');
     textDisplay.appendChild(newInputField);
 
-    // 重新获取引用
-    inputField = document.getElementById('input-field');
-
-    // 为新创建的输入框重新绑定事件
-    inputField.addEventListener('input', handleInput);
-
-    // 确保输入框始终可以接收输入
+    inputField = newInputField;
+    inputController.attachInput(inputField);
     inputField.style.pointerEvents = 'auto';
-
-    // 当点击文本区域时，自动聚焦输入框
-    textDisplay.addEventListener('click', () => {
-      inputField.focus();
-    });
-
-    // 添加keydown事件监听以检测可能的中文输入开始
-    inputField.addEventListener('keydown', (e) => {
-      // 如果按下了可能触发中文输入的键
-      if (!isComposing && e.key.length === 1 && /[\u4e00-\u9fa5a-zA-Z]/.test(e.key)) {
-        potentialCompositionStart = true;
-        // 移除setTimeout，改用事件检测方式
-      }
-    });
-
-    // 添加额外的keyup事件以清除标志
-    inputField.addEventListener('keyup', () => {
-      // 如果keyup事件触发时仍然设置了潜在标志但没有进入组合状态，则重置
-      if (potentialCompositionStart && !isComposing) {
-        potentialCompositionStart = false;
-      }
-    });
-
-    // 添加中文输入法支持
-    inputField.addEventListener('compositionstart', () => {
-      isComposing = true;
-      potentialCompositionStart = false;
-    });
-
-    inputField.addEventListener('compositionend', () => {
-      isComposing = false;
-      if (inputField.value) {
-        handleInput();
-      }
-      cursorAdapter.updatePosition();
-    });
   }
 }
 
@@ -350,8 +319,10 @@ function init() {
   }
   cursorAdapter.resetAnimation();
 
-  if (document.getElementById('input-field')) {
-    document.getElementById('input-field').remove();
+  const existingInput = document.getElementById('input-field');
+  if (existingInput) {
+    inputController.detachInput();
+    existingInput.remove();
     inputField = null;
   }
 
@@ -471,38 +442,6 @@ function updateStats() {
   statsPanel.renderSnapshot(statsTracker.getSnapshot());
 }
 
-// 修改handleInput函数，确保空格字符正确处理及光标精确定位
-function handleInput() {
-  // 如果是在中文输入法组合状态，不处理输入
-  if (isComposing) return;
-
-  // 如果可能是中文输入法的第一次按键，立即返回，避免进入复杂逻辑
-  if (potentialCompositionStart) {
-    // 保存当前输入值
-    const currentValue = inputField.value;
-    inputField.value = '';
-
-    // 立即进行判断，避免使用requestAnimationFrame
-    if (!isComposing && currentValue) {
-      inputField.value = currentValue;
-      // 强制设置标志位为false，避免递归调用
-      const tempState = potentialCompositionStart;
-      potentialCompositionStart = false;
-      handleInput();
-      // 恢复状态，避免影响后续输入
-      potentialCompositionStart = tempState;
-    }
-    return;
-  }
-
-  // 获取输入框的值
-  const inputChar = inputField.value;
-  inputField.value = '';
-
-  if (!inputChar || !typingSession) return;
-  typingSession.input(inputChar);
-}
-
 function showResults() {
   if (!statsTracker || !statsPanel) return;
 
@@ -556,40 +495,6 @@ restartBtn.addEventListener('click', function () {
     // 重新开始练习
     init();
   }, 300); // 与CSS中的过渡时间相匹配
-});
-
-// 添加键盘事件监听，避免创建不必要的事件
-document.addEventListener('keydown', (e) => {
-  // 如果在结果页面则不处理
-  if (resultModal.style.display === 'flex') return;
-
-  // 确保输入框处于焦点状态
-  if (document.activeElement !== inputField) {
-    // 只阻止字符输入，避免阻止所有按键事件
-    if (e.key.length === 1 || e.key === 'Backspace' || e.key === 'Enter') {
-      e.preventDefault();
-    }
-
-    // 直接聚焦，但不创建额外事件
-    inputField.focus();
-  }
-
-  // 处理回车键（输入换行符）
-  if (e.key === 'Enter') {
-    e.preventDefault(); // 阻止默认行为
-
-    if (!isComposing && typingSession) {
-      typingSession.input('\n');
-    }
-  }
-
-  // 如果按下回退键
-  if (e.key === 'Backspace') {
-    e.preventDefault(); // 阻止默认行为
-    if (typingSession) {
-      typingSession.undo();
-    }
-  }
 });
 
 // 添加window.onload事件处理
