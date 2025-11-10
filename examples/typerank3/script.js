@@ -1,4 +1,4 @@
-import { TypingSession, createStatsTracker, createTextSource } from './vendor/index.js';
+import { createTextSource } from './vendor/index.js';
 import { initThemeSelector } from './ui/themeController.js';
 import { initLanguageSelector, getActiveLanguage } from './ui/languageController.js';
 import { createStatsPanel } from './ui/statsPanel.js';
@@ -7,13 +7,10 @@ import { createInputController } from './ui/inputController.js';
 import { createResultModal } from './ui/resultModal.js';
 import { initInfoModal } from './ui/infoModal.js';
 import { createTextRenderer } from './ui/textRenderer.js';
+import { createSessionController } from './ui/sessionController.js';
 
 let currentText = '';
 let cursor = null;
-let typingSession = null;
-let statsTracker = null;
-let sessionUnsubscribe = null;
-let statsTimer = null;
 let currentSource = null;
 let inputField = null; // 将在创建时获取引用
 const textContainer = document.querySelector('.text-container');
@@ -34,7 +31,36 @@ const updatePageTextFn =
   typeof window.updatePageText === 'function' ? () => window.updatePageText() : () => {};
 const statsPanel = createStatsPanel({ getLocaleText });
 const textRenderer = createTextRenderer(textDisplay);
-const cursorAdapter = createCursorAdapter({
+let cursorAdapter = null;
+const sessionController = createSessionController({
+  onEvaluate: (index, correct) => {
+    textRenderer.applySpanState(index, correct);
+    cursorAdapter?.scheduleRefresh();
+  },
+  onUndo: (index) => {
+    textRenderer.resetSpanState(index);
+    cursorAdapter?.scheduleRefresh();
+  },
+  onComplete: (snapshot) => {
+    if (cursor) {
+      cursor.remove();
+      cursor = null;
+    }
+    cursorAdapter?.resetAnimation();
+    showResults(snapshot);
+  },
+  onReset: () => {
+    cursorAdapter?.resetAnimation();
+  },
+  onSnapshot: (snapshot) => {
+    if (!snapshot) {
+      statsPanel.reset();
+      return;
+    }
+    statsPanel.renderSnapshot(snapshot);
+  }
+});
+cursorAdapter = createCursorAdapter({
   textDisplay,
   textContainer,
   getCurrentPosition,
@@ -44,7 +70,7 @@ const cursorAdapter = createCursorAdapter({
   setSpans: (spans) => textRenderer.setSpans(spans)
 });
 const inputController = createInputController({
-  getTypingSession: () => typingSession,
+  getTypingSession: () => sessionController.getSession(),
   isResultModalVisible: () => resultModal?.style.display === 'flex',
   onCompositionEnd: () => cursorAdapter.updatePosition()
 });
@@ -69,29 +95,9 @@ if (restartIcon) {
 }
 
 function getCurrentPosition() {
-  if (!typingSession) return 0;
-  return typingSession.getState().position;
-}
-
-function disposeSession() {
-  if (sessionUnsubscribe) {
-    sessionUnsubscribe();
-    sessionUnsubscribe = null;
-  }
-  typingSession = null;
-  statsTracker = null;
-}
-
-function startStatsTimer() {
-  if (statsTimer) return;
-  statsTimer = setInterval(updateStats, 1000);
-}
-
-function stopStatsTimer() {
-  if (statsTimer) {
-    clearInterval(statsTimer);
-    statsTimer = null;
-  }
+  const session = sessionController.getSession();
+  if (!session) return 0;
+  return session.getState().position;
 }
 
 // 指标说明图标事件监听
@@ -157,8 +163,7 @@ function init() {
     id: selectedTextIndex !== null ? `text-${selectedTextIndex}` : undefined,
     locale: getActiveLanguage()
   });
-  stopStatsTimer();
-  disposeSession();
+  sessionController.dispose();
 
   textRenderer.render(currentSource);
 
@@ -176,9 +181,7 @@ function init() {
     inputField = null;
   }
 
-  typingSession = new TypingSession({ source: currentSource });
-  statsTracker = createStatsTracker(typingSession);
-  sessionUnsubscribe = typingSession.subscribe(handleSessionEvent);
+  sessionController.startSession(currentSource);
 
   // 使用多层嵌套的requestAnimationFrame确保DOM完全更新
   // 第一次requestAnimationFrame确保DOM开始更新
@@ -220,65 +223,13 @@ function init() {
     });
   });
 
-  // 重置统计信息
-  statsPanel.reset();
-
   // 隐藏结果弹窗
   resultModal.style.display = 'none';
 }
 
-function handleSessionEvent(event) {
-  switch (event.type) {
-    case 'session:start':
-      startStatsTimer();
-      updateStats();
-      break;
-    case 'input:evaluate':
-      textRenderer.applySpanState(event.index, event.correct);
-      updateStats();
-      cursorAdapter.scheduleRefresh();
-      break;
-    case 'input:undo':
-      textRenderer.resetSpanState(event.index);
-      updateStats();
-      cursorAdapter.scheduleRefresh();
-      break;
-    case 'session:complete':
-      stopStatsTimer();
-      updateStats();
-      if (cursor) {
-        cursor.remove();
-        cursor = null;
-      }
-      cursorAdapter.resetAnimation();
-      showResults();
-      break;
-    case 'session:reset':
-      stopStatsTimer();
-      updateStats();
-      break;
-    default:
-      break;
-  }
-}
-
-// 统一使用此updateStats函数
-function updateStats() {
-  if (!statsPanel) return;
-  if (!statsTracker) {
-    statsPanel.reset();
-    return;
-  }
-
-  statsPanel.renderSnapshot(statsTracker.getSnapshot());
-}
-
-function showResults() {
-  if (!statsTracker || !statsPanel) return;
-
-  const snapshot = statsTracker.getSnapshot();
+function showResults(snapshot = sessionController.getLatestSnapshot()) {
+  if (!snapshot || !statsPanel) return;
   statsPanel.renderResults(snapshot);
-
   resultModalController.show();
 }
 
