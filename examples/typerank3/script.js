@@ -2,6 +2,7 @@ import { TypingSession, createStatsTracker, createTextSource } from './vendor/in
 import { initThemeSelector } from './ui/themeController.js';
 import { initLanguageSelector, getActiveLanguage } from './ui/languageController.js';
 import { createStatsPanel } from './ui/statsPanel.js';
+import { createCursorAdapter } from './ui/cursorAdapter.js';
 
 let currentText = '';
 let cursor = null;
@@ -14,39 +15,6 @@ let isComposing = false;
 let inputField = null; // 将在创建时获取引用
 let potentialCompositionStart = false;
 let allCharSpans = [];
-let lastCursorY = 0;
-let cursorUpdateScheduled = false;
-let cursorAnimationFrameId = null;
-let currentCursorMetrics = null;
-let resizeObserver = null;
-let resizeRefreshRaf = null;
-let hasWindowResizeHandler = false;
-const cursorAnimationPreferenceKey = 'cursorAnimationMode';
-const cursorAnimationDurations = {
-  off: 0,
-  slow: 150,
-  medium: 115,
-  fast: 85
-};
-const cursorMinimums = {
-  width: 2,
-  height: 16,
-  inputWidth: 30,
-  widthMultiplier: 1.5
-};
-const reduceMotionQuery =
-  typeof window !== 'undefined' && window.matchMedia
-    ? window.matchMedia('(prefers-reduced-motion: reduce)')
-    : null;
-const textLibrary = window.texts || [];
-const getLocaleText =
-  typeof window.getText === 'function' ? (key) => window.getText(key) : () => '';
-const applyLanguageFn =
-  typeof window.applyLanguage === 'function' ? (lang) => window.applyLanguage(lang) : () => {};
-const updatePageTextFn =
-  typeof window.updatePageText === 'function' ? () => window.updatePageText() : () => {};
-const statsPanel = createStatsPanel({ getLocaleText });
-
 const textContainer = document.querySelector('.text-container');
 const textDisplay = document.getElementById('text-display');
 // 移除初始引用，因为元素将被动态创建
@@ -56,6 +24,25 @@ const restartBtn = document.getElementById('restart-btn');
 const urlParams = new URLSearchParams(window.location.search);
 const forcedTextIndexParam = urlParams.get('text');
 const forcedTextIndex = forcedTextIndexParam !== null ? Number(forcedTextIndexParam) : null;
+const textLibrary = window.texts || [];
+const getLocaleText =
+  typeof window.getText === 'function' ? (key) => window.getText(key) : () => '';
+const applyLanguageFn =
+  typeof window.applyLanguage === 'function' ? (lang) => window.applyLanguage(lang) : () => {};
+const updatePageTextFn =
+  typeof window.updatePageText === 'function' ? () => window.updatePageText() : () => {};
+const statsPanel = createStatsPanel({ getLocaleText });
+const cursorAdapter = createCursorAdapter({
+  textDisplay,
+  textContainer,
+  getCurrentPosition,
+  getCursor: () => cursor,
+  getInput: () => inputField,
+  getSpans: () => allCharSpans,
+  setSpans: (spans) => {
+    allCharSpans = spans;
+  }
+});
 
 function getCurrentPosition() {
   if (!typingSession) return 0;
@@ -81,102 +68,6 @@ function stopStatsTimer() {
     clearInterval(statsTimer);
     statsTimer = null;
   }
-}
-
-function getCursorAnimationDuration() {
-  const stored = localStorage.getItem(cursorAnimationPreferenceKey);
-  if (stored && stored in cursorAnimationDurations) {
-    return cursorAnimationDurations[stored];
-  }
-  return cursorAnimationDurations.fast;
-}
-
-function shouldReduceMotion() {
-  return !!(reduceMotionQuery && reduceMotionQuery.matches);
-}
-
-function lerp(from, to, progress) {
-  return from + (to - from) * progress;
-}
-
-function easeOutCubic(t) {
-  return 1 - Math.pow(1 - t, 3);
-}
-
-function cancelCursorAnimation() {
-  if (cursorAnimationFrameId) {
-    cancelAnimationFrame(cursorAnimationFrameId);
-    cursorAnimationFrameId = null;
-  }
-}
-
-function resetCursorAnimationState() {
-  cancelCursorAnimation();
-  currentCursorMetrics = null;
-}
-
-function applyCursorMetrics(metrics) {
-  if (!cursor || !inputField) return;
-  const snapshot = {
-    left: metrics.left,
-    top: metrics.top,
-    width: metrics.width,
-    height: metrics.height
-  };
-
-  cursor.style.width = `${snapshot.width}px`;
-  cursor.style.height = `${snapshot.height}px`;
-  cursor.style.transform = `translate3d(${snapshot.left}px, ${snapshot.top}px, 0)`;
-
-  const inputWidth = Math.max(snapshot.width * cursorMinimums.widthMultiplier, cursorMinimums.inputWidth);
-  inputField.style.width = `${inputWidth}px`;
-  inputField.style.height = `${snapshot.height}px`;
-  inputField.style.transform = `translate3d(${snapshot.left}px, ${snapshot.top}px, 0)`;
-
-  currentCursorMetrics = snapshot;
-}
-
-function animateCursorTo(targetMetrics, options = { immediate: false }) {
-  if (!cursor || !inputField) return;
-
-  const duration = getCursorAnimationDuration();
-  const skipAnimation =
-    options.immediate || shouldReduceMotion() || duration === 0 || !currentCursorMetrics;
-
-  cancelCursorAnimation();
-
-  if (skipAnimation) {
-    applyCursorMetrics(targetMetrics);
-    return;
-  }
-
-  const from = { ...currentCursorMetrics };
-  const target = { ...targetMetrics };
-  const startTime = performance.now();
-
-  const tick = (now) => {
-    const elapsed = now - startTime;
-    const progress = Math.min(1, elapsed / duration);
-    const eased = easeOutCubic(progress);
-
-    const nextState = {
-      left: lerp(from.left, target.left, eased),
-      top: lerp(from.top, target.top, eased),
-      width: lerp(from.width, target.width, eased),
-      height: lerp(from.height, target.height, eased)
-    };
-
-    applyCursorMetrics(nextState);
-
-    if (progress < 1) {
-      cursorAnimationFrameId = requestAnimationFrame(tick);
-    } else {
-      cursorAnimationFrameId = null;
-      applyCursorMetrics(target);
-    }
-  };
-
-  cursorAnimationFrameId = requestAnimationFrame(tick);
 }
 
 // 重新开始图标事件监听
@@ -274,7 +165,7 @@ function createCursor() {
   cursor = document.createElement('div');
   cursor.className = 'cursor';
   textDisplay.appendChild(cursor);
-  resetCursorAnimationState();
+  cursorAdapter.resetAnimation();
 
   // 创建输入框（如果不存在）
   if (!document.getElementById('input-field')) {
@@ -326,108 +217,9 @@ function createCursor() {
       if (inputField.value) {
         handleInput();
       }
-      updateCursorPosition();
+      cursorAdapter.updatePosition();
     });
   }
-}
-
-function updateCursorPosition(options = { immediate: false }) {
-  if (!cursor || !inputField || !textDisplay) return;
-
-  if (allCharSpans.length === 0) {
-    allCharSpans = document.querySelectorAll('#text-display span');
-  }
-
-  const currentPosition = getCurrentPosition();
-  if (currentPosition < 0 || currentPosition >= allCharSpans.length) return;
-
-  const currentChar = allCharSpans[currentPosition];
-  if (!currentChar) return;
-
-  const textRect = textDisplay.getBoundingClientRect();
-  const charRect = currentChar.getBoundingClientRect();
-  const top = charRect.top - textRect.top + textDisplay.scrollTop;
-  const left = charRect.left - textRect.left + textDisplay.scrollLeft;
-  const width = Math.max(charRect.width, cursorMinimums.width);
-  const height = Math.max(charRect.height, cursorMinimums.height);
-
-  animateCursorTo(
-    {
-      left,
-      top,
-      width,
-      height
-    },
-    { immediate: options.immediate }
-  );
-
-  if (!cursor.classList.contains('cursor-visible')) {
-    cursor.classList.add('cursor-visible');
-  }
-
-  const previousCursorY = lastCursorY;
-  const currentCursorY = charRect.top;
-  const isLineChange = previousCursorY !== 0 && Math.abs(currentCursorY - previousCursorY) > 5;
-
-  if (isLineChange && textContainer) {
-    const containerHeight = textContainer.clientHeight;
-    textContainer.scrollTo({
-      top: top - containerHeight / 2 + height / 2,
-      behavior: 'smooth'
-    });
-    lastCursorY = currentCursorY;
-  } else if (lastCursorY === 0) {
-    lastCursorY = currentCursorY;
-  }
-}
-
-function setupMobileSupport() {
-  // 检测是否为移动设备
-  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-    navigator.userAgent
-  );
-
-  if (isMobile) {
-    // 在文本显示区域添加点击事件，在移动设备上点击文本区可以触发虚拟键盘
-    textDisplay.addEventListener('click', () => {
-      inputField.focus();
-    });
-  }
-}
-
-function scheduleLayoutRefresh() {
-  if (!cursor || !inputField) return;
-  if (resizeRefreshRaf) return;
-  resizeRefreshRaf = requestAnimationFrame(() => {
-    resizeRefreshRaf = null;
-    cacheAllCharSpans();
-    lastCursorY = 0;
-    updateCursorPosition({ immediate: true });
-  });
-}
-
-function initResponsiveCursorSync() {
-  const textContainer = document.querySelector('.text-container');
-  if (!textContainer) return;
-
-  if (!hasWindowResizeHandler) {
-    window.addEventListener('resize', scheduleLayoutRefresh);
-    hasWindowResizeHandler = true;
-  }
-
-  if (typeof ResizeObserver === 'undefined') {
-    return;
-  }
-
-  if (!resizeObserver) {
-    resizeObserver = new ResizeObserver(() => {
-      scheduleLayoutRefresh();
-    });
-  } else {
-    resizeObserver.disconnect();
-  }
-
-  resizeObserver.observe(textContainer);
 }
 
 function renderTokenizedContent(source) {
@@ -556,7 +348,7 @@ function init() {
     cursor.remove();
     cursor = null;
   }
-  resetCursorAnimationState();
+  cursorAdapter.resetAnimation();
 
   if (document.getElementById('input-field')) {
     document.getElementById('input-field').remove();
@@ -575,7 +367,7 @@ function init() {
       // 第三次requestAnimationFrame确保所有样式计算完成
       requestAnimationFrame(() => {
         // 首先缓存所有字符元素
-        cacheAllCharSpans();
+        cursorAdapter.cacheCharSpans();
 
         if (allCharSpans.length === 0) {
           console.error('未找到任何字符元素，无法创建光标');
@@ -592,13 +384,13 @@ function init() {
         }
 
         // 确保光标定位准确
-        updateCursorPosition({ immediate: true });
+        cursorAdapter.updatePosition({ immediate: true });
 
         // 设置移动设备支持
-        setupMobileSupport();
+        cursorAdapter.enableMobileSupport();
 
         // 监听尺寸变化，保持光标位置随容器更新
-        initResponsiveCursorSync();
+        cursorAdapter.enableResponsiveSync();
 
         // 聚焦输入框
         inputField.value = '';
@@ -623,12 +415,12 @@ function handleSessionEvent(event) {
     case 'input:evaluate':
       applySpanState(event.index, event.correct);
       updateStats();
-      scheduleCursorRefresh();
+      cursorAdapter.scheduleRefresh();
       break;
     case 'input:undo':
       resetSpanState(event.index);
       updateStats();
-      scheduleCursorRefresh();
+      cursorAdapter.scheduleRefresh();
       break;
     case 'session:complete':
       stopStatsTimer();
@@ -637,7 +429,7 @@ function handleSessionEvent(event) {
         cursor.remove();
         cursor = null;
       }
-      resetCursorAnimationState();
+      cursorAdapter.resetAnimation();
       showResults();
       break;
     case 'session:reset':
@@ -647,15 +439,6 @@ function handleSessionEvent(event) {
     default:
       break;
   }
-}
-
-function scheduleCursorRefresh() {
-  if (cursorUpdateScheduled) return;
-  cursorUpdateScheduled = true;
-  requestAnimationFrame(() => {
-    cursorUpdateScheduled = false;
-    updateCursorPosition();
-  });
 }
 
 function getSpanByIndex(index) {
@@ -809,99 +592,21 @@ document.addEventListener('keydown', (e) => {
   }
 });
 
-// 预先缓存所有字符span元素，并确保排序正确
-function cacheAllCharSpans() {
-  allCharSpans = [];
-  const wordSpans = textDisplay.querySelectorAll('.word');
-
-  // 首先收集所有可能的字符元素
-  wordSpans.forEach((wordSpan) => {
-    // 处理直接子元素
-    const charSpans = wordSpan.children;
-
-    for (let i = 0; i < charSpans.length; i++) {
-      const span = charSpans[i];
-
-      // 检查是否为换行符元素
-      if (span.classList.contains('line-break')) {
-        allCharSpans.push({
-          element: span,
-          rect: span.getBoundingClientRect(),
-          dataChar: '\n'
-        });
-        continue;
-      }
-
-      // 检查是否为带有嵌套空格的元素
-      if (span.classList.contains('word-space') || span.classList.contains('no-break')) {
-        // 对于包含空格的元素，将它们直接添加到数组中
-        // 空格元素不会被拆分为内部子元素
-        allCharSpans.push({
-          element: span,
-          rect: span.getBoundingClientRect(),
-          dataChar: span.getAttribute('data-char') || ' '
-        });
-      }
-      // 否则为普通字符元素，直接添加
-      else if (span.getAttribute('data-char')) {
-        allCharSpans.push({
-          element: span,
-          rect: span.getBoundingClientRect(),
-          dataChar: span.getAttribute('data-char')
-        });
-      }
-      // 普通单词容器，需要添加子元素
-      else {
-        const innerSpans = span.querySelectorAll('[data-char]');
-        innerSpans.forEach((innerSpan) => {
-          // 过滤掉嵌套在no-break内的字符
-          if (
-            !innerSpan.parentElement.classList.contains('word-space') &&
-            !innerSpan.parentElement.classList.contains('no-break')
-          ) {
-            allCharSpans.push({
-              element: innerSpan,
-              rect: innerSpan.getBoundingClientRect(),
-              dataChar: innerSpan.getAttribute('data-char')
-            });
-          }
-        });
-      }
-    }
-  });
-
-  // 按照元素在页面上的顺序（从左到右，从上到下）排序
-  // 这确保了光标始终按照正确的阅读顺序移动
-  allCharSpans.sort((a, b) => {
-    // 先按照y位置（行）排序
-    const rowDiff = a.rect.top - b.rect.top;
-    if (Math.abs(rowDiff) > 5) {
-      // 如果y差值足够大，认为是不同行
-      return rowDiff;
-    }
-    // 同一行按照x位置（从左到右）排序
-    return a.rect.left - b.rect.left;
-  });
-
-  // 转换回纯元素数组，保留排序
-  allCharSpans = allCharSpans.map((item) => item.element);
-}
-
 // 添加window.onload事件处理
 window.addEventListener('load', function () {
   // 页面完全加载后重新初始化光标位置
   if (allCharSpans.length > 0 && cursor && inputField) {
-    updateCursorPosition({ immediate: true });
+    cursorAdapter.updatePosition({ immediate: true });
     // 聚焦输入框
     inputField.focus();
   } else {
     // 如果还没有初始化，等待DOM更新
     requestAnimationFrame(() => {
       if (allCharSpans.length === 0) {
-        cacheAllCharSpans();
+        cursorAdapter.cacheCharSpans();
       }
       if (cursor && inputField) {
-        updateCursorPosition({ immediate: true });
+        cursorAdapter.updatePosition({ immediate: true });
         inputField.focus();
       }
     });
