@@ -1,4 +1,7 @@
 import { TypingSession, createStatsTracker, createTextSource } from './vendor/index.js';
+import { initThemeSelector } from './ui/themeController.js';
+import { initLanguageSelector, getActiveLanguage } from './ui/languageController.js';
+import { createStatsPanel } from './ui/statsPanel.js';
 
 let currentText = '';
 let cursor = null;
@@ -15,7 +18,6 @@ let lastCursorY = 0;
 let cursorUpdateScheduled = false;
 let cursorAnimationFrameId = null;
 let currentCursorMetrics = null;
-let currentTheme = localStorage.getItem('theme') || 'dracula'; // 默认主题
 let resizeObserver = null;
 let resizeRefreshRaf = null;
 let hasWindowResizeHandler = false;
@@ -43,25 +45,13 @@ const applyLanguageFn =
   typeof window.applyLanguage === 'function' ? (lang) => window.applyLanguage(lang) : () => {};
 const updatePageTextFn =
   typeof window.updatePageText === 'function' ? () => window.updatePageText() : () => {};
-const getActiveLanguage = () => localStorage.getItem('language') || 'zh-CN';
+const statsPanel = createStatsPanel({ getLocaleText });
 
 const textContainer = document.querySelector('.text-container');
 const textDisplay = document.getElementById('text-display');
 // 移除初始引用，因为元素将被动态创建
 // const inputField = document.getElementById('input-field');
-const cpmDisplay = document.getElementById('cpm');
-const totalCpmDisplay = document.getElementById('total-cpm'); // 添加总CPM显示元素引用
-const wpmDisplay = document.getElementById('wpm'); // 添加WPM显示元素引用
-const accuracyDisplay = document.getElementById('accuracy');
-const timeDisplay = document.getElementById('time');
-const charCountDisplay = document.getElementById('char-count');
 const resultModal = document.getElementById('result-modal');
-const finalTimeDisplay = document.getElementById('final-time');
-const finalCpmDisplay = document.getElementById('final-cpm');
-const finalTotalCpmDisplay = document.getElementById('final-total-cpm'); // 添加总CPM显示元素引用
-const finalWpmDisplay = document.getElementById('final-wpm'); // 添加WPM显示元素引用
-const finalAccuracyDisplay = document.getElementById('final-accuracy');
-const finalCharCountDisplay = document.getElementById('final-char-count');
 const restartBtn = document.getElementById('restart-btn');
 const urlParams = new URLSearchParams(window.location.search);
 const forcedTextIndexParam = urlParams.get('text');
@@ -187,59 +177,6 @@ function animateCursorTo(targetMetrics, options = { immediate: false }) {
   };
 
   cursorAnimationFrameId = requestAnimationFrame(tick);
-}
-
-// 主题切换功能
-function initThemeSelector() {
-  // 应用存储的主题
-  applyTheme(currentTheme);
-
-  // 获取所有主题选项
-  const themeOptions = document.querySelectorAll('.theme-option');
-
-  // 为每个主题选项添加点击事件
-  themeOptions.forEach((option) => {
-    const theme = option.getAttribute('data-theme');
-
-    // 设置当前主题为激活状态
-    if (theme === currentTheme) {
-      option.classList.add('active');
-    } else {
-      option.classList.remove('active');
-    }
-
-    // 添加点击事件监听器
-    option.addEventListener('click', () => {
-      // 移除所有active类
-      themeOptions.forEach((opt) => opt.classList.remove('active'));
-      // 添加active类到当前选择的主题
-      option.classList.add('active');
-
-      // 应用主题
-      applyTheme(theme);
-
-      // 保存主题到localStorage
-      localStorage.setItem('theme', theme);
-      currentTheme = theme;
-    });
-  });
-}
-
-// 应用主题
-function applyTheme(theme) {
-  // 移除body上的所有主题类
-  document.body.classList.remove(
-    'theme-dracula',
-    'theme-serika',
-    'theme-botanical',
-    'theme-aether',
-    'theme-nord'
-  );
-
-  // 添加选定的主题类
-  if (theme !== 'dracula') {
-    document.body.classList.add(`theme-${theme}`);
-  }
 }
 
 // 重新开始图标事件监听
@@ -671,12 +608,7 @@ function init() {
   });
 
   // 重置统计信息
-  cpmDisplay.textContent = `0`;
-  totalCpmDisplay.textContent = `0`;
-  wpmDisplay.textContent = `0`;
-  accuracyDisplay.textContent = `100%`;
-  timeDisplay.textContent = `   0.0秒`;
-  charCountDisplay.textContent = `0`;
+  statsPanel.reset();
 
   // 隐藏结果弹窗
   resultModal.style.display = 'none';
@@ -747,25 +679,13 @@ function resetSpanState(index) {
 
 // 统一使用此updateStats函数
 function updateStats() {
+  if (!statsPanel) return;
   if (!statsTracker) {
-    cpmDisplay.textContent = `0`;
-    totalCpmDisplay.textContent = `0`;
-    wpmDisplay.textContent = `0`;
-    accuracyDisplay.textContent = `100%`;
-    timeDisplay.textContent = `   0.0${getLocaleText('ui.statsLabels.seconds')}`;
-    charCountDisplay.textContent = `0`;
+    statsPanel.reset();
     return;
   }
 
-  const snapshot = statsTracker.getSnapshot();
-  const elapsedTimeSec = snapshot.durationMs / 1000;
-
-  cpmDisplay.textContent = `${snapshot.correctCpm}`;
-  totalCpmDisplay.textContent = `${snapshot.totalCpm}`;
-  wpmDisplay.textContent = `${snapshot.wpm}`;
-  accuracyDisplay.textContent = `${snapshot.accuracy}%`;
-  timeDisplay.textContent = `${elapsedTimeSec.toFixed(1).padStart(6, ' ')}${getLocaleText('ui.statsLabels.seconds')}`;
-  charCountDisplay.textContent = snapshot.totalChars.toString();
+  statsPanel.renderSnapshot(statsTracker.getSnapshot());
 }
 
 // 修改handleInput函数，确保空格字符正确处理及光标精确定位
@@ -801,17 +721,10 @@ function handleInput() {
 }
 
 function showResults() {
-  if (!statsTracker) return;
+  if (!statsTracker || !statsPanel) return;
 
   const snapshot = statsTracker.getSnapshot();
-  const elapsedTimeSec = snapshot.durationMs / 1000;
-
-  finalTimeDisplay.textContent = `${elapsedTimeSec.toFixed(1).padStart(6, ' ')}${getLocaleText('ui.statsLabels.seconds')}`;
-  finalCpmDisplay.textContent = `${snapshot.correctCpm}`;
-  finalTotalCpmDisplay.textContent = `${snapshot.totalCpm}`;
-  finalWpmDisplay.textContent = `${snapshot.wpm}`;
-  finalAccuracyDisplay.textContent = `${snapshot.accuracy}%`;
-  finalCharCountDisplay.textContent = snapshot.totalChars;
+  statsPanel.renderResults(snapshot);
 
   // 先显示弹窗
   resultModal.style.display = 'flex';
@@ -997,38 +910,10 @@ window.addEventListener('load', function () {
 
 // 初始化
 document.addEventListener('DOMContentLoaded', function () {
-  initLanguageSelector(); // 初始化语言选择器
+  initLanguageSelector({
+    applyLanguage: applyLanguageFn,
+    updatePageText: updatePageTextFn
+  }); // 初始化语言选择器
   initThemeSelector(); // 初始化主题选择器
   init(); // 初始化应用
 });
-
-// 添加语言选择器初始化函数
-function initLanguageSelector() {
-  // 获取所有语言选项
-  const languageOptions = document.querySelectorAll('.language-option');
-
-  // 设置当前语言为激活状态
-  languageOptions.forEach((option) => {
-    const lang = option.getAttribute('data-lang');
-
-    if (lang === getActiveLanguage()) {
-      option.classList.add('active');
-    } else {
-      option.classList.remove('active');
-    }
-
-    // 添加点击事件监听器
-    option.addEventListener('click', () => {
-      // 移除所有active类
-      languageOptions.forEach((opt) => opt.classList.remove('active'));
-      // 添加active类到当前选择的语言
-      option.classList.add('active');
-
-      // 应用语言
-      applyLanguageFn(lang);
-
-      // 更新页面文本
-      updatePageTextFn();
-    });
-  });
-}
