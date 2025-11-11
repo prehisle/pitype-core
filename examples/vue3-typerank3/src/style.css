@@ -1,0 +1,152 @@
+@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css');
+
+:root {
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  color: #f5f7ff;
+  background-color: #0b1221;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: radial-gradient(circle at top, rgba(72, 89, 255, 0.2), transparent 45%),
+    radial-gradient(circle at 20% 20%, rgba(72, 89, 255, 0.15), transparent 25%),
+    #050814;
+}
+
+#app {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.header h1 {
+  font-weight: 600;
+  letter-spacing: 1px;
+}
+
+.controls {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.language-selector,
+.theme-selector {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.language-option,
+.theme-option,
+#restart-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  color: inherit;
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+}
+
+.language-option.active,
+.theme-option.active,
+#restart-btn:hover {
+  background: rgba(72, 89, 255, 0.4);
+  transform: translateY(-1px);
+}
+
+.theme-option {
+  width: 32px;
+  height: 32px;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  background: rgba(255, 255, 255, 0.04);
+  padding: 1rem;
+  border-radius: 12px;
+}
+
+.cpm-container {
+  grid-column: span 2;
+}
+
+.text-container {
+  background: rgba(5, 8, 20, 0.6);
+  border: 1px solid rgba(72, 89, 255, 0.2);
+  border-radius: 16px;
+  padding: 1.5rem;
+  position: relative;
+  min-height: 320px;
+}
+
+.text-display {
+  position: relative;
+  min-height: 240px;
+  line-height: 1.6;
+  font-size: 1.2rem;
+}
+
+#input-field {
+  position: absolute;
+  top: 0;
+  left: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.cursor {
+  position: absolute;
+  width: 2px;
+  background: #fff;
+  border-radius: 2px;
+  opacity: 0.8;
+  animation: blink 0.9s steps(1) infinite;
+}
+
+.char.correct {
+  color: #5ef4a8;
+}
+
+.char.incorrect {
+  color: #ff6b6b;
+  text-decoration: underline;
+}
+
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-content {
+  background: #0f1629;
+  padding: 2rem;
+  border-radius: 12px;
+  width: min(400px, 90%);
+}
+
+@keyframes blink {
+  0%,
+  50% {
+    opacity: 0;
+  }
+  50.1%,
+  100% {
+    opacity: 1;
+  }
+}
