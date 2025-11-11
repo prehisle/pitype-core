@@ -2,9 +2,9 @@ import {
   createSessionRuntime,
   createTextSource,
   createDomInputController,
-  createDomStatsPanel
+  createDomStatsPanel,
+  createDomThemeController
 } from './vendor/index.js';
-import { initThemeSelector } from './ui/themeController.js';
 import { initLanguageSelector, getActiveLanguage } from './ui/languageController.js';
 import { createCursorAdapter } from './ui/cursorAdapter.js';
 import { createResultModal } from './ui/resultModal.js';
@@ -50,6 +50,7 @@ const statsPanel = createDomStatsPanel({
     chars: document.getElementById('final-char-count')
   }
 });
+const themeController = createDomThemeController();
 const textRenderer = createTextRenderer(textDisplay);
 let cursorAdapter = null;
 const sessionRuntime = createSessionRuntime({
@@ -281,6 +282,6 @@ document.addEventListener('DOMContentLoaded', function () {
     applyLanguage: localeHelpers.applyLanguage,
     updatePageText: localeHelpers.refreshLocaleText
   }); // 初始化语言选择器
-  initThemeSelector(); // 初始化主题选择器
+  themeController.init(); // 初始化主题选择器
   init(); // 初始化应用
 });

@@ -3,9 +3,9 @@ import {
   createTextSource,
   createDomInputController,
   createDomStatsPanel,
+  createDomThemeController,
   type StatsSnapshot
 } from '@pitype/core';
-import { initThemeSelector } from './ui/themeController';
 import {
   initLanguageSelector,
   getActiveLanguage
@@ -60,6 +60,7 @@ const statsPanel = createDomStatsPanel({
 });
 
 const textRenderer = createTextRenderer(textDisplay);
+const themeController = createDomThemeController();
 let cursorAdapter = createCursorAdapter({
   textDisplay,
   textContainer,
@@ -295,6 +296,6 @@ document.addEventListener('DOMContentLoaded', function () {
     applyLanguage: localeHelpers.applyLanguage,
     updatePageText: localeHelpers.refreshLocaleText
   });
-  initThemeSelector();
+  themeController.init();
   init();
 });

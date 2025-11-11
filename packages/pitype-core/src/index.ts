@@ -21,6 +21,11 @@ export {
   type DomInputControllerOptions
 } from './dom/inputController.js';
 export { createDomStatsPanel, type DomStatsPanelOptions } from './dom/statsPanel.js';
+export {
+  createDomThemeController,
+  type DomThemeController,
+  type DomThemeControllerOptions
+} from './dom/themeController.js';
 export * from './tokenizer.js';
 export { createTextSource } from './textSource.js';
 export type { TextSource } from './textSource.js';
