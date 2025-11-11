@@ -5,4 +5,7 @@ playwright-report
 test-results
 coverage
 
+# 生成的 vendor 文件（由 sync-demo.mjs 从 dist 复制）
+examples/typerank3/vendor/
+
 MonkeyType

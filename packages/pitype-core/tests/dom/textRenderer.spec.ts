@@ -30,6 +30,7 @@ class FakeElement {
   public textContent = '';
   private attributes = new Map<string, string>();
   private _innerHTML = '';
+  public firstChild: FakeElement | null = null;
 
   constructor(tagName: string) {
     this.tagName = tagName.toUpperCase();
@@ -41,7 +42,45 @@ class FakeElement {
       return child;
     }
     this.children.push(child);
+    if (this.children.length === 1) {
+      this.firstChild = child;
+    }
     return child;
+  }
+
+  insertBefore(newNode: FakeElement, referenceNode: FakeElement | null): FakeElement {
+    if (!referenceNode) {
+      return this.appendChild(newNode) as FakeElement;
+    }
+    const index = this.children.indexOf(referenceNode);
+    if (index >= 0) {
+      this.children.splice(index, 0, newNode);
+    } else {
+      this.children.push(newNode);
+    }
+    if (this.children.length > 0) {
+      this.firstChild = this.children[0];
+    }
+    return newNode;
+  }
+
+  remove(): void {
+    // Simplified remove - in real DOM this would remove from parent
+  }
+
+  querySelectorAll(selector: string): FakeElement[] {
+    const results: FakeElement[] = [];
+    const className = selector.startsWith('.') ? selector.slice(1) : selector;
+
+    const traverse = (element: FakeElement) => {
+      if (element.classList.contains(className)) {
+        results.push(element);
+      }
+      element.children.forEach(traverse);
+    };
+
+    traverse(this);
+    return results;
   }
 
   setAttribute(name: string, value: string): void {
@@ -61,6 +100,7 @@ class FakeElement {
   set innerHTML(value: string) {
     this._innerHTML = value;
     this.children = [];
+    this.firstChild = null;
   }
 
   get innerHTML(): string {
@@ -99,7 +139,11 @@ describe('createDomTextRenderer', () => {
     renderer.render(source);
 
     expect(display.children.length).toBeGreaterThan(0);
-    const firstWord = display.children[0];
+    // Content is wrapped in a .pitype-text-content container
+    const contentWrapper = display.children[0];
+    expect(contentWrapper.classList.contains('pitype-text-content')).toBe(true);
+    expect(contentWrapper.children.length).toBeGreaterThan(0);
+    const firstWord = contentWrapper.children[0];
     expect(firstWord.classList.contains('word')).toBe(true);
   });
 
@@ -113,8 +157,10 @@ describe('createDomTextRenderer', () => {
 
     renderer.render(source);
 
+    // Content is wrapped in a .pitype-text-content container
+    const contentWrapper = display.children[0];
     const wrappers: FakeElement[] = [];
-    display.children.forEach((child) => {
+    contentWrapper.children.forEach((child) => {
       wrappers.push(child);
       child.children.forEach((nested) => wrappers.push(nested));
     });

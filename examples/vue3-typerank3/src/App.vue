@@ -91,7 +91,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, shallowRef, nextTick } from 'vue';
+import { onMounted, onUnmounted, ref, shallowRef, nextTick } from 'vue';
 import {
   createSessionRuntime,
   createTextSource,
@@ -191,14 +191,8 @@ async function startSession() {
       locale: activeLanguage.value
     });
 
-    // 先渲染文本，后启动会话（顺序很重要！）
+    // 渲染文本（preserveChildren: true 会保留 input 和 cursor 元素）
     textRenderer.value?.render(source);
-
-    // render() 会清空 text-display，需要重新添加 input 和 cursor
-    if (textDisplayRef.value && hiddenInputRef.value && cursorRef.value) {
-      textDisplayRef.value.appendChild(hiddenInputRef.value);
-      textDisplayRef.value.appendChild(cursorRef.value);
-    }
 
     // 先显示文本，移除加载状态
     isLoading.value = false;
@@ -206,37 +200,30 @@ async function startSession() {
     // 等待 Vue DOM 更新完成
     await nextTick();
 
-    // 使用三层嵌套的 requestAnimationFrame 确保 DOM 完全更新
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          // 首先缓存所有字符元素
-          cursorAdapter.value?.cacheCharSpans();
+    // 缓存所有字符元素
+    cursorAdapter.value?.cacheCharSpans();
 
-          // 检查是否成功获取到 spans
-          const spans = textRenderer.value?.getSpans() ?? [];
-          if (spans.length === 0) {
-            console.error('未找到任何字符元素，无法定位光标');
-            return;
-          }
+    // 检查是否成功获取到 spans
+    const spans = textRenderer.value?.getSpans() ?? [];
+    if (spans.length === 0) {
+      console.error('未找到任何字符元素，无法定位光标');
+      return;
+    }
 
-          // 在字符 spans 准备好后，启动会话
-          sessionRuntime.startSession(source);
+    // 启动会话
+    sessionRuntime.startSession(source);
 
-          // 确保光标定位准确
-          cursorAdapter.value?.updatePosition({ immediate: true });
+    // 确保光标定位准确
+    cursorAdapter.value?.updatePosition({ immediate: true });
 
-          // 设置移动设备支持
-          cursorAdapter.value?.enableMobileSupport();
+    // 设置移动设备支持
+    cursorAdapter.value?.enableMobileSupport();
 
-          // 监听尺寸变化，保持光标位置随容器更新
-          cursorAdapter.value?.enableResponsiveSync();
+    // 监听尺寸变化，保持光标位置随容器更新
+    cursorAdapter.value?.enableResponsiveSync();
 
-          // 聚焦输入框
-          focusInput();
-        });
-      });
-    });
+    // 聚焦输入框
+    focusInput();
   } catch (error) {
     initError.value = error instanceof Error ? error.message : '初始化失败';
     isLoading.value = false;
@@ -265,8 +252,10 @@ onMounted(() => {
       throw new Error('DOM 元素未正确初始化');
     }
 
-    // 不使用 preserveChildren，使用原始的 appendChild 方案
-    textRenderer.value = createDomTextRenderer(textDisplayRef.value);
+    // 启用 preserveChildren 保留 input 和 cursor 元素
+    textRenderer.value = createDomTextRenderer(textDisplayRef.value, {
+      preserveChildren: true
+    });
 
     cursorAdapter.value = createDomCursorAdapter({
       textDisplay: textDisplayRef.value,
@@ -276,6 +265,7 @@ onMounted(() => {
       getInput: () => hiddenInputRef.value,
       getSpans: () => textRenderer.value?.getSpans() ?? [],
       setSpans: (spans) => textRenderer.value?.setSpans(spans)
+      // windowRef 现在有默认值，不需要显式传递
     });
 
     inputController.value = createDomInputController({
@@ -297,5 +287,12 @@ onMounted(() => {
     isLoading.value = false;
     console.error('初始化失败:', error);
   }
+});
+
+onUnmounted(() => {
+  // 清理所有资源
+  sessionRuntime.dispose();
+  inputController.value?.destroy();
+  // 注意：cursorAdapter 目前没有 destroy 方法，但 windowRef 的监听器会在页面卸载时自动清理
 });
 </script>

@@ -2,6 +2,8 @@
 
 打字练习引擎和示例应用的 Monorepo。
 
+> 📖 **详细开发指南**: 查看 [DEVELOPMENT.md](./DEVELOPMENT.md) 了解所有开发命令和常用场景
+
 ## 项目结构
 
 ```
@@ -10,7 +12,8 @@ pitype-core/
 │   └── pitype-core/          # 核心打字引擎（headless）
 ├── examples/
 │   ├── typerank3/            # JavaScript 示例应用
-│   └── ts-typerank3/         # TypeScript 示例应用
+│   ├── ts-typerank3/         # TypeScript 示例应用
+│   └── vue3-typerank3/       # Vue3 示例应用 ✨
 └── scripts/                  # 构建和同步脚本
 ```
 
@@ -19,10 +22,33 @@ pitype-core/
 ### 安装依赖
 
 ```bash
+# 1. 安装依赖
 npm install
+
+# 2. 构建核心库（必需！）
+npm run build:core
+
+# 3. 同步到原生 JS 示例（可选，仅 baseline:dev 需要）
+npm run sync:demo
 ```
 
+> **注意**: `examples/typerank3/vendor/` 是生成目录，不提交到 git
+
 ### 开发
+
+#### Vue3 示例 (vue3-typerank3) ✨ 推荐
+
+```bash
+# 启动开发服务器（支持热更新）
+npm run vue3-demo:dev
+```
+
+访问 http://localhost:4174
+
+**自动热更新内容：**
+- ✅ packages/pitype-core 源码
+- ✅ examples/vue3-typerank3/src 下的所有文件
+- ✅ Vue 组件支持 HMR（热模块替换）
 
 #### JavaScript 示例 (typerank3)
 
@@ -44,7 +70,7 @@ npm run baseline:dev
 npm run ts-demo:dev
 ```
 
-访问 http://localhost:3000
+访问 http://localhost:5173
 
 **自动热更新内容：**
 - ✅ packages/pitype-core 源码
@@ -86,6 +112,21 @@ npm run test:baseline
 查看 [packages/pitype-core](./packages/pitype-core) 了解更多。
 
 ## 示例应用
+
+### vue3-typerank3 (Vue3) ✨ 推荐
+
+基于 Vue 3 组合式 API 的现代化打字练习应用。
+
+**特性：**
+- Vue 3 组合式 API（Composition API）
+- 完整的 TypeScript 类型安全
+- Vite 5.x 构建工具
+- 支持 HMR（热模块替换）
+- 优化的 DOM 管理（使用 `preserveChildren`）
+- 简化的启动流程（单次 nextTick）
+- 自动资源清理（onUnmounted）
+
+查看 [examples/vue3-typerank3](./examples/vue3-typerank3) 了解更多。
 
 ### typerank3 (JavaScript)
 
@@ -133,8 +174,9 @@ TypeScript 重写版本，提供完整类型安全。
 
 | 脚本 | 说明 |
 |------|------|
-| `npm run baseline:dev` | 启动 JavaScript 示例开发环境 |
+| `npm run vue3-demo:dev` | 启动 Vue3 示例开发环境（推荐） |
 | `npm run ts-demo:dev` | 启动 TypeScript 示例开发环境 |
+| `npm run baseline:dev` | 启动 JavaScript 示例开发环境 |
 | `npm run build:core` | 构建核心包 |
 | `npm run watch:core` | 监听核心包变化并自动重新编译 |
 | `npm run sync:demo` | 同步核心包到 JavaScript 示例 |
@@ -142,11 +184,14 @@ TypeScript 重写版本，提供完整类型安全。
 | `npm run lint` | 运行 ESLint |
 | `npm run format` | 格式化代码 |
 
+> 💡 更多命令和使用场景请查看 [DEVELOPMENT.md](./DEVELOPMENT.md)
+
 ## 技术栈
 
 - **核心引擎**: TypeScript 5.x
-- **JavaScript 示例**: 原生 ES6+, Live Server
+- **Vue3 示例**: Vue 3.4+, TypeScript 5.x, Vite 5.x
 - **TypeScript 示例**: TypeScript 5.x, Vite 5.x
+- **JavaScript 示例**: 原生 ES6+, Live Server
 - **测试**: Playwright (E2E), Vitest (单元测试)
 - **工具链**: npm workspaces, concurrently, chokidar
 

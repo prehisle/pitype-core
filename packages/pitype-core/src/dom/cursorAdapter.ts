@@ -55,7 +55,7 @@ export function createDomCursorAdapter(options: DomCursorAdapterOptions): DomCur
     getInput,
     getSpans = () => [],
     setSpans = () => {},
-    windowRef,
+    windowRef = typeof window !== 'undefined' ? window : undefined,
     documentRef = typeof document !== 'undefined' ? document : undefined,
     navigatorRef = typeof navigator !== 'undefined' ? navigator : undefined,
     requestAnimationFrame: requestAnimationFrameImpl = (cb) =>
