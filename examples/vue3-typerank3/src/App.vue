@@ -119,6 +119,55 @@
           <p v-else class="hint">完成一次练习后可以回放</p>
         </section>
 
+        <!-- 幽灵光标管理 -->
+        <section class="settings-section">
+          <h4><i class="fas fa-ghost" /> 幽灵光标对战</h4>
+          <div class="setting-item">
+            <p class="hint">添加历史录制作为幽灵，与它们同时打字！</p>
+
+            <div v-if="savedRecordings.length > 0">
+              <label>选择幽灵:</label>
+              <div class="ghost-list">
+                <div
+                  v-for="(recording, index) in savedRecordings"
+                  :key="index"
+                  class="ghost-item"
+                >
+                  <label class="ghost-checkbox">
+                    <input
+                      type="checkbox"
+                      :checked="isGhostEnabled(index)"
+                      @change="toggleGhost(index)"
+                    />
+                    <span class="ghost-info">
+                      <span class="ghost-name">{{ getGhostName(index) }}</span>
+                      <span class="ghost-stats">
+                        {{ recording.events.length }} 个事件
+                      </span>
+                    </span>
+                  </label>
+                  <input
+                    type="color"
+                    :value="getGhostColor(index)"
+                    @input="updateGhostColor(index, ($event.target as HTMLInputElement).value)"
+                    class="ghost-color-picker"
+                    title="选择光标颜色"
+                  />
+                </div>
+              </div>
+
+              <div v-if="activeGhosts.length > 0" class="ghost-controls">
+                <p>{{ activeGhosts.length }} 个幽灵已激活</p>
+                <label>
+                  <input type="checkbox" v-model="showGhostLabels" />
+                  显示幽灵名称标签
+                </label>
+              </div>
+            </div>
+            <p v-else class="hint">保存一些录制后可以添加幽灵</p>
+          </div>
+        </section>
+
         <button @click="toggleSettings" class="close-btn">关闭</button>
       </div>
     </div>
@@ -181,7 +230,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref, shallowRef, nextTick } from 'vue';
+import { onMounted, onUnmounted, ref, shallowRef, nextTick, computed } from 'vue';
 import {
   createSessionRuntime,
   createTextSource,
@@ -191,10 +240,12 @@ import {
   createDomStatsPanel,
   createDomAudioController,
   createPlayer,
+  createGhostManager,
   exportRecordingToFile,
   type CursorShape,
   type RecordingData,
-  type Player
+  type Player,
+  type GhostManager
 } from '@pitype/core';
 import { texts, type Language } from './texts';
 
@@ -218,6 +269,7 @@ const inputController = shallowRef<ReturnType<typeof createDomInputController>>(
 const statsPanel = shallowRef<ReturnType<typeof createDomStatsPanel>>();
 const audioController = shallowRef<ReturnType<typeof createDomAudioController>>();
 const player = shallowRef<Player | null>(null);
+const ghostManager = shallowRef<GhostManager | null>(null);
 
 // 光标配置状态
 const cursorShape = ref<CursorShape>('block');
@@ -233,6 +285,20 @@ const currentRecording = ref<RecordingData | null>(null);
 const isPlayingBack = ref(false);
 const playbackSpeed = ref(1.0);
 const showSettings = ref(false);
+
+// 幽灵光标状态
+const savedRecordings = ref<RecordingData[]>([]);
+const activeGhosts = ref<number[]>([]);  // 激活的幽灵索引
+const ghostColors = ref<string[]>([]);   // 每个幽灵的颜色
+const showGhostLabels = ref(true);       // 是否显示幽灵名称标签
+
+const GHOST_COLOR_PALETTE = [
+  'rgba(255, 99, 132, 0.8)',   // 粉红
+  'rgba(54, 162, 235, 0.8)',   // 蓝色
+  'rgba(255, 206, 86, 0.8)',   // 黄色
+  'rgba(75, 192, 192, 0.8)',   // 青色
+  'rgba(153, 102, 255, 0.8)',  // 紫色
+];
 
 let sessionRuntime: ReturnType<typeof createSessionRuntime>;
 
@@ -303,6 +369,13 @@ async function startSession() {
 
     // 监听尺寸变化，保持光标位置随容器更新
     cursorAdapter.value?.enableResponsiveSync();
+
+    // 初始化幽灵光标
+    if (activeGhosts.value.length > 0) {
+      initializeGhosts();
+      // 启动所有幽灵
+      ghostManager.value?.startAll();
+    }
 
     // 聚焦输入框
     focusInput();
@@ -415,6 +488,94 @@ function toggleSettings() {
   showSettings.value = !showSettings.value;
 }
 
+// 幽灵光标管理函数
+function getGhostName(index: number): string {
+  const recording = savedRecordings.value[index];
+  return `幽灵 #${index + 1}`;
+}
+
+function getGhostColor(index: number): string {
+  if (!ghostColors.value[index]) {
+    ghostColors.value[index] = GHOST_COLOR_PALETTE[index % GHOST_COLOR_PALETTE.length];
+  }
+  return ghostColors.value[index];
+}
+
+function updateGhostColor(index: number, color: string) {
+  ghostColors.value[index] = color;
+}
+
+function isGhostEnabled(index: number): boolean {
+  return activeGhosts.value.includes(index);
+}
+
+function toggleGhost(index: number) {
+  const ghostIndex = activeGhosts.value.indexOf(index);
+  if (ghostIndex > -1) {
+    // 移除幽灵
+    activeGhosts.value.splice(ghostIndex, 1);
+  } else {
+    // 添加幽灵
+    activeGhosts.value.push(index);
+  }
+}
+
+function initializeGhosts() {
+  if (!ghostManager.value || activeGhosts.value.length === 0) return;
+
+  // 清除旧的幽灵
+  ghostManager.value.destroy();
+
+  // 创建新的 GhostManager
+  ghostManager.value = createGhostManager({
+    textDisplay: textDisplayRef.value!,
+    textContainer: textContainerRef.value!,
+    getSpans: () => textRenderer.value?.getSpans() ?? []
+  });
+
+  // 添加激活的幽灵
+  activeGhosts.value.forEach(index => {
+    const recording = savedRecordings.value[index];
+    ghostManager.value!.addGhost({
+      name: getGhostName(index),
+      recording: recording,
+      color: getGhostColor(index),
+      shape: 'line',
+      showLabel: showGhostLabels.value
+    });
+  });
+}
+
+function loadSavedRecordings() {
+  try {
+    const saved = localStorage.getItem('savedRecordings');
+    if (saved) {
+      savedRecordings.value = JSON.parse(saved);
+    }
+  } catch (error) {
+    console.error('加载录制失败:', error);
+  }
+}
+
+function saveRecordingToHistory() {
+  if (!currentRecording.value) return;
+
+  // 添加到历史
+  savedRecordings.value.push(currentRecording.value);
+
+  // 最多保存 10 个录制
+  if (savedRecordings.value.length > 10) {
+    savedRecordings.value.shift();
+  }
+
+  // 保存到 localStorage
+  try {
+    localStorage.setItem('savedRecordings', JSON.stringify(savedRecordings.value));
+  } catch (error) {
+    console.error('保存录制失败:', error);
+  }
+}
+
 onMounted(() => {
   try {
     if (!textDisplayRef.value || !textContainerRef.value || !cursorRef.value) {
@@ -479,6 +640,10 @@ onMounted(() => {
           showResult.value = true;
           // 保存录制数据
           currentRecording.value = sessionRuntime.getLastRecording();
+          // 自动保存到历史
+          saveRecordingToHistory();
+          // 停止幽灵
+          ghostManager.value?.stopAll();
         }
       },
       onReset: () => {
@@ -513,6 +678,16 @@ onMounted(() => {
       inputController.value.attachInput(hiddenInputRef.value);
     }
 
+    // 初始化 GhostManager
+    ghostManager.value = createGhostManager({
+      textDisplay: textDisplayRef.value,
+      textContainer: textContainerRef.value,
+      getSpans: () => textRenderer.value?.getSpans() ?? []
+    });
+
+    // 加载历史录制
+    loadSavedRecordings();
+
     // 应用初始主题
     document.body.classList.add(`theme-${activeTheme.value}`);
 
@@ -530,6 +705,7 @@ onUnmounted(() => {
   inputController.value?.destroy();
   audioController.value?.destroy();
   player.value?.destroy();
+  ghostManager.value?.destroy();
   // 注意：cursorAdapter 目前没有 destroy 方法，但 windowRef 的监听器会在页面卸载时自动清理
 });
 </script>

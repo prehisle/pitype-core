@@ -61,6 +61,13 @@ export {
   type PlayerOptions,
   type PlayerState
 } from './player.js';
+export {
+  createGhostManager,
+  type GhostManager,
+  type GhostManagerOptions,
+  type GhostConfig,
+  type Ghost
+} from './ghostManager.js';
 export * from './tokenizer.js';
 export { createTextSource } from './textSource.js';
 export type { TextSource } from './textSource.js';
