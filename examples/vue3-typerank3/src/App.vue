@@ -267,8 +267,8 @@ const ghostManager = shallowRef<GhostManager | null>(null);
 
 // 光标配置状态
 const cursorShape = ref<CursorShape>('block');
-const cursorColor = ref('#ffd700');
-const cursorBlink = ref(false);
+const cursorColor = ref('#6c7cdb');
+const cursorBlink = ref(true);
 
 // 音频配置状态
 const audioEnabled = ref(false);
@@ -596,7 +596,7 @@ onMounted(() => {
 
     // 读取保存的光标配置
     cursorShape.value = cursorAdapter.value.getCursorShape();
-    cursorColor.value = cursorAdapter.value.getCursorColor() || '#ffd700';
+    cursorColor.value = cursorAdapter.value.getCursorColor() || '#6c7cdb';
     cursorBlink.value = cursorAdapter.value.getCursorBlink();
 
     inputController.value = createDomInputController({

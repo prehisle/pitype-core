@@ -202,7 +202,7 @@ select option:checked {
   width: 22px;
   height: 33px;
   background-color: var(--cursor-bg, rgba(108, 124, 219, 0.1));
-  border: 2px solid var(--cursor-color, #fff);
+  border: 2px solid var(--cursor-color, #6c7cdb);
   border-radius: 2px;
   box-sizing: border-box;
   pointer-events: none;
@@ -276,7 +276,7 @@ select option:checked {
   --accent: rgba(72, 89, 255, 0.4);
   --accent-solid: #4859ff;
   --border: rgba(72, 89, 255, 0.2);
-  --cursor-color: #f5f7ff;
+  --cursor-color: #6c7cdb;
   --cursor-bg: rgba(72, 89, 255, 0.1);
 }
 
