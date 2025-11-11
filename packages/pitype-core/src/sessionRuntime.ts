@@ -133,13 +133,14 @@ export function createSessionRuntime(options: SessionRuntimeOptions = {}): Sessi
         stopTimer();
         notifySnapshot();
         const finalSnapshot = getSnapshot();
-        options.onComplete?.(finalSnapshot);
-        // 触发完成音效
-        audioController?.playSound('complete');
-        // 停止录制
+        // 停止录制（必须在 onComplete 之前，这样回调中可以获取到录制数据）
         if (recorder && recorder.isRecording()) {
           lastRecording = recorder.stop(finalSnapshot || undefined);
         }
+        // 调用完成回调
+        options.onComplete?.(finalSnapshot);
+        // 触发完成音效
+        audioController?.playSound('complete');
         break;
       case 'session:reset':
         stopTimer();

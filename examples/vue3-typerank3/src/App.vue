@@ -4,16 +4,12 @@
       <h1>TypeFree <span class="version">Vue3</span></h1>
       <div class="controls">
         <div class="selector-container">
-          <div class="language-selector">
-            <button
-              v-for="lang in languages"
-              :key="lang"
-              class="language-option"
-              :class="{ active: activeLanguage === lang }"
-              @click="switchLanguage(lang)"
-            >
-              {{ lang }}
-            </button>
+          <div class="text-selector">
+            <select :value="selectedTextId" @change="handleTextChange">
+              <option v-for="textOption in allTexts" :key="textOption.id" :value="textOption.id">
+                {{ textOption.label }}
+              </option>
+            </select>
           </div>
           <div class="selector-divider" />
           <div class="theme-selector">
@@ -247,7 +243,7 @@ import {
   type Player,
   type GhostManager
 } from '@pitype/core';
-import { texts, type Language } from './texts';
+import { allTexts, type Language } from './texts';
 
 const textContainerRef = ref<HTMLElement | null>(null);
 const textDisplayRef = ref<HTMLElement | null>(null);
@@ -255,11 +251,9 @@ const cursorRef = ref<HTMLElement | null>(null);
 const hiddenInputRef = ref<HTMLInputElement | null>(null);
 
 const themes = ['dracula', 'serika', 'botanical', 'aether', 'nord'] as const;
-const languages: Language[] = ['zh-CN', 'zh-TW', 'en-US'];
-const activeLanguage = ref<Language>('zh-CN');
+const selectedTextId = ref<number>(0);
 const activeTheme = ref<string>('dracula');
 const showResult = ref(false);
-const textIndex = ref(0);
 const isLoading = ref(true);
 const initError = ref<string | null>(null);
 
@@ -317,8 +311,6 @@ function focusInput() {
 }
 
 function restartSession() {
-  const langTexts = texts[activeLanguage.value];
-  textIndex.value = Math.floor(Math.random() * langTexts.length);
   startSession();
 }
 
@@ -329,14 +321,14 @@ function closeResult() {
 
 async function startSession() {
   try {
-    const langTexts = texts[activeLanguage.value];
-    if (!langTexts || langTexts.length === 0) {
-      throw new Error(`没有可用的 ${activeLanguage.value} 文本`);
+    const selectedText = allTexts.find(t => t.id === selectedTextId.value);
+    if (!selectedText) {
+      throw new Error(`未找到ID为 ${selectedTextId.value} 的文本`);
     }
 
-    const source = createTextSource(langTexts[textIndex.value], {
-      id: `text-${textIndex.value}`,
-      locale: activeLanguage.value
+    const source = createTextSource(selectedText.content, {
+      id: `text-${selectedText.id}`,
+      locale: selectedText.language
     });
 
     // 渲染文本（preserveChildren: true 会保留 input 和 cursor 元素）
@@ -396,8 +388,9 @@ function switchTheme(theme: string) {
   document.body.classList.add(`theme-${theme}`);
 }
 
-function switchLanguage(lang: string) {
-  activeLanguage.value = lang as Language;
+function handleTextChange(event: Event) {
+  const target = event.target as HTMLSelectElement;
+  selectedTextId.value = parseInt(target.value, 10);
   restartSession();
 }
 
@@ -639,7 +632,8 @@ onMounted(() => {
           statsPanel.value?.renderResults(snapshot);
           showResult.value = true;
           // 保存录制数据
-          currentRecording.value = sessionRuntime.getLastRecording();
+          const recording = sessionRuntime.getLastRecording();
+          currentRecording.value = recording;
           // 自动保存到历史
           saveRecordingToHistory();
           // 停止幽灵

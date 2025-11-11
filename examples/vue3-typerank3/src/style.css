@@ -38,13 +38,46 @@ body {
   align-items: center;
 }
 
-.language-selector,
+.text-selector select {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: inherit;
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+  min-width: 200px;
+}
+
+/* 统一所有下拉框选项的样式 */
+select option {
+  background: #2a2a3e;
+  color: #e8e8e8;
+  padding: 0.5rem;
+}
+
+select option:hover,
+select option:checked {
+  background: #4859ff;
+  color: #ffffff;
+}
+
+.text-selector select:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(72, 89, 255, 0.6);
+}
+
+.text-selector select:focus {
+  outline: none;
+  border-color: rgba(72, 89, 255, 0.8);
+  background: rgba(255, 255, 255, 0.15);
+}
+
 .theme-selector {
   display: flex;
   gap: 0.5rem;
 }
 
-.language-option,
 .theme-option,
 #restart-btn {
   background: rgba(255, 255, 255, 0.1);
@@ -56,7 +89,6 @@ body {
   transition: background 0.2s, transform 0.2s;
 }
 
-.language-option.active,
 .theme-option.active,
 #restart-btn:hover {
   background: rgba(72, 89, 255, 0.4);
