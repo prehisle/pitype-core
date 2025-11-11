@@ -266,9 +266,9 @@ const player = shallowRef<Player | null>(null);
 const ghostManager = shallowRef<GhostManager | null>(null);
 
 // 光标配置状态
-const cursorShape = ref<CursorShape>('block');
+const cursorShape = ref<CursorShape>('outline');
 const cursorColor = ref('#6c7cdb');
-const cursorBlink = ref(true);
+const cursorBlink = ref(false);
 
 // 音频配置状态
 const audioEnabled = ref(false);

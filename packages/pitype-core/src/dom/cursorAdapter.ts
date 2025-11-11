@@ -236,7 +236,7 @@ export function createDomCursorAdapter(options: DomCursorAdapterOptions): DomCur
     cursorUpdateScheduled = true;
     requestAnimationFrameImpl((timestamp) => {
       cursorUpdateScheduled = false;
-      updatePosition({ immediate: true });
+      updatePosition({ immediate: false });
     });
   }
 
