@@ -39,19 +39,19 @@
           <span class="info-text" data-info="cpm">CPM:</span>
         </span>
         <div class="cpm-values">
-          <span class="cpm-value">{{ statsSnapshot.correctCpm }}</span>
-          <span class="tcpm-value">{{ statsSnapshot.totalCpm }}</span>
-          <span class="wpm-value">{{ statsSnapshot.wpm }}</span>
+          <span id="cpm" class="cpm-value">0</span>
+          <span id="total-cpm" class="tcpm-value">0</span>
+          <span id="wpm" class="wpm-value">0</span>
         </div>
       </div>
       <div class="stat-item">
-        正确率: <span class="stat-value">{{ statsSnapshot.accuracy }}%</span>
+        正确率: <span id="accuracy" class="stat-value">100%</span>
       </div>
       <div class="stat-item">
-        时间: <span class="stat-value">{{ formatDuration(statsSnapshot.durationMs) }}</span>
+        时间: <span id="time" class="stat-value">0.0 秒</span>
       </div>
       <div class="stat-item">
-        字符数: <span class="stat-value">{{ statsSnapshot.totalChars }}</span>
+        字符数: <span id="char-count" class="stat-value">0</span>
       </div>
     </section>
 
@@ -77,12 +77,12 @@
       <div class="modal-content">
         <h2><i class="fas fa-trophy" /> 练习完成！</h2>
         <div class="result-stats">
-          <p><span class="stat-label">总用时:</span> {{ formatDuration(statsSnapshot.durationMs) }}</p>
-          <p><span class="stat-label">CPM:</span> {{ statsSnapshot.correctCpm }}</p>
-          <p><span class="stat-label">总CPM:</span> {{ statsSnapshot.totalCpm }}</p>
-          <p><span class="stat-label">WPM:</span> {{ statsSnapshot.wpm }}</p>
-          <p><span class="stat-label">正确率:</span> {{ statsSnapshot.accuracy }}%</p>
-          <p><span class="stat-label">总字符数:</span> {{ statsSnapshot.totalChars }}</p>
+          <p><span class="stat-label">总用时:</span> <span id="final-time"></span></p>
+          <p><span class="stat-label">CPM:</span> <span id="final-cpm"></span></p>
+          <p><span class="stat-label">总CPM:</span> <span id="final-total-cpm"></span></p>
+          <p><span class="stat-label">WPM:</span> <span id="final-wpm"></span></p>
+          <p><span class="stat-label">正确率:</span> <span id="final-accuracy"></span></p>
+          <p><span class="stat-label">总字符数:</span> <span id="final-char-count"></span></p>
         </div>
         <button class="modal-button" @click="closeResult">继续练习</button>
       </div>
@@ -98,7 +98,7 @@ import {
   createDomCursorAdapter,
   createDomInputController,
   createDomTextRenderer,
-  type StatsSnapshot
+  createDomStatsPanel
 } from '@pitype/core';
 import { texts, type Language } from './texts';
 
@@ -111,44 +111,33 @@ const themes = ['dracula', 'serika', 'botanical', 'aether', 'nord'] as const;
 const languages: Language[] = ['zh-CN', 'zh-TW', 'en-US'];
 const activeLanguage = ref<Language>('zh-CN');
 const activeTheme = ref<string>('dracula');
-
-const statsSnapshot = ref<StatsSnapshot>({
-  startedAt: undefined,
-  durationMs: 0,
-  correctChars: 0,
-  totalChars: 0,
-  accuracy: 100,
-  correctCpm: 0,
-  totalCpm: 0,
-  wpm: 0,
-  completed: false
-});
-
 const showResult = ref(false);
 const textIndex = ref(0);
 const isLoading = ref(true);
 const initError = ref<string | null>(null);
 
+const textRenderer = shallowRef<ReturnType<typeof createDomTextRenderer>>();
+const cursorAdapter = shallowRef<ReturnType<typeof createDomCursorAdapter>>();
+const inputController = shallowRef<ReturnType<typeof createDomInputController>>();
+const statsPanel = shallowRef<ReturnType<typeof createDomStatsPanel>>();
+
 const sessionRuntime = createSessionRuntime({
   onEvaluate: handleEvaluate,
   onUndo: handleUndo,
   onSnapshot: (snapshot) => {
-    if (snapshot) statsSnapshot.value = snapshot;
+    if (snapshot) statsPanel.value?.renderSnapshot(snapshot);
   },
   onComplete: (snapshot) => {
     if (snapshot) {
-      statsSnapshot.value = snapshot;
+      statsPanel.value?.renderResults(snapshot);
       showResult.value = true;
     }
   },
   onReset: () => {
     showResult.value = false;
+    statsPanel.value?.reset();
   }
 });
-
-const textRenderer = shallowRef<ReturnType<typeof createDomTextRenderer>>();
-const cursorAdapter = shallowRef<ReturnType<typeof createDomCursorAdapter>>();
-const inputController = shallowRef<ReturnType<typeof createDomInputController>>();
 
 function handleEvaluate(event: { index: number; correct: boolean }) {
   textRenderer.value?.applySpanState(event.index, event.correct);
@@ -158,10 +147,6 @@ function handleEvaluate(event: { index: number; correct: boolean }) {
 function handleUndo(event: { index: number }) {
   textRenderer.value?.resetSpanState(event.index);
   cursorAdapter.value?.scheduleRefresh();
-}
-
-function formatDuration(durationMs: number) {
-  return `${(durationMs / 1000).toFixed(1)} 秒`;
 }
 
 function focusInput() {
@@ -271,6 +256,27 @@ onMounted(() => {
     inputController.value = createDomInputController({
       getTypingSession: () => sessionRuntime.getSession(),
       onCompositionEnd: () => cursorAdapter.value?.updatePosition()
+    });
+
+    // 初始化统计面板
+    statsPanel.value = createDomStatsPanel({
+      getLocaleText: (key: string) => key, // 简单实现，直接返回 key
+      realtime: {
+        cpm: document.getElementById('cpm'),
+        totalCpm: document.getElementById('total-cpm'),
+        wpm: document.getElementById('wpm'),
+        accuracy: document.getElementById('accuracy'),
+        time: document.getElementById('time'),
+        chars: document.getElementById('char-count')
+      },
+      result: {
+        time: document.getElementById('final-time'),
+        cpm: document.getElementById('final-cpm'),
+        totalCpm: document.getElementById('final-total-cpm'),
+        wpm: document.getElementById('final-wpm'),
+        accuracy: document.getElementById('final-accuracy'),
+        chars: document.getElementById('final-char-count')
+      }
     });
 
     // 立即附加 input controller（只需附加一次）
