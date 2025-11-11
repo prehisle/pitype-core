@@ -31,6 +31,11 @@ export {
   type DomTextRenderer,
   type DomTextRendererOptions
 } from './dom/textRenderer.js';
+export {
+  createDomCursorAdapter,
+  type DomCursorAdapter,
+  type DomCursorAdapterOptions
+} from './dom/cursorAdapter.js';
 export * from './tokenizer.js';
 export { createTextSource } from './textSource.js';
 export type { TextSource } from './textSource.js';

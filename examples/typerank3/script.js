@@ -4,10 +4,10 @@ import {
   createDomInputController,
   createDomStatsPanel,
   createDomTextRenderer,
-  createDomThemeController
+  createDomThemeController,
+  createDomCursorAdapter
 } from './vendor/index.js';
 import { initLanguageSelector, getActiveLanguage } from './ui/languageController.js';
-import { createCursorAdapter } from './ui/cursorAdapter.js';
 import { createResultModal } from './ui/resultModal.js';
 import { initInfoModal } from './ui/infoModal.js';
 import { createLocaleHelpers } from './ui/localeUtils.js';
@@ -81,7 +81,7 @@ const sessionRuntime = createSessionRuntime({
     statsPanel.renderSnapshot(snapshot);
   }
 });
-cursorAdapter = createCursorAdapter({
+cursorAdapter = createDomCursorAdapter({
   textDisplay,
   textContainer,
   getCurrentPosition,

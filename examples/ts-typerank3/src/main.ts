@@ -3,6 +3,7 @@ import {
   createTextSource,
   createDomInputController,
   createDomStatsPanel,
+  createDomCursorAdapter,
   createDomTextRenderer,
   createDomThemeController,
   type StatsSnapshot
@@ -11,7 +12,6 @@ import {
   initLanguageSelector,
   getActiveLanguage
 } from './ui/languageController';
-import { createCursorAdapter } from './ui/cursorAdapter';
 import { createResultModal } from './ui/resultModal';
 import { initInfoModal } from './ui/infoModal';
 import { createLocaleHelpers } from './ui/localeUtils';
@@ -61,7 +61,7 @@ const statsPanel = createDomStatsPanel({
 
 const textRenderer = createDomTextRenderer(textDisplay);
 const themeController = createDomThemeController();
-let cursorAdapter = createCursorAdapter({
+let cursorAdapter = createDomCursorAdapter({
   textDisplay,
   textContainer,
   getCurrentPosition,
