@@ -94,11 +94,38 @@ body {
 .text-display {
   position: relative;
   min-height: 240px;
+  font-family: 'Consolas', 'Courier New', monospace;
+  font-size: 22px;
+  line-height: 1.5;
+  padding: 20px;
+  background-color: var(--bg-secondary);
+  color: var(--dim-text-color, #d0d0d0);
+  border-radius: 5px;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  word-break: normal;
+  white-space: pre-wrap;
+  text-align: left;
 }
 
 .text-display.hidden {
   visibility: hidden;
   pointer-events: none;
+}
+
+/* 确保所有span内字符高度一致，防止输入状态变化导致位置变化 */
+.text-display span {
+  line-height: 1.5;
+  vertical-align: baseline;
+  display: inline-block;
+  position: relative;
+  font-size: inherit;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  transform: translateY(0);
+  font-weight: normal;
+  height: auto;
 }
 
 .text-content {
@@ -140,27 +167,35 @@ body {
   position: absolute;
   top: 0;
   left: 0;
-  width: 2px;
-  height: 1.6em;
-  background: #fff;
+  width: 22px;
+  height: 33px;
+  background-color: var(--cursor-bg, rgba(108, 124, 219, 0.1));
+  border: 2px solid var(--cursor-color, #fff);
   border-radius: 2px;
+  box-sizing: border-box;
   pointer-events: none;
+  z-index: 10;
+  will-change: transform, width, height;
+  transform: translate3d(0, 0, 0);
   visibility: hidden;
 }
 
 .cursor.cursor-visible {
   visibility: visible;
-  opacity: 0.8;
-  animation: blink 0.9s steps(1) infinite;
+  animation: blink 1s infinite;
 }
 
-.char.correct {
-  color: #5ef4a8;
+.correct {
+  color: var(--text-correct, #5ef4a8) !important;
+  vertical-align: baseline;
+  position: relative;
 }
 
-.char.incorrect {
-  color: #ff6b6b;
-  text-decoration: underline;
+.incorrect {
+  color: var(--text-incorrect, #ff6b6b) !important;
+  text-decoration: none;
+  vertical-align: baseline;
+  position: relative;
 }
 
 .modal {
@@ -188,13 +223,11 @@ body {
 }
 
 @keyframes blink {
-  0%,
-  50% {
-    opacity: 0;
-  }
-  50.1%,
-  100% {
+  0%, 100% {
     opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
   }
 }
 
@@ -205,10 +238,14 @@ body {
   --bg-gradient-1: rgba(72, 89, 255, 0.2);
   --bg-gradient-2: rgba(72, 89, 255, 0.15);
   --text-primary: #f5f7ff;
+  --dim-text-color: #d0d0d0;
   --text-correct: #5ef4a8;
   --text-incorrect: #ff6b6b;
   --accent: rgba(72, 89, 255, 0.4);
+  --accent-solid: #4859ff;
   --border: rgba(72, 89, 255, 0.2);
+  --cursor-color: #f5f7ff;
+  --cursor-bg: rgba(72, 89, 255, 0.1);
 }
 
 .theme-dracula body {
@@ -224,11 +261,14 @@ body {
   --bg-gradient-1: rgba(255, 200, 50, 0.15);
   --bg-gradient-2: rgba(255, 200, 50, 0.1);
   --text-primary: #323437;
-  --text-correct: #4f9d69;
+  --dim-text-color: #d1d0c5;
+  --text-correct: #e2b714;
   --text-incorrect: #ca4754;
   --accent: rgba(255, 200, 50, 0.6);
+  --accent-solid: #e2b714;
   --border: rgba(50, 52, 55, 0.2);
-  --cursor-color: #323437;
+  --cursor-color: #e2b714;
+  --cursor-bg: rgba(226, 183, 20, 0.1);
 }
 
 .theme-serika body {
@@ -238,10 +278,6 @@ body {
   color: var(--text-primary);
 }
 
-.theme-serika .cursor {
-  background: var(--cursor-color);
-}
-
 /* Theme: Botanical */
 .theme-botanical {
   --bg-primary: #1a1f1c;
@@ -249,10 +285,14 @@ body {
   --bg-gradient-1: rgba(102, 187, 106, 0.15);
   --bg-gradient-2: rgba(102, 187, 106, 0.1);
   --text-primary: #c7d3c0;
-  --text-correct: #81c784;
-  --text-incorrect: #e57373;
+  --dim-text-color: #a4b5ae;
+  --text-correct: #93c49e;
+  --text-incorrect: #dd8294;
   --accent: rgba(102, 187, 106, 0.4);
+  --accent-solid: #eaf1f3;
   --border: rgba(102, 187, 106, 0.2);
+  --cursor-color: #eaf1f3;
+  --cursor-bg: rgba(234, 241, 243, 0.1);
 }
 
 .theme-botanical body {
@@ -268,11 +308,15 @@ body {
   --bg-secondary: rgba(16, 24, 32, 0.8);
   --bg-gradient-1: rgba(101, 123, 131, 0.15);
   --bg-gradient-2: rgba(101, 123, 131, 0.1);
-  --text-primary: #eedaea;
-  --text-correct: #9ec1cf;
-  --text-incorrect: #e57c7c;
-  --accent: rgba(101, 123, 131, 0.4);
+  --text-primary: #cf6bdd;
+  --dim-text-color: #eedeb0;
+  --text-correct: #95ddb2;
+  --text-incorrect: #fc719f;
+  --accent: rgba(126, 178, 221, 0.4);
+  --accent-solid: #7eb2dd;
   --border: rgba(101, 123, 131, 0.2);
+  --cursor-color: #7eb2dd;
+  --cursor-bg: rgba(126, 178, 221, 0.1);
 }
 
 .theme-aether body {
@@ -289,10 +333,14 @@ body {
   --bg-gradient-1: rgba(136, 192, 208, 0.15);
   --bg-gradient-2: rgba(129, 161, 193, 0.1);
   --text-primary: #eceff4;
+  --dim-text-color: #d8dee9;
   --text-correct: #a3be8c;
   --text-incorrect: #bf616a;
   --accent: rgba(136, 192, 208, 0.4);
+  --accent-solid: #88c0d0;
   --border: rgba(136, 192, 208, 0.2);
+  --cursor-color: #88c0d0;
+  --cursor-bg: rgba(136, 192, 208, 0.1);
 }
 
 .theme-nord body {
@@ -306,14 +354,6 @@ body {
 .text-container {
   background: var(--bg-secondary, rgba(5, 8, 20, 0.6));
   border-color: var(--border, rgba(72, 89, 255, 0.2));
-}
-
-.char.correct {
-  color: var(--text-correct, #5ef4a8);
-}
-
-.char.incorrect {
-  color: var(--text-incorrect, #ff6b6b);
 }
 
 .language-option.active,
@@ -341,4 +381,106 @@ body {
 
 .theme-option[data-theme="nord"] {
   background: linear-gradient(135deg, #88c0d0 0%, #a3be8c 100%);
+}
+
+/* 换行符符号样式 */
+.line-break {
+  display: inline-block;
+  position: relative;
+  min-width: 1.5em;
+  text-align: center;
+  color: var(--dim-text-color);
+  opacity: 0.6;
+}
+
+.line-break::before {
+  content: "↵";
+  display: inline-block;
+  font-size: 1.1em;
+  transform: rotate(0deg);
+}
+
+.line-break.correct {
+  color: var(--text-correct);
+  opacity: 0.8;
+}
+
+.line-break.incorrect {
+  color: var(--text-incorrect);
+  opacity: 0.8;
+}
+
+/* 单词容器样式 */
+.word {
+  display: inline;
+  white-space: normal;
+  margin-right: 0;
+}
+
+/* 英文单词样式 */
+.english-word {
+  display: inline !important;
+  white-space: nowrap !important;
+  word-break: keep-all !important;
+}
+
+/* 中文字符样式 */
+.chinese-char {
+  display: inline-block;
+  white-space: nowrap;
+}
+
+/* 空格样式增强 */
+.word-space, .no-break {
+  white-space: nowrap;
+  display: inline;
+  margin-right: 0;
+  break-after: avoid-column;
+  break-before: avoid-column;
+  line-height: inherit;
+  vertical-align: baseline;
+  height: auto;
+}
+
+/* 防止空格高度超出其他字符 */
+.word-space:before, .no-break:before,
+.word-space::before, .no-break::before {
+  content: "";
+  display: inline-block;
+  height: 0;
+}
+
+/* 空格错误样式 - 添加明显的视觉提示 */
+.char-space {
+  display: inline-block !important;
+  line-height: normal !important;
+  font-size: inherit !important;
+  height: auto !important;
+  vertical-align: baseline !important;
+  position: relative;
+}
+
+/* 添加错误空格特殊样式 */
+.incorrect .char-space {
+  position: relative;
+  background-color: rgba(255, 85, 85, 0.3);
+  border-radius: 2px;
+  margin: 0;
+}
+
+/* 行首不允许出现空格的简单解决方案 */
+.english-word + .word-space {
+  display: inline !important;
+  white-space: nowrap !important;
+}
+
+/* 响应式样式调整 */
+@media (max-width: 600px) {
+  .line-break {
+    min-width: 1.2em;
+  }
+
+  .line-break::before {
+    font-size: 1em;
+  }
 }
