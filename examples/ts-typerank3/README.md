@@ -44,22 +44,51 @@ ts-typerank3/
 
 ## 开发
 
-### 安装依赖
+### 快速启动（推荐）
+
+**从项目根目录启动，支持 @pitype/core 和 ts-typerank3 的热更新：**
 
 ```bash
-# 首先需要构建 @pitype/core 包
-cd ../../packages/pitype-core
-npm run build
-
-# 然后安装依赖
-cd ../../examples/ts-typerank3
-npm install
+# 在项目根目录执行
+npm run ts-demo:dev
 ```
 
-### 启动开发服务器
+这个命令会自动：
+1. 监听 `packages/pitype-core` 源码变化并自动重新编译
+2. 启动 Vite 开发服务器（端口 3000）
+3. 当 @pitype/core 重新编译后，Vite 会自动重载页面
+
+浏览器会自动打开 http://localhost:3000
+
+### 手动启动
+
+如果需要分开运行：
+
+#### 1. 首次构建核心包
 
 ```bash
+# 在项目根目录
+npm run build:core
+```
+
+#### 2. 启动开发服务器
+
+```bash
+# 方式1：从根目录启动
+npm run ts-demo:serve
+
+# 方式2：进入 ts-typerank3 目录
+cd examples/ts-typerank3
 npm run dev
+```
+
+#### 3. 监听核心包变化（可选）
+
+如果需要修改 `packages/pitype-core`，在另一个终端运行：
+
+```bash
+# 在项目根目录
+npm run watch:core
 ```
 
 ### 类型检查
@@ -110,6 +139,20 @@ npm run preview
 - `resultModal.ts`: 结果弹窗
 - `infoModal.ts`: 信息弹窗
 - `localeUtils.ts`: 国际化工具
+
+## 热更新说明
+
+### 自动热更新的内容
+
+✅ **src/** 目录下的所有 TypeScript 文件（UI 组件、语言配置等）
+✅ **packages/pitype-core** 的代码（通过 watch:core 自动重新编译）
+✅ **index.html** 和 **style.css**
+
+### 工作原理
+
+1. `watch:core` 监听 pitype-core 源码，有变化时自动重新编译到 `dist/`
+2. Vite 通过 alias 直接使用 `packages/pitype-core/dist/` 的输出
+3. 当 dist 文件更新时，Vite 检测到变化并触发 HMR 或页面重载
 
 ## License
 

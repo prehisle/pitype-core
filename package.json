@@ -11,6 +11,8 @@
     "watch:sync": "node scripts/watch-sync.mjs",
     "demo:serve": "live-server examples/typerank3 --port=4173 --no-browser --wait=100 --entry-file=index.html",
     "baseline:dev": "concurrently --kill-others-on-fail \"npm:watch:core\" \"npm:watch:sync\" \"npm:demo:serve\"",
+    "ts-demo:serve": "npm run --workspace ts-typerank3 dev",
+    "ts-demo:dev": "concurrently --kill-others-on-fail \"npm:watch:core\" \"npm:ts-demo:serve\"",
     "test": "npm run test:baseline && npm run test:unit",
     "test:baseline": "playwright test",
     "test:unit": "vitest --run --passWithNoTests",
