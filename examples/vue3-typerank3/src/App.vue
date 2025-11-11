@@ -26,6 +26,14 @@
         <button id="restart-btn" @click="restartSession">
           <i class="fas fa-redo" /> 重新开始
         </button>
+        <button
+          class="replay-btn"
+          @click="playRecording()"
+          :disabled="!hasReplayRecording || isPlayingBack"
+          title="回放最近一次练习"
+        >
+          <i class="fas fa-play-circle" /> 回放
+        </button>
         <button @click="toggleSettings" class="settings-btn">
           <i class="fas fa-cog" /> 设置
         </button>
@@ -90,10 +98,10 @@
           <div class="setting-item" v-if="currentRecording">
             <p>已录制练习 ({{ currentRecording.events.length }} 个事件)</p>
             <div class="playback-controls">
-              <button @click="playRecording" :disabled="isPlayingBack">
+              <button @click="playRecording()" :disabled="isPlayingBack">
                 <i class="fas fa-play" /> 播放
               </button>
-              <button @click="stopPlayback" :disabled="!isPlayingBack">
+              <button @click="stopPlayback()" :disabled="!isPlayingBack">
                 <i class="fas fa-stop" /> 停止
               </button>
               <button @click="saveRecording">
@@ -121,22 +129,22 @@
           <div class="setting-item">
             <p class="hint">添加历史录制作为幽灵，与它们同时打字！</p>
 
-            <div v-if="savedRecordings.length > 0">
+            <div v-if="availableGhostRecordings.length > 0">
               <label>选择幽灵:</label>
               <div class="ghost-list">
                 <div
-                  v-for="(recording, index) in savedRecordings"
-                  :key="index"
+                  v-for="(recording, index) in availableGhostRecordings"
+                  :key="recording.id"
                   class="ghost-item"
                 >
                   <label class="ghost-checkbox">
                     <input
                       type="checkbox"
-                      :checked="isGhostEnabled(index)"
-                      @change="toggleGhost(index)"
+                      :checked="isGhostEnabled(recording.id)"
+                      @change="toggleGhost(recording.id)"
                     />
                     <span class="ghost-info">
-                      <span class="ghost-name">{{ getGhostName(index) }}</span>
+                      <span class="ghost-name">{{ getGhostName(recording, index) }}</span>
                       <span class="ghost-stats">
                         {{ recording.events.length }} 个事件
                       </span>
@@ -144,22 +152,23 @@
                   </label>
                   <input
                     type="color"
-                    :value="getGhostColor(index)"
-                    @input="updateGhostColor(index, ($event.target as HTMLInputElement).value)"
+                    :value="getGhostColor(recording.id, index)"
+                    @input="updateGhostColor(recording.id, ($event.target as HTMLInputElement).value)"
                     class="ghost-color-picker"
                     title="选择光标颜色"
                   />
                 </div>
               </div>
 
-              <div v-if="activeGhosts.length > 0" class="ghost-controls">
-                <p>{{ activeGhosts.length }} 个幽灵已激活</p>
+              <div v-if="activeGhostIds.length > 0" class="ghost-controls">
+                <p>{{ activeGhostIds.length }} 个幽灵已激活</p>
                 <label>
                   <input type="checkbox" v-model="showGhostLabels" />
                   显示幽灵名称标签
                 </label>
               </div>
             </div>
+            <p v-else-if="savedRecordings.length > 0" class="hint">当前文本暂无历史录制，完成一局后即可添加幽灵。</p>
             <p v-else class="hint">保存一些录制后可以添加幽灵</p>
           </div>
         </section>
@@ -226,7 +235,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref, shallowRef, nextTick, computed } from 'vue';
+import { onMounted, onUnmounted, ref, shallowRef, nextTick, computed, watch } from 'vue';
 import {
   createSessionRuntime,
   createTextSource,
@@ -237,13 +246,14 @@ import {
   createDomAudioController,
   createPlayer,
   createGhostManager,
+  createDomThemeController,
   exportRecordingToFile,
   type CursorShape,
   type RecordingData,
   type Player,
   type GhostManager
 } from '@pitype/core';
-import { allTexts, type Language } from './texts';
+import { allTexts } from './texts';
 
 const textContainerRef = ref<HTMLElement | null>(null);
 const textDisplayRef = ref<HTMLElement | null>(null);
@@ -282,9 +292,30 @@ const showSettings = ref(false);
 
 // 幽灵光标状态
 const savedRecordings = ref<RecordingData[]>([]);
-const activeGhosts = ref<number[]>([]);  // 激活的幽灵索引
-const ghostColors = ref<string[]>([]);   // 每个幽灵的颜色
+const activeGhostIds = ref<string[]>([]);  // 激活的幽灵 ID
+const ghostColors = ref<Record<string, string>>({});   // 以录制 ID 为键的颜色映射
 const showGhostLabels = ref(true);       // 是否显示幽灵名称标签
+
+const playbackPosition = ref<number | null>(null);
+const shouldStartGhostsOnNextInput = ref(false);
+const themeController = shallowRef<ReturnType<typeof createDomThemeController> | null>(null);
+let themeControllerCleanup: (() => void) | null = null;
+
+const currentTextSourceId = computed(() => `text-${selectedTextId.value}`);
+const availableGhostRecordings = computed(() =>
+  savedRecordings.value.filter(
+    recording =>
+      recording.textSource?.id === currentTextSourceId.value &&
+      Array.isArray(recording.events) &&
+      recording.events.length > 0
+  )
+);
+const activeGhostRecordings = computed(() =>
+  availableGhostRecordings.value.filter(recording => activeGhostIds.value.includes(recording.id))
+);
+const hasReplayRecording = computed(
+  () => !!currentRecording.value && Array.isArray(currentRecording.value.events) && currentRecording.value.events.length > 0
+);
 
 const GHOST_COLOR_PALETTE = [
   'rgba(255, 99, 132, 0.8)',   // 粉红
@@ -294,11 +325,35 @@ const GHOST_COLOR_PALETTE = [
   'rgba(153, 102, 255, 0.8)',  // 紫色
 ];
 
+const RECORDING_STORAGE_KEY = 'savedRecordings';
+const GHOST_COLOR_STORAGE_KEY = 'ghostColors';
+
 let sessionRuntime: ReturnType<typeof createSessionRuntime>;
+
+function cloneRecording(recording: RecordingData): RecordingData {
+  return JSON.parse(JSON.stringify(recording)) as RecordingData;
+}
+
+function armGhostPlaybackIfNeeded() {
+  if (isPlayingBack.value) {
+    shouldStartGhostsOnNextInput.value = false;
+    return;
+  }
+  shouldStartGhostsOnNextInput.value = activeGhostRecordings.value.length > 0;
+}
+
+function cancelGhostPlayback() {
+  shouldStartGhostsOnNextInput.value = false;
+  ghostManager.value?.stopAll();
+}
 
 function handleEvaluate(event: { index: number; correct: boolean }) {
   textRenderer.value?.applySpanState(event.index, event.correct);
   cursorAdapter.value?.scheduleRefresh();
+  if (shouldStartGhostsOnNextInput.value) {
+    ghostManager.value?.startAll();
+    shouldStartGhostsOnNextInput.value = false;
+  }
 }
 
 function handleUndo(event: { index: number }) {
@@ -307,10 +362,14 @@ function handleUndo(event: { index: number }) {
 }
 
 function focusInput() {
+  if (isPlayingBack.value) return;
   hiddenInputRef.value?.focus();
 }
 
 function restartSession() {
+  if (isPlayingBack.value) {
+    stopPlayback({ resumeSession: false });
+  }
   startSession();
 }
 
@@ -325,6 +384,9 @@ async function startSession() {
     if (!selectedText) {
       throw new Error(`未找到ID为 ${selectedTextId.value} 的文本`);
     }
+
+    playbackPosition.value = null;
+    isPlayingBack.value = false;
 
     const source = createTextSource(selectedText.content, {
       id: `text-${selectedText.id}`,
@@ -363,11 +425,7 @@ async function startSession() {
     cursorAdapter.value?.enableResponsiveSync();
 
     // 初始化幽灵光标
-    if (activeGhosts.value.length > 0) {
-      initializeGhosts();
-      // 启动所有幽灵
-      ghostManager.value?.startAll();
-    }
+    syncGhostSelections();
 
     // 聚焦输入框
     focusInput();
@@ -379,13 +437,11 @@ async function startSession() {
 }
 
 function switchTheme(theme: string) {
-  activeTheme.value = theme;
-  // 移除所有主题类
-  themes.forEach(t => {
-    document.body.classList.remove(`theme-${t}`);
-  });
-  // 添加新主题类
-  document.body.classList.add(`theme-${theme}`);
+  if (themeController.value) {
+    activeTheme.value = themeController.value.applyTheme(theme);
+  } else {
+    activeTheme.value = theme;
+  }
 }
 
 function handleTextChange(event: Event) {
@@ -425,46 +481,72 @@ function updateVolume(event: Event) {
 }
 
 // 回放控制函数
-function playRecording() {
-  if (!currentRecording.value || isPlayingBack.value) return;
+async function playRecording() {
+  if (!currentRecording.value || isPlayingBack.value || !currentRecording.value.textSource) return;
 
-  // 停止当前会话
-  if (player.value) {
-    player.value.destroy();
-  }
+  try {
+    player.value?.destroy();
+    cancelGhostPlayback();
 
-  // 渲染录制的文本
-  textRenderer.value?.render(currentRecording.value.textSource);
-  cursorAdapter.value?.cacheCharSpans();
+    playbackPosition.value = 0;
+    isPlayingBack.value = true;
 
-  // 创建播放器
-  player.value = createPlayer({
-    recording: currentRecording.value,
-    playbackSpeed: playbackSpeed.value,
-    onEvent: (event) => {
-      if (event.type === 'input:evaluate') {
-        textRenderer.value?.applySpanState(event.index, event.correct);
+    // 暂时移除输入监听，避免误触
+    inputController.value?.detachInput();
+
+    textRenderer.value?.render(currentRecording.value.textSource);
+    await nextTick();
+    cursorAdapter.value?.cacheCharSpans();
+    cursorAdapter.value?.updatePosition({ immediate: true });
+
+    player.value = createPlayer({
+      recording: currentRecording.value,
+      playbackSpeed: playbackSpeed.value,
+      onEvent: (event) => {
+        if (event.type === 'input:evaluate') {
+          playbackPosition.value = event.index + 1;
+          textRenderer.value?.applySpanState(event.index, event.correct);
+        } else if (event.type === 'input:undo') {
+          playbackPosition.value = event.index;
+          textRenderer.value?.resetSpanState(event.index);
+        }
         cursorAdapter.value?.updatePosition({ immediate: false });
-      } else if (event.type === 'input:undo') {
-        textRenderer.value?.resetSpanState(event.index);
-        cursorAdapter.value?.updatePosition({ immediate: false });
+      },
+      onComplete: () => {
+        stopPlayback();
       }
-    },
-    onComplete: () => {
-      isPlayingBack.value = false;
-    }
-  });
+    });
 
-  player.value.play();
-  isPlayingBack.value = true;
+    player.value.play();
+  } catch (error) {
+    console.error('播放录制失败:', error);
+    stopPlayback();
+  }
 }
 
-function stopPlayback() {
+function stopPlayback(options: { resumeSession?: boolean } = {}) {
+  if (!isPlayingBack.value && playbackPosition.value === null) return;
+
+  const { resumeSession = true } = options;
+
   player.value?.stop();
   player.value?.destroy();
   player.value = null;
+
   isPlayingBack.value = false;
-  restartSession();
+  playbackPosition.value = null;
+
+  if (hiddenInputRef.value) {
+    inputController.value?.attachInput(hiddenInputRef.value);
+  }
+
+  if (resumeSession) {
+    startSession();
+  } else {
+    cursorAdapter.value?.cacheCharSpans();
+    cursorAdapter.value?.updatePosition({ immediate: true });
+    armGhostPlaybackIfNeeded();
+  }
 }
 
 function updatePlaybackSpeed() {
@@ -482,91 +564,223 @@ function toggleSettings() {
 }
 
 // 幽灵光标管理函数
-function getGhostName(index: number): string {
-  const recording = savedRecordings.value[index];
-  return `幽灵 #${index + 1}`;
-}
-
-function getGhostColor(index: number): string {
-  if (!ghostColors.value[index]) {
-    ghostColors.value[index] = GHOST_COLOR_PALETTE[index % GHOST_COLOR_PALETTE.length];
+function computePaletteIndexFromId(recordingId: string, fallbackIndex?: number): number {
+  if (typeof fallbackIndex === 'number') {
+    return Math.abs(fallbackIndex) % GHOST_COLOR_PALETTE.length;
   }
-  return ghostColors.value[index];
+  const hash = Array.from(recordingId).reduce((sum, char) => sum + char.charCodeAt(0), 0);
+  return hash % GHOST_COLOR_PALETTE.length;
 }
 
-function updateGhostColor(index: number, color: string) {
-  ghostColors.value[index] = color;
+function ensureGhostColor(recordingId: string, fallbackIndex?: number): string {
+  if (!ghostColors.value[recordingId]) {
+    const paletteIndex = computePaletteIndexFromId(recordingId, fallbackIndex);
+    ghostColors.value[recordingId] = GHOST_COLOR_PALETTE[paletteIndex];
+    persistGhostColors();
+  }
+  return ghostColors.value[recordingId];
 }
 
-function isGhostEnabled(index: number): boolean {
-  return activeGhosts.value.includes(index);
+function getGhostName(recording: RecordingData, fallbackIndex = 0): string {
+  if (recording.metadata?.name) return recording.metadata.name;
+  if (recording.metadata?.label) return recording.metadata.label;
+  const availableIndex = availableGhostRecordings.value.findIndex(item => item.id === recording.id);
+  const resolvedIndex = availableIndex > -1 ? availableIndex : fallbackIndex;
+  return `幽灵 #${resolvedIndex + 1}`;
 }
 
-function toggleGhost(index: number) {
-  const ghostIndex = activeGhosts.value.indexOf(index);
-  if (ghostIndex > -1) {
-    // 移除幽灵
-    activeGhosts.value.splice(ghostIndex, 1);
+function getGhostColor(recordingId: string, fallbackIndex = 0): string {
+  return ensureGhostColor(recordingId, fallbackIndex);
+}
+
+function updateGhostColor(recordingId: string, color: string) {
+  ghostColors.value = {
+    ...ghostColors.value,
+    [recordingId]: color
+  };
+  persistGhostColors();
+  const activeGhost = ghostManager.value
+    ?.getAllGhosts()
+    .find(ghost => ghost.config.recording.id === recordingId);
+  if (activeGhost) {
+    activeGhost.cursorAdapter.setCursorColor(color);
+    if (activeGhost.labelElement) {
+      activeGhost.labelElement.style.backgroundColor = color;
+    }
+    activeGhost.config.color = color;
+  }
+}
+
+function isGhostEnabled(recordingId: string): boolean {
+  return activeGhostIds.value.includes(recordingId);
+}
+
+function toggleGhost(recordingId: string) {
+  if (isGhostEnabled(recordingId)) {
+    activeGhostIds.value = activeGhostIds.value.filter(id => id !== recordingId);
   } else {
-    // 添加幽灵
-    activeGhosts.value.push(index);
+    activeGhostIds.value = [...activeGhostIds.value, recordingId];
+    ensureGhostColor(recordingId);
+  }
+  syncGhostSelections();
+}
+
+function persistGhostColors() {
+  try {
+    localStorage.setItem(GHOST_COLOR_STORAGE_KEY, JSON.stringify(ghostColors.value));
+  } catch (error) {
+    console.error('保存幽灵颜色失败:', error);
   }
 }
 
-function initializeGhosts() {
-  if (!ghostManager.value || activeGhosts.value.length === 0) return;
+function loadGhostColors() {
+  try {
+    const colors = localStorage.getItem(GHOST_COLOR_STORAGE_KEY);
+    if (colors) {
+      const parsed = JSON.parse(colors);
+      if (parsed && typeof parsed === 'object') {
+        ghostColors.value = parsed;
+      }
+    }
+  } catch (error) {
+    console.error('加载幽灵颜色失败:', error);
+  }
+}
 
-  // 清除旧的幽灵
-  ghostManager.value.destroy();
+function persistSavedRecordings() {
+  try {
+    localStorage.setItem(RECORDING_STORAGE_KEY, JSON.stringify(savedRecordings.value));
+  } catch (error) {
+    console.error('保存录制失败:', error);
+  }
+}
 
-  // 创建新的 GhostManager
+function pruneGhostSelections(): boolean {
+  const availableIds = new Set(availableGhostRecordings.value.map(recording => recording.id));
+  const nextActiveIds = activeGhostIds.value.filter(id => availableIds.has(id));
+  if (nextActiveIds.length !== activeGhostIds.value.length) {
+    activeGhostIds.value = nextActiveIds;
+    return true;
+  }
+  return false;
+}
+
+function resetGhostManager() {
+  ghostManager.value?.destroy();
+  if (!textDisplayRef.value || !textContainerRef.value) {
+    ghostManager.value = null;
+    return;
+  }
+
   ghostManager.value = createGhostManager({
-    textDisplay: textDisplayRef.value!,
-    textContainer: textContainerRef.value!,
+    textDisplay: textDisplayRef.value,
+    textContainer: textContainerRef.value,
     getSpans: () => textRenderer.value?.getSpans() ?? []
   });
+}
 
-  // 添加激活的幽灵
-  activeGhosts.value.forEach(index => {
-    const recording = savedRecordings.value[index];
+function syncGhosts() {
+  resetGhostManager();
+  if (!ghostManager.value) return;
+
+  if (activeGhostRecordings.value.length === 0) {
+    shouldStartGhostsOnNextInput.value = false;
+    return;
+  }
+
+  activeGhostRecordings.value.forEach((recording, index) => {
     ghostManager.value!.addGhost({
-      name: getGhostName(index),
-      recording: recording,
-      color: getGhostColor(index),
+      name: getGhostName(recording, index),
+      recording,
+      color: getGhostColor(recording.id, index),
       shape: 'line',
       showLabel: showGhostLabels.value
     });
   });
+  armGhostPlaybackIfNeeded();
 }
+
+function syncGhostSelections() {
+  if (isPlayingBack.value) return;
+  pruneGhostSelections();
+  if (!textRenderer.value) return;
+
+  const spans = textRenderer.value.getSpans?.() ?? [];
+  if (spans.length === 0) return;
+
+  syncGhosts();
+}
+
+watch(showGhostLabels, () => {
+  if (activeGhostRecordings.value.length === 0) return;
+  syncGhostSelections();
+});
+
+watch(availableGhostRecordings, () => {
+  const changed = pruneGhostSelections();
+  if (changed) {
+    syncGhostSelections();
+  } else {
+    armGhostPlaybackIfNeeded();
+  }
+}, { deep: true });
 
 function loadSavedRecordings() {
   try {
-    const saved = localStorage.getItem('savedRecordings');
+    const saved = localStorage.getItem(RECORDING_STORAGE_KEY);
     if (saved) {
-      savedRecordings.value = JSON.parse(saved);
+      const parsed = JSON.parse(saved);
+      if (Array.isArray(parsed)) {
+        savedRecordings.value = parsed.filter(
+          (recording: RecordingData) =>
+            Array.isArray(recording?.events) && recording.events.length > 0
+        );
+      }
     }
   } catch (error) {
     console.error('加载录制失败:', error);
   }
+  loadGhostColors();
+  pruneGhostSelections();
 }
 
-function saveRecordingToHistory() {
-  if (!currentRecording.value) return;
-
-  // 添加到历史
-  savedRecordings.value.push(currentRecording.value);
-
-  // 最多保存 10 个录制
-  if (savedRecordings.value.length > 10) {
-    savedRecordings.value.shift();
+function saveRecordingToHistory(recording: RecordingData) {
+  if (
+    !recording ||
+    !recording.textSource?.id ||
+    !Array.isArray(recording.events) ||
+    recording.events.length === 0
+  ) {
+    return;
   }
 
-  // 保存到 localStorage
-  try {
-    localStorage.setItem('savedRecordings', JSON.stringify(savedRecordings.value));
-  } catch (error) {
-    console.error('保存录制失败:', error);
+  // 移除相同 ID 的旧录制，保持唯一
+  savedRecordings.value = savedRecordings.value.filter(item => item.id !== recording.id);
+  savedRecordings.value.push(recording);
+
+  // 针对当前文本最多保留 10 个录制
+  const perTextLimit = 10;
+  const relatedRecordings = savedRecordings.value
+    .filter(item => item.textSource?.id === recording.textSource?.id)
+    .sort((a, b) => a.startTime - b.startTime);
+
+  while (relatedRecordings.length > perTextLimit) {
+    const oldest = relatedRecordings.shift();
+    if (!oldest) continue;
+    const removeIndex = savedRecordings.value.findIndex(item => item.id === oldest.id);
+    if (removeIndex > -1) {
+      savedRecordings.value.splice(removeIndex, 1);
+      if (ghostColors.value[oldest.id]) {
+        const { [oldest.id]: _, ...rest } = ghostColors.value;
+        ghostColors.value = rest;
+        persistGhostColors();
+      }
+    }
   }
+
+  persistSavedRecordings();
+  ensureGhostColor(recording.id);
+  pruneGhostSelections();
 }
 
 onMounted(() => {
@@ -583,7 +797,8 @@ onMounted(() => {
     cursorAdapter.value = createDomCursorAdapter({
       textDisplay: textDisplayRef.value,
       textContainer: textContainerRef.value,
-      getCurrentPosition: () => sessionRuntime.getSession()?.getState().position ?? 0,
+      getCurrentPosition: () =>
+        playbackPosition.value ?? (sessionRuntime.getSession()?.getState().position ?? 0),
       getCursor: () => cursorRef.value,
       getInput: () => hiddenInputRef.value,
       getSpans: () => textRenderer.value?.getSpans() ?? [],
@@ -633,9 +848,15 @@ onMounted(() => {
           showResult.value = true;
           // 保存录制数据
           const recording = sessionRuntime.getLastRecording();
-          currentRecording.value = recording;
-          // 自动保存到历史
-          saveRecordingToHistory();
+          if (recording && Array.isArray(recording.events) && recording.events.length > 0) {
+            const snapshotRecording = cloneRecording(recording);
+            currentRecording.value = snapshotRecording;
+            // 自动保存到历史
+            saveRecordingToHistory(snapshotRecording);
+          } else {
+            currentRecording.value = recording ?? null;
+            console.warn('录制数据为空，已跳过保存。');
+          }
           // 停止幽灵
           ghostManager.value?.stopAll();
         }
@@ -672,18 +893,24 @@ onMounted(() => {
       inputController.value.attachInput(hiddenInputRef.value);
     }
 
-    // 初始化 GhostManager
-    ghostManager.value = createGhostManager({
-      textDisplay: textDisplayRef.value,
-      textContainer: textContainerRef.value,
-      getSpans: () => textRenderer.value?.getSpans() ?? []
+    // 初始化主题控制器
+    themeController.value = createDomThemeController({
+      themes: Array.from(themes),
+      defaultTheme: activeTheme.value,
+      selector: '.theme-option',
+      target: document.body,
+      onThemeChange: (theme) => {
+        activeTheme.value = theme;
+      }
     });
+    themeControllerCleanup = themeController.value.init();
+    activeTheme.value = themeController.value.getActiveTheme();
+
+    // 初始化 GhostManager
+    resetGhostManager();
 
     // 加载历史录制
     loadSavedRecordings();
-
-    // 应用初始主题
-    document.body.classList.add(`theme-${activeTheme.value}`);
 
     startSession();
   } catch (error) {
@@ -700,6 +927,7 @@ onUnmounted(() => {
   audioController.value?.destroy();
   player.value?.destroy();
   ghostManager.value?.destroy();
+  themeControllerCleanup?.();
   // 注意：cursorAdapter 目前没有 destroy 方法，但 windowRef 的监听器会在页面卸载时自动清理
 });
 </script>
