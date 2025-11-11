@@ -143,4 +143,24 @@ describe('createDomTextRenderer', () => {
     expect(span.classList.contains('correct')).toBe(false);
     expect(span.classList.contains('incorrect')).toBe(false);
   });
+
+  it('preserves non-text children when preserveChildren enabled', () => {
+    const doc = new FakeDocument();
+    const display = doc.createElement('div');
+    const persistent = doc.createElement('button');
+    persistent.textContent = 'Click';
+    display.appendChild(persistent);
+
+    const renderer = createDomTextRenderer(display as unknown as HTMLElement, {
+      documentRef: doc as unknown as Document,
+      preserveChildren: true,
+      textContentClass: 'custom-text'
+    });
+
+    renderer.render(createTextSource('abc'));
+
+    expect(display.children.includes(persistent)).toBe(true);
+    const textContainers = display.children.filter((child) => child.classList.contains('custom-text'));
+    expect(textContainers.length).toBe(1);
+  });
 });

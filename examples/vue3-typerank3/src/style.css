@@ -94,6 +94,30 @@ body {
 .text-display {
   position: relative;
   min-height: 240px;
+}
+
+.text-display.hidden {
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-size: 1.1rem;
+  z-index: 10;
+}
+
+.text-layer {
+  position: relative;
+  min-height: 240px;
   line-height: 1.6;
   font-size: 1.2rem;
 }
@@ -108,9 +132,18 @@ body {
 
 .cursor {
   position: absolute;
+  top: 0;
+  left: 0;
   width: 2px;
+  height: 1.6em;
   background: #fff;
   border-radius: 2px;
+  pointer-events: none;
+  visibility: hidden;
+}
+
+.cursor.cursor-visible {
+  visibility: visible;
   opacity: 0.8;
   animation: blink 0.9s steps(1) infinite;
 }
@@ -140,6 +173,14 @@ body {
   width: min(400px, 90%);
 }
 
+.loading-message {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.error-message {
+  color: #ff6b6b;
+}
+
 @keyframes blink {
   0%,
   50% {
@@ -149,4 +190,149 @@ body {
   100% {
     opacity: 1;
   }
+}
+
+/* Theme: Dracula (default) */
+.theme-dracula {
+  --bg-primary: #050814;
+  --bg-secondary: rgba(5, 8, 20, 0.6);
+  --bg-gradient-1: rgba(72, 89, 255, 0.2);
+  --bg-gradient-2: rgba(72, 89, 255, 0.15);
+  --text-primary: #f5f7ff;
+  --text-correct: #5ef4a8;
+  --text-incorrect: #ff6b6b;
+  --accent: rgba(72, 89, 255, 0.4);
+  --border: rgba(72, 89, 255, 0.2);
+}
+
+.theme-dracula body {
+  background: radial-gradient(circle at top, var(--bg-gradient-1), transparent 45%),
+    radial-gradient(circle at 20% 20%, var(--bg-gradient-2), transparent 25%),
+    var(--bg-primary);
+}
+
+/* Theme: Serika */
+.theme-serika {
+  --bg-primary: #e5e5e5;
+  --bg-secondary: rgba(255, 255, 255, 0.8);
+  --bg-gradient-1: rgba(255, 200, 50, 0.15);
+  --bg-gradient-2: rgba(255, 200, 50, 0.1);
+  --text-primary: #323437;
+  --text-correct: #4f9d69;
+  --text-incorrect: #ca4754;
+  --accent: rgba(255, 200, 50, 0.6);
+  --border: rgba(50, 52, 55, 0.2);
+  --cursor-color: #323437;
+}
+
+.theme-serika body {
+  background: radial-gradient(circle at top, var(--bg-gradient-1), transparent 45%),
+    radial-gradient(circle at 80% 80%, var(--bg-gradient-2), transparent 25%),
+    var(--bg-primary);
+  color: var(--text-primary);
+}
+
+.theme-serika .cursor {
+  background: var(--cursor-color);
+}
+
+/* Theme: Botanical */
+.theme-botanical {
+  --bg-primary: #1a1f1c;
+  --bg-secondary: rgba(26, 31, 28, 0.8);
+  --bg-gradient-1: rgba(102, 187, 106, 0.15);
+  --bg-gradient-2: rgba(102, 187, 106, 0.1);
+  --text-primary: #c7d3c0;
+  --text-correct: #81c784;
+  --text-incorrect: #e57373;
+  --accent: rgba(102, 187, 106, 0.4);
+  --border: rgba(102, 187, 106, 0.2);
+}
+
+.theme-botanical body {
+  background: radial-gradient(circle at top, var(--bg-gradient-1), transparent 45%),
+    radial-gradient(circle at 20% 80%, var(--bg-gradient-2), transparent 25%),
+    var(--bg-primary);
+  color: var(--text-primary);
+}
+
+/* Theme: Aether */
+.theme-aether {
+  --bg-primary: #101820;
+  --bg-secondary: rgba(16, 24, 32, 0.8);
+  --bg-gradient-1: rgba(101, 123, 131, 0.15);
+  --bg-gradient-2: rgba(101, 123, 131, 0.1);
+  --text-primary: #eedaea;
+  --text-correct: #9ec1cf;
+  --text-incorrect: #e57c7c;
+  --accent: rgba(101, 123, 131, 0.4);
+  --border: rgba(101, 123, 131, 0.2);
+}
+
+.theme-aether body {
+  background: radial-gradient(circle at top, var(--bg-gradient-1), transparent 45%),
+    radial-gradient(circle at 80% 20%, var(--bg-gradient-2), transparent 25%),
+    var(--bg-primary);
+  color: var(--text-primary);
+}
+
+/* Theme: Nord */
+.theme-nord {
+  --bg-primary: #2e3440;
+  --bg-secondary: rgba(46, 52, 64, 0.8);
+  --bg-gradient-1: rgba(136, 192, 208, 0.15);
+  --bg-gradient-2: rgba(129, 161, 193, 0.1);
+  --text-primary: #eceff4;
+  --text-correct: #a3be8c;
+  --text-incorrect: #bf616a;
+  --accent: rgba(136, 192, 208, 0.4);
+  --border: rgba(136, 192, 208, 0.2);
+}
+
+.theme-nord body {
+  background: radial-gradient(circle at top, var(--bg-gradient-1), transparent 45%),
+    radial-gradient(circle at 50% 80%, var(--bg-gradient-2), transparent 25%),
+    var(--bg-primary);
+  color: var(--text-primary);
+}
+
+/* Apply theme colors to components */
+.text-container {
+  background: var(--bg-secondary, rgba(5, 8, 20, 0.6));
+  border-color: var(--border, rgba(72, 89, 255, 0.2));
+}
+
+.char.correct {
+  color: var(--text-correct, #5ef4a8);
+}
+
+.char.incorrect {
+  color: var(--text-incorrect, #ff6b6b);
+}
+
+.language-option.active,
+.theme-option.active,
+#restart-btn:hover {
+  background: var(--accent, rgba(72, 89, 255, 0.4));
+}
+
+/* Theme selector colors */
+.theme-option[data-theme="dracula"] {
+  background: linear-gradient(135deg, #4859ff 0%, #5ef4a8 100%);
+}
+
+.theme-option[data-theme="serika"] {
+  background: linear-gradient(135deg, #ffc832 0%, #4f9d69 100%);
+}
+
+.theme-option[data-theme="botanical"] {
+  background: linear-gradient(135deg, #66bb6a 0%, #81c784 100%);
+}
+
+.theme-option[data-theme="aether"] {
+  background: linear-gradient(135deg, #657b83 0%, #9ec1cf 100%);
+}
+
+.theme-option[data-theme="nord"] {
+  background: linear-gradient(135deg, #88c0d0 0%, #a3be8c 100%);
 }

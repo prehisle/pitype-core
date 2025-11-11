@@ -11,6 +11,8 @@ export interface DomTextRenderer {
 
 export interface DomTextRendererOptions {
   documentRef?: Document;
+  preserveChildren?: boolean;
+  textContentClass?: string;
 }
 
 export function createDomTextRenderer(
@@ -18,6 +20,8 @@ export function createDomTextRenderer(
   options: DomTextRendererOptions = {}
 ): DomTextRenderer {
   const doc = options.documentRef ?? (typeof document !== 'undefined' ? document : undefined);
+  const preserveChildren = options.preserveChildren ?? false;
+  const textContentClass = options.textContentClass ?? 'pitype-text-content';
   let charSpans: HTMLElement[] = [];
 
   const render = (source: TextSource | null | undefined) => {
@@ -86,8 +90,18 @@ export function createDomTextRenderer(
     });
 
     flushWord();
-    textDisplay.innerHTML = '';
-    textDisplay.appendChild(fragment);
+    const contentWrapper = doc.createElement('div');
+    contentWrapper.classList.add(textContentClass);
+    contentWrapper.appendChild(fragment);
+
+    if (preserveChildren) {
+      const existing = Array.from(textDisplay.querySelectorAll(`.${textContentClass}`));
+      existing.forEach((node) => node.remove());
+      textDisplay.insertBefore(contentWrapper, textDisplay.firstChild);
+    } else {
+      textDisplay.innerHTML = '';
+      textDisplay.appendChild(contentWrapper);
+    }
     charSpans = [];
   };
 

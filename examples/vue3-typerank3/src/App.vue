@@ -55,18 +55,23 @@
       </div>
     </section>
 
-    <section class="text-container" @click="focusInput">
-      <div id="text-display" ref="textDisplayRef" class="text-display">
-        <input
-          ref="hiddenInputRef"
-          id="input-field"
-          type="text"
-          autocomplete="off"
-          @input="onInput"
-          @keydown="onKeydown"
-        />
-        <div ref="cursorRef" class="cursor" />
+    <section class="text-container" ref="textContainerRef" @click="focusInput">
+      <div v-if="initError" class="overlay error-message">
+        <i class="fas fa-exclamation-circle" /> {{ initError }}
       </div>
+      <div v-else-if="isLoading" class="overlay loading-message">
+        <i class="fas fa-spinner fa-spin" /> 加载中...
+      </div>
+      <div ref="textDisplayRef" class="text-display" :class="{ hidden: initError || isLoading }"></div>
+      <input
+        ref="hiddenInputRef"
+        id="input-field"
+        type="text"
+        autocomplete="off"
+        @input="onInput"
+        @keydown="onKeydown"
+      />
+      <div ref="cursorRef" class="cursor" />
     </section>
 
     <div v-if="showResult" class="modal">
@@ -87,7 +92,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, shallowRef, nextTick } from 'vue';
 import {
   createSessionRuntime,
   createTextSource,
@@ -96,16 +101,17 @@ import {
   createDomTextRenderer,
   type StatsSnapshot
 } from '@pitype/core';
-import { texts } from './texts';
+import { texts, type Language } from './texts';
 
+const textContainerRef = ref<HTMLElement | null>(null);
 const textDisplayRef = ref<HTMLElement | null>(null);
 const cursorRef = ref<HTMLElement | null>(null);
 const hiddenInputRef = ref<HTMLInputElement | null>(null);
 
-const themes = ['dracula', 'serika', 'botanical', 'aether', 'nord'];
-const languages = ['zh-CN', 'zh-TW', 'en-US'];
-const activeLanguage = ref('zh-CN');
-const activeTheme = ref('dracula');
+const themes = ['dracula', 'serika', 'botanical', 'aether', 'nord'] as const;
+const languages: Language[] = ['zh-CN', 'zh-TW', 'en-US'];
+const activeLanguage = ref<Language>('zh-CN');
+const activeTheme = ref<string>('dracula');
 
 const statsSnapshot = ref<StatsSnapshot>({
   startedAt: undefined,
@@ -121,6 +127,8 @@ const statsSnapshot = ref<StatsSnapshot>({
 
 const showResult = ref(false);
 const textIndex = ref(0);
+const isLoading = ref(true);
+const initError = ref<string | null>(null);
 
 const sessionRuntime = createSessionRuntime({
   onEvaluate: handleEvaluate,
@@ -129,24 +137,27 @@ const sessionRuntime = createSessionRuntime({
     if (snapshot) statsSnapshot.value = snapshot;
   },
   onComplete: (snapshot) => {
-    statsSnapshot.value = snapshot;
-    showResult.value = true;
+    if (snapshot) {
+      statsSnapshot.value = snapshot;
+      showResult.value = true;
+    }
   },
   onReset: () => {
     showResult.value = false;
   }
 });
 
-const textRenderer = ref<ReturnType<typeof createDomTextRenderer>>();
-const cursorAdapter = ref<ReturnType<typeof createDomCursorAdapter>>();
-const inputController = ref<ReturnType<typeof createDomInputController>>();
-const currentSource = ref(createTextSource(texts[textIndex.value], { id: 'initial' }));
+const textRenderer = shallowRef<ReturnType<typeof createDomTextRenderer>>();
+const cursorAdapter = shallowRef<ReturnType<typeof createDomCursorAdapter>>();
+const inputController = shallowRef<ReturnType<typeof createDomInputController>>();
 
 function handleEvaluate(event: { index: number; correct: boolean }) {
+  textRenderer.value?.applySpanState(event.index, event.correct);
   cursorAdapter.value?.scheduleRefresh();
 }
 
-function handleUndo() {
+function handleUndo(event: { index: number }) {
+  textRenderer.value?.resetSpanState(event.index);
   cursorAdapter.value?.scheduleRefresh();
 }
 
@@ -181,7 +192,8 @@ function onKeydown(event: KeyboardEvent) {
 }
 
 function restartSession() {
-  textIndex.value = Math.floor(Math.random() * texts.length);
+  const langTexts = texts[activeLanguage.value];
+  textIndex.value = Math.floor(Math.random() * langTexts.length);
   startSession();
 }
 
@@ -190,53 +202,119 @@ function closeResult() {
   restartSession();
 }
 
-function startSession() {
-  const source = createTextSource(texts[textIndex.value], {
-    id: `text-${textIndex.value}`,
-    locale: activeLanguage.value
-  });
-  currentSource.value = source;
-  sessionRuntime.startSession(source);
-  textRenderer.value?.render(source);
-  cursorAdapter.value?.cacheCharSpans();
-  cursorAdapter.value?.updatePosition({ immediate: true });
-  cursorAdapter.value?.enableMobileSupport();
-  cursorAdapter.value?.enableResponsiveSync();
-  focusInput();
+async function startSession() {
+  try {
+    const langTexts = texts[activeLanguage.value];
+    if (!langTexts || langTexts.length === 0) {
+      throw new Error(`没有可用的 ${activeLanguage.value} 文本`);
+    }
+
+    const source = createTextSource(langTexts[textIndex.value], {
+      id: `text-${textIndex.value}`,
+      locale: activeLanguage.value
+    });
+
+    sessionRuntime.startSession(source);
+    textRenderer.value?.render(source);
+
+    // render() 会清空 text-display，需要重新添加 input 和 cursor
+    if (textDisplayRef.value && hiddenInputRef.value && cursorRef.value) {
+      textDisplayRef.value.appendChild(hiddenInputRef.value);
+      textDisplayRef.value.appendChild(cursorRef.value);
+    }
+
+    // 先显示文本，移除加载状态
+    isLoading.value = false;
+
+    // 等待 Vue DOM 更新完成
+    await nextTick();
+
+    // 使用三层嵌套的 requestAnimationFrame 确保 DOM 完全更新
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          // 首先缓存所有字符元素
+          cursorAdapter.value?.cacheCharSpans();
+
+          // 检查是否成功获取到 spans
+          const spans = textRenderer.value?.getSpans() ?? [];
+          if (spans.length === 0) {
+            console.error('未找到任何字符元素，无法定位光标');
+            return;
+          }
+
+          // 确保光标定位准确
+          cursorAdapter.value?.updatePosition({ immediate: true });
+
+          // 设置移动设备支持
+          cursorAdapter.value?.enableMobileSupport();
+
+          // 监听尺寸变化，保持光标位置随容器更新
+          cursorAdapter.value?.enableResponsiveSync();
+
+          // 聚焦输入框
+          focusInput();
+        });
+      });
+    });
+  } catch (error) {
+    initError.value = error instanceof Error ? error.message : '初始化失败';
+    isLoading.value = false;
+    console.error('启动会话失败:', error);
+  }
 }
 
 function switchTheme(theme: string) {
   activeTheme.value = theme;
-  document.body.className = '';
-  if (theme !== 'dracula') {
-    document.body.classList.add(`theme-${theme}`);
-  }
+  // 移除所有主题类
+  themes.forEach(t => {
+    document.body.classList.remove(`theme-${t}`);
+  });
+  // 添加新主题类
+  document.body.classList.add(`theme-${theme}`);
 }
 
 function switchLanguage(lang: string) {
-  activeLanguage.value = lang;
+  activeLanguage.value = lang as Language;
   restartSession();
 }
 
 onMounted(() => {
-  if (!textDisplayRef.value || !cursorRef.value) return;
-  textRenderer.value = createDomTextRenderer(textDisplayRef.value);
-  cursorAdapter.value = createDomCursorAdapter({
-    textDisplay: textDisplayRef.value,
-    textContainer: textDisplayRef.value.parentElement,
-    getCurrentPosition: () => sessionRuntime.getSession()?.getState().position ?? 0,
-    getCursor: () => cursorRef.value,
-    getInput: () => hiddenInputRef.value,
-    getSpans: () => textRenderer.value?.getSpans() ?? [],
-    setSpans: (spans) => textRenderer.value?.setSpans(spans)
-  });
-  inputController.value = createDomInputController({
-    getTypingSession: () => sessionRuntime.getSession(),
-    onCompositionEnd: () => cursorAdapter.value?.updatePosition()
-  });
-  if (hiddenInputRef.value) {
-    inputController.value.attachInput(hiddenInputRef.value);
+  try {
+    if (!textDisplayRef.value || !textContainerRef.value || !cursorRef.value) {
+      throw new Error('DOM 元素未正确初始化');
+    }
+
+    textRenderer.value = createDomTextRenderer(textDisplayRef.value, {
+      preserveChildren: true,
+      textContentClass: 'text-content'
+    });
+    cursorAdapter.value = createDomCursorAdapter({
+      textDisplay: textDisplayRef.value,
+      textContainer: textContainerRef.value,
+      getCurrentPosition: () => sessionRuntime.getSession()?.getState().position ?? 0,
+      getCursor: () => cursorRef.value,
+      getInput: () => hiddenInputRef.value,
+      getSpans: () => textRenderer.value?.getSpans() ?? [],
+      setSpans: (spans) => textRenderer.value?.setSpans(spans)
+    });
+    inputController.value = createDomInputController({
+      getTypingSession: () => sessionRuntime.getSession(),
+      onCompositionEnd: () => cursorAdapter.value?.updatePosition()
+    });
+
+    if (hiddenInputRef.value) {
+      inputController.value.attachInput(hiddenInputRef.value);
+    }
+
+    // 应用初始主题
+    document.body.classList.add(`theme-${activeTheme.value}`);
+
+    startSession();
+  } catch (error) {
+    initError.value = error instanceof Error ? error.message : '组件初始化失败';
+    isLoading.value = false;
+    console.error('初始化失败:', error);
   }
-  startSession();
 });
 </script>
