@@ -101,6 +101,12 @@ body {
   pointer-events: none;
 }
 
+.text-content {
+  min-height: 240px;
+  line-height: 1.6;
+  font-size: 1.2rem;
+}
+
 .overlay {
   position: absolute;
   top: 0;

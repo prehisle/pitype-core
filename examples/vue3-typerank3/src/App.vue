@@ -62,16 +62,15 @@
       <div v-else-if="isLoading" class="overlay loading-message">
         <i class="fas fa-spinner fa-spin" /> 加载中...
       </div>
-      <div ref="textDisplayRef" class="text-display" :class="{ hidden: initError || isLoading }"></div>
-      <input
-        ref="hiddenInputRef"
-        id="input-field"
-        type="text"
-        autocomplete="off"
-        @input="onInput"
-        @keydown="onKeydown"
-      />
-      <div ref="cursorRef" class="cursor" />
+      <div ref="textDisplayRef" class="text-display" :class="{ hidden: initError || isLoading }">
+        <input
+          ref="hiddenInputRef"
+          id="input-field"
+          type="text"
+          autocomplete="off"
+        />
+        <div ref="cursorRef" class="cursor" />
+      </div>
     </section>
 
     <div v-if="showResult" class="modal">
@@ -169,28 +168,6 @@ function focusInput() {
   hiddenInputRef.value?.focus();
 }
 
-function onInput(event: Event) {
-  const target = event.target as HTMLInputElement;
-  const value = target.value;
-  target.value = '';
-  if (!value) return;
-  sessionRuntime.getSession()?.input(value);
-}
-
-function onKeydown(event: KeyboardEvent) {
-  const session = sessionRuntime.getSession();
-  if (!session) return;
-  if (event.key === 'Backspace') {
-    session.undo();
-    event.preventDefault();
-    return;
-  }
-  if (event.key === 'Enter') {
-    session.input('\n');
-    event.preventDefault();
-  }
-}
-
 function restartSession() {
   const langTexts = texts[activeLanguage.value];
   textIndex.value = Math.floor(Math.random() * langTexts.length);
@@ -216,12 +193,6 @@ async function startSession() {
 
     sessionRuntime.startSession(source);
     textRenderer.value?.render(source);
-
-    // render() 会清空 text-display，需要重新添加 input 和 cursor
-    if (textDisplayRef.value && hiddenInputRef.value && cursorRef.value) {
-      textDisplayRef.value.appendChild(hiddenInputRef.value);
-      textDisplayRef.value.appendChild(cursorRef.value);
-    }
 
     // 先显示文本，移除加载状态
     isLoading.value = false;
