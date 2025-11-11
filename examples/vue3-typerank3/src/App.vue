@@ -191,8 +191,14 @@ async function startSession() {
       locale: activeLanguage.value
     });
 
-    sessionRuntime.startSession(source);
+    // 先渲染文本，后启动会话（顺序很重要！）
     textRenderer.value?.render(source);
+
+    // render() 会清空 text-display，需要重新添加 input 和 cursor
+    if (textDisplayRef.value && hiddenInputRef.value && cursorRef.value) {
+      textDisplayRef.value.appendChild(hiddenInputRef.value);
+      textDisplayRef.value.appendChild(cursorRef.value);
+    }
 
     // 先显示文本，移除加载状态
     isLoading.value = false;
@@ -213,6 +219,9 @@ async function startSession() {
             console.error('未找到任何字符元素，无法定位光标');
             return;
           }
+
+          // 在字符 spans 准备好后，启动会话
+          sessionRuntime.startSession(source);
 
           // 确保光标定位准确
           cursorAdapter.value?.updatePosition({ immediate: true });
@@ -256,10 +265,9 @@ onMounted(() => {
       throw new Error('DOM 元素未正确初始化');
     }
 
-    textRenderer.value = createDomTextRenderer(textDisplayRef.value, {
-      preserveChildren: true,
-      textContentClass: 'text-content'
-    });
+    // 不使用 preserveChildren，使用原始的 appendChild 方案
+    textRenderer.value = createDomTextRenderer(textDisplayRef.value);
+
     cursorAdapter.value = createDomCursorAdapter({
       textDisplay: textDisplayRef.value,
       textContainer: textContainerRef.value,
@@ -269,11 +277,13 @@ onMounted(() => {
       getSpans: () => textRenderer.value?.getSpans() ?? [],
       setSpans: (spans) => textRenderer.value?.setSpans(spans)
     });
+
     inputController.value = createDomInputController({
       getTypingSession: () => sessionRuntime.getSession(),
       onCompositionEnd: () => cursorAdapter.value?.updatePosition()
     });
 
+    // 立即附加 input controller（只需附加一次）
     if (hiddenInputRef.value) {
       inputController.value.attachInput(hiddenInputRef.value);
     }
