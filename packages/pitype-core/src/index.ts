@@ -26,6 +26,11 @@ export {
   type DomThemeController,
   type DomThemeControllerOptions
 } from './dom/themeController.js';
+export {
+  createDomTextRenderer,
+  type DomTextRenderer,
+  type DomTextRendererOptions
+} from './dom/textRenderer.js';
 export * from './tokenizer.js';
 export { createTextSource } from './textSource.js';
 export type { TextSource } from './textSource.js';

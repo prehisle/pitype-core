@@ -3,13 +3,13 @@ import {
   createTextSource,
   createDomInputController,
   createDomStatsPanel,
+  createDomTextRenderer,
   createDomThemeController
 } from './vendor/index.js';
 import { initLanguageSelector, getActiveLanguage } from './ui/languageController.js';
 import { createCursorAdapter } from './ui/cursorAdapter.js';
 import { createResultModal } from './ui/resultModal.js';
 import { initInfoModal } from './ui/infoModal.js';
-import { createTextRenderer } from './ui/textRenderer.js';
 import { createLocaleHelpers } from './ui/localeUtils.js';
 
 let currentText = '';
@@ -51,7 +51,7 @@ const statsPanel = createDomStatsPanel({
   }
 });
 const themeController = createDomThemeController();
-const textRenderer = createTextRenderer(textDisplay);
+const textRenderer = createDomTextRenderer(textDisplay);
 let cursorAdapter = null;
 const sessionRuntime = createSessionRuntime({
   onEvaluate: (event) => {

@@ -4,6 +4,7 @@ export { createSessionRuntime } from './sessionRuntime.js';
 export { createDomInputController } from './dom/inputController.js';
 export { createDomStatsPanel } from './dom/statsPanel.js';
 export { createDomThemeController } from './dom/themeController.js';
+export { createDomTextRenderer } from './dom/textRenderer.js';
 export * from './tokenizer.js';
 export { createTextSource } from './textSource.js';
 export { registerLocale, getLocale, getLocaleString } from './locale.js';

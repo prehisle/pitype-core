@@ -1,33 +1,41 @@
-import { type TextSource, type TextToken } from '@pitype/core';
+import type { TextSource } from '../textSource.js';
+import type { TextToken } from '../tokenizer.js';
 
-export interface TextRenderer {
-  render(source: TextSource): void;
+export interface DomTextRenderer {
+  render(source: TextSource | null | undefined): void;
   setSpans(spans: HTMLElement[]): void;
   getSpans(): HTMLElement[];
   applySpanState(index: number, correct: boolean): void;
   resetSpanState(index: number): void;
 }
 
-export function createTextRenderer(textDisplay: HTMLElement): TextRenderer {
+export interface DomTextRendererOptions {
+  documentRef?: Document;
+}
+
+export function createDomTextRenderer(
+  textDisplay: HTMLElement,
+  options: DomTextRendererOptions = {}
+): DomTextRenderer {
+  const doc = options.documentRef ?? (typeof document !== 'undefined' ? document : undefined);
   let charSpans: HTMLElement[] = [];
 
-  const render = (source: TextSource): void => {
-    if (!textDisplay || !source) return;
+  const render = (source: TextSource | null | undefined) => {
+    if (!textDisplay || !source || !doc) return;
+    const tokens = source.tokens ?? [];
+    const fragment = doc.createDocumentFragment();
+    let currentWord: HTMLElement | null = null;
 
-    const tokens = source.tokens || [];
-    const fragment = document.createDocumentFragment();
-    let currentWord: HTMLSpanElement | null = null;
-
-    const flushWord = (): void => {
+    const flushWord = () => {
       if (currentWord) {
         fragment.appendChild(currentWord);
         currentWord = null;
       }
     };
 
-    const ensureWord = (language: string): HTMLSpanElement => {
+    const ensureWord = (language?: string) => {
       if (!currentWord) {
-        currentWord = document.createElement('span');
+        currentWord = doc.createElement('span');
         currentWord.classList.add('word');
         if (language === 'english') {
           currentWord.classList.add('english-word');
@@ -43,14 +51,14 @@ export function createTextRenderer(textDisplay: HTMLElement): TextRenderer {
     tokens.forEach((token) => {
       if (token.type === 'newline') {
         flushWord();
-        const wrapper = document.createElement('span');
+        const wrapper = doc.createElement('span');
         wrapper.classList.add('word');
-        const lineBreak = document.createElement('span');
+        const lineBreak = doc.createElement('span');
         lineBreak.classList.add('line-break');
         lineBreak.setAttribute('data-char', '\n');
         wrapper.appendChild(lineBreak);
         fragment.appendChild(wrapper);
-        fragment.appendChild(document.createElement('br'));
+        fragment.appendChild(doc.createElement('br'));
         return;
       }
 
@@ -64,12 +72,8 @@ export function createTextRenderer(textDisplay: HTMLElement): TextRenderer {
         flushWord();
       }
 
-      const word =
-        token.attachToPrevious && currentWord
-          ? currentWord
-          : ensureWord(token.language);
-
-      const span = createTokenSpan(token);
+      const word = token.attachToPrevious && currentWord ? currentWord : ensureWord(token.language);
+      const span = createTokenSpan(token, doc);
       word.appendChild(span);
 
       if (token.language === 'chinese' && token.type === 'char') {
@@ -87,26 +91,25 @@ export function createTextRenderer(textDisplay: HTMLElement): TextRenderer {
     charSpans = [];
   };
 
-  const setSpans = (spans: HTMLElement[] = []): void => {
+  const setSpans = (spans: HTMLElement[] = []) => {
     charSpans = Array.isArray(spans) ? spans : [];
   };
 
-  const getSpans = (): HTMLElement[] => charSpans;
+  const getSpans = () => charSpans;
 
-  const getSpanByIndex = (index: number): HTMLElement | null => {
-    if (index == null) return null;
-    if (index < 0 || index >= charSpans.length) return null;
+  const getSpanByIndex = (index: number) => {
+    if (index == null || index < 0 || index >= charSpans.length) return null;
     return charSpans[index];
   };
 
-  const applySpanState = (index: number, correct: boolean): void => {
+  const applySpanState = (index: number, correct: boolean) => {
     const span = getSpanByIndex(index);
     if (!span) return;
     span.classList.remove('correct', 'incorrect');
     span.classList.add(correct ? 'correct' : 'incorrect');
   };
 
-  const resetSpanState = (index: number): void => {
+  const resetSpanState = (index: number) => {
     const span = getSpanByIndex(index);
     if (!span) return;
     span.classList.remove('correct', 'incorrect');
@@ -121,12 +124,12 @@ export function createTextRenderer(textDisplay: HTMLElement): TextRenderer {
   };
 }
 
-function createTokenSpan(token: TextToken): HTMLSpanElement {
+function createTokenSpan(token: TextToken, doc: Document): HTMLElement {
   if (token.type === 'space') {
-    const wrapper = document.createElement('span');
+    const wrapper = doc.createElement('span');
     wrapper.classList.add(token.attachToPrevious ? 'no-break' : 'word-space');
     wrapper.setAttribute('data-char', ' ');
-    const inner = document.createElement('span');
+    const inner = doc.createElement('span');
     inner.classList.add('char-space');
     inner.innerHTML = '&nbsp;';
     wrapper.appendChild(inner);
@@ -134,7 +137,7 @@ function createTokenSpan(token: TextToken): HTMLSpanElement {
   }
 
   if (token.type === 'punctuation') {
-    const punctuation = document.createElement('span');
+    const punctuation = doc.createElement('span');
     punctuation.setAttribute('data-char', token.char);
     punctuation.textContent = token.char;
     if (token.attachToPrevious) {
@@ -143,7 +146,7 @@ function createTokenSpan(token: TextToken): HTMLSpanElement {
     return punctuation;
   }
 
-  const span = document.createElement('span');
+  const span = doc.createElement('span');
   span.setAttribute('data-char', token.char);
   span.textContent = token.char;
   return span;

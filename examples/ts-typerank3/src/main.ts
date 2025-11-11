@@ -3,6 +3,7 @@ import {
   createTextSource,
   createDomInputController,
   createDomStatsPanel,
+  createDomTextRenderer,
   createDomThemeController,
   type StatsSnapshot
 } from '@pitype/core';
@@ -13,7 +14,6 @@ import {
 import { createCursorAdapter } from './ui/cursorAdapter';
 import { createResultModal } from './ui/resultModal';
 import { initInfoModal } from './ui/infoModal';
-import { createTextRenderer } from './ui/textRenderer';
 import { createLocaleHelpers } from './ui/localeUtils';
 import { texts } from './texts';
 import { getText, updatePageText, applyLanguage } from './language';
@@ -59,7 +59,7 @@ const statsPanel = createDomStatsPanel({
   }
 });
 
-const textRenderer = createTextRenderer(textDisplay);
+const textRenderer = createDomTextRenderer(textDisplay);
 const themeController = createDomThemeController();
 let cursorAdapter = createCursorAdapter({
   textDisplay,
