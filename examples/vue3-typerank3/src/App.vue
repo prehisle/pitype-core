@@ -30,8 +30,98 @@
         <button id="restart-btn" @click="restartSession">
           <i class="fas fa-redo" /> 重新开始
         </button>
+        <button @click="toggleSettings" class="settings-btn">
+          <i class="fas fa-cog" /> 设置
+        </button>
       </div>
     </header>
+
+    <!-- 设置面板 -->
+    <div v-if="showSettings" class="settings-panel">
+      <div class="settings-content">
+        <h3>个性化设置</h3>
+
+        <!-- 光标设置 -->
+        <section class="settings-section">
+          <h4><i class="fas fa-i-cursor" /> 光标设置</h4>
+          <div class="setting-item">
+            <label>光标形状:</label>
+            <select :value="cursorShape" @change="updateCursorShape(($event.target as HTMLSelectElement).value as CursorShape)">
+              <option value="block">方块</option>
+              <option value="line">竖线</option>
+              <option value="underline">下划线</option>
+              <option value="outline">轮廓</option>
+            </select>
+          </div>
+          <div class="setting-item">
+            <label>光标颜色:</label>
+            <input type="color" :value="cursorColor" @input="updateCursorColor(($event.target as HTMLInputElement).value)" />
+          </div>
+          <div class="setting-item">
+            <label>
+              <input type="checkbox" :checked="cursorBlink" @change="toggleCursorBlink" />
+              启用闪烁
+            </label>
+          </div>
+        </section>
+
+        <!-- 音频设置 -->
+        <section class="settings-section">
+          <h4><i class="fas fa-volume-up" /> 音频设置</h4>
+          <div class="setting-item">
+            <label>
+              <input type="checkbox" :checked="audioEnabled" @change="toggleAudio" />
+              启用音效
+            </label>
+          </div>
+          <div class="setting-item">
+            <label>音量: {{ Math.round(audioVolume * 100) }}%</label>
+            <input
+              type="range"
+              min="0"
+              max="100"
+              :value="audioVolume * 100"
+              @input="updateVolume"
+              :disabled="!audioEnabled"
+            />
+          </div>
+          <p class="hint">注意: 需要准备音效文件才能听到声音</p>
+        </section>
+
+        <!-- 回放控制 -->
+        <section class="settings-section">
+          <h4><i class="fas fa-play-circle" /> 练习回放</h4>
+          <div class="setting-item" v-if="currentRecording">
+            <p>已录制练习 ({{ currentRecording.events.length }} 个事件)</p>
+            <div class="playback-controls">
+              <button @click="playRecording" :disabled="isPlayingBack">
+                <i class="fas fa-play" /> 播放
+              </button>
+              <button @click="stopPlayback" :disabled="!isPlayingBack">
+                <i class="fas fa-stop" /> 停止
+              </button>
+              <button @click="saveRecording">
+                <i class="fas fa-download" /> 导出
+              </button>
+            </div>
+            <div class="setting-item" v-if="isPlayingBack">
+              <label>播放速度: {{ playbackSpeed }}x</label>
+              <input
+                type="range"
+                min="0.5"
+                max="5"
+                step="0.5"
+                v-model.number="playbackSpeed"
+                @input="updatePlaybackSpeed"
+              />
+            </div>
+          </div>
+          <p v-else class="hint">完成一次练习后可以回放</p>
+        </section>
+
+        <button @click="toggleSettings" class="close-btn">关闭</button>
+      </div>
+    </div>
 
     <section class="stats">
       <div class="cpm-container">
@@ -98,7 +188,13 @@ import {
   createDomCursorAdapter,
   createDomInputController,
   createDomTextRenderer,
-  createDomStatsPanel
+  createDomStatsPanel,
+  createDomAudioController,
+  createPlayer,
+  exportRecordingToFile,
+  type CursorShape,
+  type RecordingData,
+  type Player
 } from '@pitype/core';
 import { texts, type Language } from './texts';
 
@@ -120,24 +216,25 @@ const textRenderer = shallowRef<ReturnType<typeof createDomTextRenderer>>();
 const cursorAdapter = shallowRef<ReturnType<typeof createDomCursorAdapter>>();
 const inputController = shallowRef<ReturnType<typeof createDomInputController>>();
 const statsPanel = shallowRef<ReturnType<typeof createDomStatsPanel>>();
+const audioController = shallowRef<ReturnType<typeof createDomAudioController>>();
+const player = shallowRef<Player | null>(null);
 
-const sessionRuntime = createSessionRuntime({
-  onEvaluate: handleEvaluate,
-  onUndo: handleUndo,
-  onSnapshot: (snapshot) => {
-    if (snapshot) statsPanel.value?.renderSnapshot(snapshot);
-  },
-  onComplete: (snapshot) => {
-    if (snapshot) {
-      statsPanel.value?.renderResults(snapshot);
-      showResult.value = true;
-    }
-  },
-  onReset: () => {
-    showResult.value = false;
-    statsPanel.value?.reset();
-  }
-});
+// 光标配置状态
+const cursorShape = ref<CursorShape>('block');
+const cursorColor = ref('#ffd700');
+const cursorBlink = ref(false);
+
+// 音频配置状态
+const audioEnabled = ref(false);
+const audioVolume = ref(0.5);
+
+// 录制和回放状态
+const currentRecording = ref<RecordingData | null>(null);
+const isPlayingBack = ref(false);
+const playbackSpeed = ref(1.0);
+const showSettings = ref(false);
+
+let sessionRuntime: ReturnType<typeof createSessionRuntime>;
 
 function handleEvaluate(event: { index: number; correct: boolean }) {
   textRenderer.value?.applySpanState(event.index, event.correct);
@@ -231,6 +328,93 @@ function switchLanguage(lang: string) {
   restartSession();
 }
 
+// 光标配置函数
+function updateCursorShape(shape: CursorShape) {
+  cursorShape.value = shape;
+  cursorAdapter.value?.setCursorShape(shape);
+}
+
+function updateCursorColor(color: string) {
+  cursorColor.value = color;
+  cursorAdapter.value?.setCursorColor(color);
+}
+
+function toggleCursorBlink() {
+  cursorBlink.value = !cursorBlink.value;
+  cursorAdapter.value?.setCursorBlink(cursorBlink.value);
+}
+
+// 音频配置函数
+function toggleAudio() {
+  if (audioController.value) {
+    const newState = audioController.value.toggle();
+    audioEnabled.value = newState;
+  }
+}
+
+function updateVolume(event: Event) {
+  const value = (event.target as HTMLInputElement).valueAsNumber / 100;
+  audioVolume.value = value;
+  audioController.value?.setVolume(value);
+}
+
+// 回放控制函数
+function playRecording() {
+  if (!currentRecording.value || isPlayingBack.value) return;
+
+  // 停止当前会话
+  if (player.value) {
+    player.value.destroy();
+  }
+
+  // 渲染录制的文本
+  textRenderer.value?.render(currentRecording.value.textSource);
+  cursorAdapter.value?.cacheCharSpans();
+
+  // 创建播放器
+  player.value = createPlayer({
+    recording: currentRecording.value,
+    playbackSpeed: playbackSpeed.value,
+    onEvent: (event) => {
+      if (event.type === 'input:evaluate') {
+        textRenderer.value?.applySpanState(event.index, event.correct);
+        cursorAdapter.value?.updatePosition({ immediate: false });
+      } else if (event.type === 'input:undo') {
+        textRenderer.value?.resetSpanState(event.index);
+        cursorAdapter.value?.updatePosition({ immediate: false });
+      }
+    },
+    onComplete: () => {
+      isPlayingBack.value = false;
+    }
+  });
+
+  player.value.play();
+  isPlayingBack.value = true;
+}
+
+function stopPlayback() {
+  player.value?.stop();
+  player.value?.destroy();
+  player.value = null;
+  isPlayingBack.value = false;
+  restartSession();
+}
+
+function updatePlaybackSpeed() {
+  player.value?.setSpeed(playbackSpeed.value);
+}
+
+function saveRecording() {
+  if (currentRecording.value) {
+    exportRecordingToFile(currentRecording.value);
+  }
+}
+
+function toggleSettings() {
+  showSettings.value = !showSettings.value;
+}
+
 onMounted(() => {
   try {
     if (!textDisplayRef.value || !textContainerRef.value || !cursorRef.value) {
@@ -249,13 +433,58 @@ onMounted(() => {
       getCursor: () => cursorRef.value,
       getInput: () => hiddenInputRef.value,
       getSpans: () => textRenderer.value?.getSpans() ?? [],
-      setSpans: (spans) => textRenderer.value?.setSpans(spans)
-      // windowRef 现在有默认值，不需要显式传递
+      setSpans: (spans) => textRenderer.value?.setSpans(spans),
+      // 光标配置
+      cursorShape: cursorShape.value,
+      cursorColor: cursorColor.value,
+      cursorBlinkEnabled: cursorBlink.value
     });
+
+    // 读取保存的光标配置
+    cursorShape.value = cursorAdapter.value.getCursorShape();
+    cursorColor.value = cursorAdapter.value.getCursorColor() || '#ffd700';
+    cursorBlink.value = cursorAdapter.value.getCursorBlink();
 
     inputController.value = createDomInputController({
       getTypingSession: () => sessionRuntime.getSession(),
       onCompositionEnd: () => cursorAdapter.value?.updatePosition()
+    });
+
+    // 初始化音频控制器
+    audioController.value = createDomAudioController({
+      soundPack: {
+        // 使用占位符 URL，实际使用时需要替换为真实的音效文件
+        keyPress: 'data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTUIGGi78OefTQwMUKfj8LZjGwY5k9j0y3ksBSh+zPLaizsKGGS57OihUBELTKXh8bllHAU2jdXyzn0vBS1+zPDejjsIF2W58Oq'
+      },
+      enabled: audioEnabled.value,
+      volume: audioVolume.value
+    });
+
+    // 读取保存的音频配置
+    audioEnabled.value = audioController.value.isEnabled();
+    audioVolume.value = audioController.value.getVolume();
+
+    // 创建 SessionRuntime（集成音频和录制）
+    sessionRuntime = createSessionRuntime({
+      enableRecording: true,
+      audioController: audioController.value,
+      onEvaluate: handleEvaluate,
+      onUndo: handleUndo,
+      onSnapshot: (snapshot) => {
+        if (snapshot) statsPanel.value?.renderSnapshot(snapshot);
+      },
+      onComplete: (snapshot) => {
+        if (snapshot) {
+          statsPanel.value?.renderResults(snapshot);
+          showResult.value = true;
+          // 保存录制数据
+          currentRecording.value = sessionRuntime.getLastRecording();
+        }
+      },
+      onReset: () => {
+        showResult.value = false;
+        statsPanel.value?.reset();
+      }
     });
 
     // 初始化统计面板
@@ -297,8 +526,10 @@ onMounted(() => {
 
 onUnmounted(() => {
   // 清理所有资源
-  sessionRuntime.dispose();
+  sessionRuntime?.dispose();
   inputController.value?.destroy();
+  audioController.value?.destroy();
+  player.value?.destroy();
   // 注意：cursorAdapter 目前没有 destroy 方法，但 windowRef 的监听器会在页面卸载时自动清理
 });
 </script>

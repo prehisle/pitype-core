@@ -1,6 +1,10 @@
 type StorageLike = Pick<Storage, 'getItem' | 'setItem'>;
 
 const cursorAnimationPreferenceKey = 'cursorAnimationMode';
+const cursorShapePreferenceKey = 'cursorShape';
+const cursorColorPreferenceKey = 'cursorColor';
+const cursorBlinkPreferenceKey = 'cursorBlinkEnabled';
+
 const cursorAnimationDurations = {
   off: 0,
   slow: 150,
@@ -13,6 +17,15 @@ const cursorMinimums = {
   height: 16,
   inputWidth: 30,
   widthMultiplier: 1.5
+} as const;
+
+export type CursorShape = 'block' | 'line' | 'underline' | 'outline';
+
+const cursorShapeDefaults = {
+  block: { widthMultiplier: 1, heightMultiplier: 1 },
+  line: { widthMultiplier: 0.15, heightMultiplier: 1 },
+  underline: { widthMultiplier: 1, heightMultiplier: 0.15 },
+  outline: { widthMultiplier: 1, heightMultiplier: 1 }
 } as const;
 
 const mobileUserAgentPattern =
@@ -34,6 +47,12 @@ export interface DomCursorAdapterOptions {
   performanceNow?: () => number;
   localStorage?: StorageLike;
   resizeObserverCtor?: typeof ResizeObserver;
+
+  // 光标外观配置
+  cursorShape?: CursorShape;
+  cursorColor?: string;
+  cursorBlinkEnabled?: boolean;
+  cursorBlinkRate?: number; // 毫秒，闪烁周期
 }
 
 export interface DomCursorAdapter {
@@ -44,6 +63,14 @@ export interface DomCursorAdapter {
   scheduleLayoutRefresh(): void;
   enableResponsiveSync(): void;
   enableMobileSupport(): void;
+
+  // 光标外观配置方法
+  setCursorShape(shape: CursorShape): void;
+  setCursorColor(color: string): void;
+  setCursorBlink(enabled: boolean): void;
+  getCursorShape(): CursorShape;
+  getCursorColor(): string | null;
+  getCursorBlink(): boolean;
 }
 
 export function createDomCursorAdapter(options: DomCursorAdapterOptions): DomCursorAdapter {
@@ -64,7 +91,11 @@ export function createDomCursorAdapter(options: DomCursorAdapterOptions): DomCur
       windowRef?.cancelAnimationFrame?.(handle),
     performanceNow = () => windowRef?.performance?.now?.() ?? Date.now(),
     localStorage = windowRef?.localStorage,
-    resizeObserverCtor = typeof ResizeObserver !== 'undefined' ? ResizeObserver : undefined
+    resizeObserverCtor = typeof ResizeObserver !== 'undefined' ? ResizeObserver : undefined,
+    cursorShape: initialCursorShape,
+    cursorColor: initialCursorColor,
+    cursorBlinkEnabled: initialCursorBlinkEnabled,
+    cursorBlinkRate = 530
   } = options;
 
   let cursorUpdateScheduled = false;
@@ -75,6 +106,64 @@ export function createDomCursorAdapter(options: DomCursorAdapterOptions): DomCur
   let resizeRefreshRaf: number | null = null;
   let hasWindowResizeHandler = false;
   let mobileSupportAttached = false;
+
+  // 光标外观状态
+  let currentCursorShape: CursorShape = loadCursorShape();
+  let currentCursorColor: string | null = loadCursorColor();
+  let currentCursorBlinkEnabled: boolean = loadCursorBlinkEnabled();
+
+  // 从 localStorage 或初始配置加载光标形状
+  function loadCursorShape(): CursorShape {
+    if (initialCursorShape) return initialCursorShape;
+    const stored = localStorage?.getItem(cursorShapePreferenceKey);
+    if (stored && (stored === 'block' || stored === 'line' || stored === 'underline' || stored === 'outline')) {
+      return stored as CursorShape;
+    }
+    return 'block';
+  }
+
+  // 从 localStorage 或初始配置加载光标颜色
+  function loadCursorColor(): string | null {
+    if (initialCursorColor) return initialCursorColor;
+    return localStorage?.getItem(cursorColorPreferenceKey) || null;
+  }
+
+  // 从 localStorage 或初始配置加载闪烁设置
+  function loadCursorBlinkEnabled(): boolean {
+    if (initialCursorBlinkEnabled !== undefined) return initialCursorBlinkEnabled;
+    const stored = localStorage?.getItem(cursorBlinkPreferenceKey);
+    if (stored !== null) return stored === 'true';
+    return false;
+  }
+
+  // 应用光标外观样式
+  function applyCursorStyle(cursor: HTMLElement): void {
+    // 移除所有形状类
+    cursor.classList.remove('cursor-block', 'cursor-line', 'cursor-underline', 'cursor-outline');
+
+    // 添加当前形状类
+    cursor.classList.add(`cursor-${currentCursorShape}`);
+
+    // 应用自定义颜色
+    if (currentCursorColor) {
+      if (currentCursorShape === 'outline') {
+        cursor.style.borderColor = currentCursorColor;
+        cursor.style.backgroundColor = 'transparent';
+      } else {
+        cursor.style.backgroundColor = currentCursorColor;
+      }
+    } else {
+      cursor.style.backgroundColor = '';
+      cursor.style.borderColor = '';
+    }
+
+    // 应用闪烁效果
+    if (currentCursorBlinkEnabled) {
+      cursor.style.animation = `cursor-blink ${cursorBlinkRate}ms step-end infinite`;
+    } else {
+      cursor.style.animation = '';
+    }
+  }
 
   function cacheCharSpans(): HTMLElement[] {
     if (!textDisplay || !documentRef) {
@@ -256,9 +345,23 @@ export function createDomCursorAdapter(options: DomCursorAdapterOptions): DomCur
   }
 
   function applyCursorMetrics(metrics: CursorMetrics, cursor: HTMLElement, input: HTMLElement): void {
-    cursor.style.width = `${metrics.width}px`;
-    cursor.style.height = `${metrics.height}px`;
-    cursor.style.transform = `translate3d(${metrics.left}px, ${metrics.top}px, 0)`;
+    // 根据光标形状调整尺寸
+    const shapeConfig = cursorShapeDefaults[currentCursorShape];
+    const adjustedWidth = metrics.width * shapeConfig.widthMultiplier;
+    const adjustedHeight = metrics.height * shapeConfig.heightMultiplier;
+
+    // 对于 underline，调整垂直位置到字符底部
+    let adjustedTop = metrics.top;
+    if (currentCursorShape === 'underline') {
+      adjustedTop = metrics.top + metrics.height - adjustedHeight;
+    }
+
+    cursor.style.width = `${adjustedWidth}px`;
+    cursor.style.height = `${adjustedHeight}px`;
+    cursor.style.transform = `translate3d(${metrics.left}px, ${adjustedTop}px, 0)`;
+
+    // 应用光标外观样式（形状、颜色、闪烁）
+    applyCursorStyle(cursor);
 
     const inputWidth = Math.max(
       metrics.width * cursorMinimums.widthMultiplier,
@@ -333,6 +436,43 @@ export function createDomCursorAdapter(options: DomCursorAdapterOptions): DomCur
     return !!reduceMotionQuery?.matches;
   }
 
+  // 光标外观配置方法
+  function setCursorShape(shape: CursorShape): void {
+    currentCursorShape = shape;
+    localStorage?.setItem(cursorShapePreferenceKey, shape);
+    const cursor = getCursor();
+    if (cursor) {
+      applyCursorStyle(cursor);
+      updatePosition({ immediate: true });
+    }
+  }
+
+  function setCursorColor(color: string): void {
+    currentCursorColor = color;
+    localStorage?.setItem(cursorColorPreferenceKey, color);
+    const cursor = getCursor();
+    if (cursor) applyCursorStyle(cursor);
+  }
+
+  function setCursorBlink(enabled: boolean): void {
+    currentCursorBlinkEnabled = enabled;
+    localStorage?.setItem(cursorBlinkPreferenceKey, String(enabled));
+    const cursor = getCursor();
+    if (cursor) applyCursorStyle(cursor);
+  }
+
+  function getCursorShape(): CursorShape {
+    return currentCursorShape;
+  }
+
+  function getCursorColor(): string | null {
+    return currentCursorColor;
+  }
+
+  function getCursorBlink(): boolean {
+    return currentCursorBlinkEnabled;
+  }
+
   return {
     cacheCharSpans,
     updatePosition,
@@ -340,7 +480,13 @@ export function createDomCursorAdapter(options: DomCursorAdapterOptions): DomCur
     scheduleRefresh,
     scheduleLayoutRefresh,
     enableResponsiveSync,
-    enableMobileSupport
+    enableMobileSupport,
+    setCursorShape,
+    setCursorColor,
+    setCursorBlink,
+    getCursorShape,
+    getCursorColor,
+    getCursorBlink
   };
 }
 

@@ -34,8 +34,33 @@ export {
 export {
   createDomCursorAdapter,
   type DomCursorAdapter,
-  type DomCursorAdapterOptions
+  type DomCursorAdapterOptions,
+  type CursorShape
 } from './dom/cursorAdapter.js';
+export {
+  createDomAudioController,
+  type DomAudioController,
+  type DomAudioControllerOptions,
+  type SoundPack,
+  type SoundType
+} from './dom/audioController.js';
+export {
+  createRecorder,
+  serializeRecording,
+  deserializeRecording,
+  exportRecordingToFile,
+  importRecordingFromFile,
+  type Recorder,
+  type RecordingData,
+  type RecorderOptions
+} from './recorder.js';
+export {
+  createPlayer,
+  getRecordingStats,
+  type Player,
+  type PlayerOptions,
+  type PlayerState
+} from './player.js';
 export * from './tokenizer.js';
 export { createTextSource } from './textSource.js';
 export type { TextSource } from './textSource.js';

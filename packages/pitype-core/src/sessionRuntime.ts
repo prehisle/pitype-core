@@ -6,6 +6,9 @@ import {
   type TypingSessionOptions
 } from './typingSession.js';
 import type { TextSource } from './textSource.js';
+import type { DomAudioController } from './dom/audioController.js';
+import { createRecorder, type Recorder, type RecordingData } from './recorder.js';
+import { tokenizeText } from './tokenizer.js';
 
 export interface SessionRuntimeCallbacks {
   onEvaluate?: (event: TypingEntry & { type: 'input:evaluate'; timestamp: number }) => void;
@@ -21,6 +24,25 @@ export interface SessionRuntimeOptions extends SessionRuntimeCallbacks {
    * @default 1000
    */
   snapshotIntervalMs?: number;
+
+  /**
+   * 音频控制器（可选）。如果提供，将自动触发音效反馈。
+   */
+  audioController?: DomAudioController;
+
+  /**
+   * 是否启用录制功能（默认 false）
+   */
+  enableRecording?: boolean;
+
+  /**
+   * 录制器配置（当 enableRecording 为 true 时使用）
+   */
+  recorderOptions?: {
+    id?: string;
+    includeMetadata?: boolean;
+    customMetadata?: Record<string, any>;
+  };
 }
 
 export interface SessionRuntime {
@@ -28,14 +50,31 @@ export interface SessionRuntime {
   dispose(): void;
   getSession(): TypingSession | null;
   getLatestSnapshot(): StatsSnapshot | null;
+
+  // 录制相关方法
+  /** 获取录制器（如果启用） */
+  getRecorder(): Recorder | null;
+  /** 获取最后一次会话的录制数据 */
+  getLastRecording(): RecordingData | null;
+  /** 是否正在录制 */
+  isRecording(): boolean;
 }
 
 export function createSessionRuntime(options: SessionRuntimeOptions = {}): SessionRuntime {
   const interval = options.snapshotIntervalMs ?? 1000;
+  const audioController = options.audioController;
+  const enableRecording = options.enableRecording ?? false;
+  const recorderOptions = options.recorderOptions;
+
   let typingSession: TypingSession | null = null;
   let statsTracker: StatsTracker | null = null;
   let timer: ReturnType<typeof setInterval> | null = null;
   let unsubscribe: (() => void) | null = null;
+
+  // 录制相关状态
+  let recorder: Recorder | null = enableRecording ? createRecorder(recorderOptions) : null;
+  let lastRecording: RecordingData | null = null;
+  let currentTextSource: TextSource | null = null;
 
   const getSnapshot = () => (statsTracker ? statsTracker.getSnapshot() : null);
 
@@ -76,6 +115,15 @@ export function createSessionRuntime(options: SessionRuntimeOptions = {}): Sessi
       case 'input:evaluate':
         options.onEvaluate?.(event);
         notifySnapshot();
+        // 触发音效：按键音 + 正确/错误音
+        if (audioController) {
+          audioController.playSound('keyPress');
+          if (event.correct) {
+            audioController.playSound('correct');
+          } else {
+            audioController.playSound('error');
+          }
+        }
         break;
       case 'input:undo':
         options.onUndo?.(event);
@@ -84,12 +132,23 @@ export function createSessionRuntime(options: SessionRuntimeOptions = {}): Sessi
       case 'session:complete':
         stopTimer();
         notifySnapshot();
-        options.onComplete?.(getSnapshot());
+        const finalSnapshot = getSnapshot();
+        options.onComplete?.(finalSnapshot);
+        // 触发完成音效
+        audioController?.playSound('complete');
+        // 停止录制
+        if (recorder && recorder.isRecording()) {
+          lastRecording = recorder.stop(finalSnapshot || undefined);
+        }
         break;
       case 'session:reset':
         stopTimer();
         notifySnapshot();
         options.onReset?.();
+        // 停止录制（如果正在录制）
+        if (recorder && recorder.isRecording()) {
+          recorder.stop();
+        }
         break;
     }
   };
@@ -105,6 +164,15 @@ export function createSessionRuntime(options: SessionRuntimeOptions = {}): Sessi
     typingSession = session;
     statsTracker = createStatsTracker(session);
     unsubscribe = session.subscribe(handleSessionEvent);
+
+    // 获取文本源
+    currentTextSource = extractTextSource(input);
+
+    // 开始录制（如果启用）
+    if (recorder && currentTextSource) {
+      recorder.start(session, currentTextSource);
+    }
+
     notifySnapshot();
     return session;
   };
@@ -113,7 +181,10 @@ export function createSessionRuntime(options: SessionRuntimeOptions = {}): Sessi
     startSession,
     dispose,
     getSession: () => typingSession,
-    getLatestSnapshot: getSnapshot
+    getLatestSnapshot: getSnapshot,
+    getRecorder: () => recorder,
+    getLastRecording: () => lastRecording,
+    isRecording: () => recorder?.isRecording() ?? false
   };
 }
 
@@ -127,4 +198,26 @@ function createSessionFromInput(input: TextSource | TypingSessionOptions | strin
   }
 
   return new TypingSession(input);
+}
+
+function extractTextSource(input: TextSource | TypingSessionOptions | string): TextSource | null {
+  if (typeof input === 'string') {
+    // 从字符串创建一个简单的 TextSource
+    return {
+      content: input,
+      tokens: tokenizeText(input),
+      id: `text-${Date.now()}`,
+      locale: 'en-US'
+    };
+  }
+
+  if (typeof input === 'object' && 'content' in input && 'tokens' in input) {
+    return input as TextSource;
+  }
+
+  if (typeof input === 'object' && 'source' in input && input.source) {
+    return input.source;
+  }
+
+  return null;
 }

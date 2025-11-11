@@ -1,0 +1,142 @@
+/**
+ * Pitype Core - 光标样式参考
+ *
+ * 这个文件展示了如何为不同的光标形状定义 CSS 样式。
+ * 你需要在你的应用中引入这些样式（或自定义）以使光标形状生效。
+ */
+
+/* ============================================
+   光标基础样式
+   ============================================ */
+
+.cursor {
+  position: absolute;
+  pointer-events: none;
+  transition-property: opacity;
+  transition-timing-function: ease;
+  transition-duration: 0.15s;
+  will-change: transform, width, height;
+  z-index: 2;
+}
+
+/* 光标可见状态 */
+.cursor-visible {
+  opacity: 1;
+}
+
+/* ============================================
+   光标形状样式
+   ============================================ */
+
+/* 方块光标（默认） */
+.cursor-block {
+  background-color: var(--cursor-color, #ffd700);
+  border-radius: 2px;
+}
+
+/* 线条光标（竖线） */
+.cursor-line {
+  background-color: var(--cursor-color, #ffd700);
+  border-radius: 1px;
+}
+
+/* 下划线光标 */
+.cursor-underline {
+  background-color: var(--cursor-color, #ffd700);
+  border-radius: 1px;
+}
+
+/* 轮廓光标（空心方块） */
+.cursor-outline {
+  background-color: transparent;
+  border: 2px solid var(--cursor-color, #ffd700);
+  border-radius: 2px;
+  box-sizing: border-box;
+}
+
+/* ============================================
+   光标闪烁动画
+   ============================================ */
+
+@keyframes cursor-blink {
+  0%, 49% {
+    opacity: 1;
+  }
+  50%, 100% {
+    opacity: 0;
+  }
+}
+
+/* 当启用闪烁时，动画会通过 JS 内联样式应用 */
+/* 例如: animation: cursor-blink 530ms step-end infinite; */
+
+/* ============================================
+   主题变量示例
+   ============================================ */
+
+/* 你可以在主题中定义这些 CSS 变量来控制光标颜色 */
+:root {
+  --cursor-color: #ffd700; /* 默认金色 */
+}
+
+/* 深色主题示例 */
+[data-theme="dark"] {
+  --cursor-color: #61dafb;
+}
+
+/* 浅色主题示例 */
+[data-theme="light"] {
+  --cursor-color: #ff6b6b;
+}
+
+/* ============================================
+   响应式设计（可选）
+   ============================================ */
+
+/* 在小屏幕上增加光标可见性 */
+@media (max-width: 768px) {
+  .cursor-line {
+    /* 在移动设备上让线条光标稍微粗一点 */
+    min-width: 3px;
+  }
+}
+
+/* 无障碍：尊重用户的动画偏好 */
+@media (prefers-reduced-motion: reduce) {
+  .cursor {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* ============================================
+   使用示例
+   ============================================ */
+
+/*
+// 在 JavaScript 中使用：
+import { createDomCursorAdapter } from '@pitype/core';
+
+const cursorAdapter = createDomCursorAdapter({
+  textDisplay: document.getElementById('text-display'),
+  getCurrentPosition: () => session.getPosition(),
+  getCursor: () => document.getElementById('cursor'),
+  getInput: () => document.getElementById('input'),
+
+  // 新增的光标配置选项
+  cursorShape: 'line',           // 'block' | 'line' | 'underline' | 'outline'
+  cursorColor: '#61dafb',        // 任何有效的 CSS 颜色
+  cursorBlinkEnabled: true,      // 是否启用闪烁
+  cursorBlinkRate: 530           // 闪烁周期（毫秒）
+});
+
+// 动态修改光标配置
+cursorAdapter.setCursorShape('outline');
+cursorAdapter.setCursorColor('#ff6b6b');
+cursorAdapter.setCursorBlink(false);
+
+// 读取当前配置
+console.log(cursorAdapter.getCursorShape());    // 'outline'
+console.log(cursorAdapter.getCursorColor());    // '#ff6b6b'
+console.log(cursorAdapter.getCursorBlink());    // false
+*/
