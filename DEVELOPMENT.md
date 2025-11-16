@@ -32,9 +32,17 @@ npm run sync:demo
 npm run vue3-demo:dev
 # 访问: http://localhost:4174
 
+# React 示例
+npm run react-demo:dev
+# 访问: http://localhost:5174
+
 # TypeScript 示例
 npm run ts-demo:dev
 # 访问: http://localhost:5173
+
+# Next.js 示例
+npm run next-demo:dev
+# 访问: http://localhost:5176
 
 # 原生 JS 示例
 npm run baseline:dev
@@ -54,8 +62,16 @@ npm run baseline:dev
 cd examples/vue3-typerank3
 npm run dev
 
+# React
+cd examples/react-typerank3
+npm run dev
+
 # TypeScript
 cd examples/ts-typerank3
+npm run dev
+
+# Next.js
+cd examples/next-typerank3
 npm run dev
 
 # 原生 JS
@@ -186,7 +202,9 @@ pitype-core/
 ├── examples/
 │   ├── typerank3/            # 原生 JS 示例
 │   ├── ts-typerank3/         # TypeScript 示例
-│   └── vue3-typerank3/       # Vue3 示例
+│   ├── vue3-typerank3/       # Vue3 示例
+│   ├── react-typerank3/      # React 示例
+│   └── next-typerank3/       # Next.js 示例
 ├── tests/                    # 基线测试（Playwright）
 └── scripts/                  # 构建脚本
 ```
@@ -199,6 +217,12 @@ npm run --workspace pitype-core <command>
 
 # 在 Vue3 示例 workspace 中运行命令
 npm run --workspace vue3-typerank3 <command>
+
+# 在 React 示例 workspace 中运行命令
+npm run --workspace react-typerank3 <command>
+
+# 在 Next 示例 workspace 中运行命令
+npm run --workspace next-typerank3 <command>
 
 # 在 TypeScript 示例 workspace 中运行命令
 npm run --workspace ts-typerank3 <command>

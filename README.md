@@ -17,12 +17,12 @@
 
 ## 架构速览
 
-| 角色         | 路径                                               | 职责                                       |
-| ------------ | -------------------------------------------------- | ------------------------------------------ |
-| 🧱 核心引擎  | `packages/pitype-core`                             | Headless TypingSession、DOM 适配器、统计等 |
-| 🌐 示例应用  | `examples/{typerank3,ts-typerank3,vue3-typerank3}` | 各技术栈的 UI 展示和 E2E 测试入口          |
-| 🛠️ 脚本      | `scripts/`                                         | 构建/同步、Rollup native 安装、任务菜单    |
-| ⚙️ CI & 发布 | `.github/workflows/`                               | 质量门禁、性能监控、基准测试、自动发布     |
+| 角色         | 路径                                                                              | 职责                                       |
+| ------------ | --------------------------------------------------------------------------------- | ------------------------------------------ |
+| 🧱 核心引擎  | `packages/pitype-core`                                                            | Headless TypingSession、DOM 适配器、统计等 |
+| 🌐 示例应用  | `examples/{typerank3,ts-typerank3,vue3-typerank3,react-typerank3,next-typerank3}` | 各技术栈的 UI 展示和 E2E 测试入口          |
+| 🛠️ 脚本      | `scripts/`                                                                        | 构建/同步、Rollup native 安装、任务菜单    |
+| ⚙️ CI & 发布 | `.github/workflows/`                                                              | 质量门禁、性能监控、基准测试、自动发布     |
 
 ## 项目结构
 
@@ -33,7 +33,9 @@ pitype-core/
 ├── examples/
 │   ├── typerank3/            # JavaScript 示例应用
 │   ├── ts-typerank3/         # TypeScript 示例应用
-│   └── vue3-typerank3/       # Vue3 示例应用 ✨
+│   ├── vue3-typerank3/       # Vue3 示例应用 ✨
+│   ├── react-typerank3/      # React 版本
+│   └── next-typerank3/       # Next.js 版本
 └── scripts/                  # 构建和同步脚本
 ```
 
@@ -101,6 +103,21 @@ npm run ts-demo:dev
 - ✅ packages/pitype-core 源码
 - ✅ examples/ts-typerank3/src 下的所有文件
 - ✅ HTML 和 CSS
+
+#### Next 示例 (next-typerank3)
+
+```bash
+# 启动 Next.js 示例（App Router）
+npm run next-demo:dev
+```
+
+访问 http://localhost:5176
+
+**自动热更新内容：**
+
+- ✅ packages/pitype-core 源码
+- ✅ examples/next-typerank3/app 下的所有文件
+- ✅ Next Fast Refresh（React 组件 + DOM 布局）
 
 ### 构建
 
@@ -202,6 +219,20 @@ TypeScript 重写版本，提供完整类型安全。
 
 查看 [examples/react-typerank3](./examples/react-typerank3) 了解更多。
 
+### next-typerank3 (Next.js)
+
+Next.js 14 App Router 示例，复刻了 `ts-typerank3` 的 DOM 结构与交互，验证 `pitype-core` 能在 SSR/React 体系中直接复用。
+
+**特性：**
+
+- Next.js App Router + React Strict Mode
+- DOM 模板与原生版本保持一致，可复用基线计分脚本
+- `initTyperank3Demo()` 封装所有 DOM 逻辑，仅在浏览器端运行，避免 SSR 报错
+- workspace 依赖主仓库的 `pitype-core`，开发时自动消费最新构建
+- 端口 5176，兼容 Fast Refresh
+
+查看 [examples/next-typerank3](./examples/next-typerank3) 了解更多。
+
 ## CI 与发布
 
 - **Quality Gate**（`quality-gate.yml`）：在 PR/main push 时执行 lint、unit + coverage、Playwright 基线、type-check、构建和安全审计，所有检查通过后才允许合并。
@@ -237,6 +268,7 @@ TypeScript 重写版本，提供完整类型安全。
 | ------------------------ | ------------------------------ |
 | `npm run vue3-demo:dev`  | 启动 Vue3 示例开发环境（推荐） |
 | `npm run react-demo:dev` | 启动 React 示例开发环境        |
+| `npm run next-demo:dev`  | 启动 Next.js 示例开发环境      |
 | `npm run ts-demo:dev`    | 启动 TypeScript 示例开发环境   |
 | `npm run baseline:dev`   | 启动 JavaScript 示例开发环境   |
 | `npm run build:core`     | 构建核心包                     |
@@ -252,6 +284,8 @@ TypeScript 重写版本，提供完整类型安全。
 
 - **核心引擎**: TypeScript 5.x
 - **Vue3 示例**: Vue 3.4+, TypeScript 5.x, Vite 5.x
+- **React 示例**: React 18.3+, TypeScript 5.x, Vite 5.x
+- **Next 示例**: Next.js 14+, React 18.3+
 - **TypeScript 示例**: TypeScript 5.x, Vite 5.x
 - **JavaScript 示例**: 原生 ES6+, Live Server
 - **测试**: Playwright (E2E), Vitest (单元测试)

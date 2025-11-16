@@ -66,6 +66,11 @@ const tasks = [
     command: 'npm run react-demo:dev'
   },
   {
+    key: 'next-dev',
+    label: 'Next demo dev server',
+    command: 'npm run next-demo:dev'
+  },
+  {
     key: 'baseline-dev',
     label: 'Baseline demo dev server',
     command: 'npm run baseline:dev'

@@ -4,14 +4,14 @@
 
 ## 项目结构
 
-| 路径                                               | 说明                                          |
-| -------------------------------------------------- | --------------------------------------------- |
-| `packages/pitype-core/src`                         | 无 UI 的 TypingSession 引擎与 DOM 适配器实现  |
-| `packages/pitype-core/tests`                       | 紧贴实现的 Vitest 契约测试                    |
-| `examples/{typerank3,ts-typerank3,vue3-typerank3}` | 不同技术栈的演示/验收项目                     |
-| `tests/baseline`                                   | Playwright 基线测试，验证 demo 与 core 的协同 |
-| `scripts/*.mjs`                                    | 构建/同步/rollup native 安装等辅助脚本        |
-| `.github/workflows/*`                              | 质量门禁、性能监控、自动发布                  |
+| 路径                                                                              | 说明                                          |
+| --------------------------------------------------------------------------------- | --------------------------------------------- |
+| `packages/pitype-core/src`                                                        | 无 UI 的 TypingSession 引擎与 DOM 适配器实现  |
+| `packages/pitype-core/tests`                                                      | 紧贴实现的 Vitest 契约测试                    |
+| `examples/{typerank3,ts-typerank3,vue3-typerank3,react-typerank3,next-typerank3}` | 不同技术栈的演示/验收项目                     |
+| `tests/baseline`                                                                  | Playwright 基线测试，验证 demo 与 core 的协同 |
+| `scripts/*.mjs`                                                                   | 构建/同步/rollup native 安装等辅助脚本        |
+| `.github/workflows/*`                                                             | 质量门禁、性能监控、自动发布                  |
 
 ## 常用命令
 

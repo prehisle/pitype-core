@@ -4,7 +4,7 @@
 
 ## 项目概述
 
-`pitype-core` 是一个 monorepo，包含无头（headless）打字练习引擎（`packages/pitype-core`）以及 Vue3、TypeScript 和原生 JavaScript 的示例应用。核心包是框架无关的，遵循事件驱动、函数式架构。
+`pitype-core` 是一个 monorepo，包含无头（headless）打字练习引擎（`packages/pitype-core`）以及 Vue3、React、Next.js、TypeScript 和原生 JavaScript 的示例应用。核心包是框架无关的，遵循事件驱动、函数式架构。
 
 ## 架构
 
@@ -38,6 +38,7 @@
 
 - **`examples/vue3-typerank3`**：Vue 3 + Composition API（推荐，直接 workspace 依赖，支持 HMR）
 - **`examples/react-typerank3`**：React 18 + TypeScript（workspace 依赖，Hooks 封装）
+- **`examples/next-typerank3`**：Next.js 14 App Router（在 Next 环境复用原生 DOM 逻辑）
 - **`examples/ts-typerank3`**：TypeScript + Vite（workspace 依赖）
 - **`examples/typerank3`**：原生 JS（使用生成的 `vendor/` 目录，E2E 基线）
 
@@ -57,6 +58,7 @@ npm run sync:demo        # 仅原生 JS 示例需要
 # 开发服务器（自动重新构建）
 npm run vue3-demo:dev    # http://localhost:4174 ✨ 推荐
 npm run react-demo:dev   # http://localhost:5174
+npm run next-demo:dev    # http://localhost:5176
 npm run ts-demo:dev      # http://localhost:5173
 npm run baseline:dev     # http://localhost:4173
 

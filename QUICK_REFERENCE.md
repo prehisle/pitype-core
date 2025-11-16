@@ -29,11 +29,13 @@ npm run task:menu lint
 
 ## 📦 启动开发服务器
 
-| 命令                    | 示例       | 端口 | 说明     |
-| ----------------------- | ---------- | ---- | -------- |
-| `npm run vue3-demo:dev` | Vue3       | 4174 | ✨ 推荐  |
-| `npm run ts-demo:dev`   | TypeScript | 5173 | Vite HMR |
-| `npm run baseline:dev`  | JavaScript | 4173 | 原生 JS  |
+| 命令                     | 示例       | 端口 | 说明         |
+| ------------------------ | ---------- | ---- | ------------ |
+| `npm run vue3-demo:dev`  | Vue3       | 4174 | ✨ 推荐      |
+| `npm run react-demo:dev` | React      | 5174 | Vite + React |
+| `npm run next-demo:dev`  | Next.js    | 5176 | App Router   |
+| `npm run ts-demo:dev`    | TypeScript | 5173 | Vite HMR     |
+| `npm run baseline:dev`   | JavaScript | 4173 | 原生 JS      |
 
 ## 🧪 测试命令（含自动化）
 
@@ -102,18 +104,22 @@ npm run vue3-demo:dev
 
 ## 📂 文件位置
 
-| 路径                           | 说明       |
-| ------------------------------ | ---------- |
-| `packages/pitype-core/src/`    | 核心库源码 |
-| `examples/vue3-typerank3/src/` | Vue3 示例  |
-| `examples/ts-typerank3/src/`   | TS 示例    |
-| `examples/typerank3/`          | JS 示例    |
-| `tests/baseline/`              | E2E 测试   |
-| `packages/pitype-core/tests/`  | 单元测试   |
+| 路径                            | 说明         |
+| ------------------------------- | ------------ |
+| `packages/pitype-core/src/`     | 核心库源码   |
+| `examples/vue3-typerank3/src/`  | Vue3 示例    |
+| `examples/react-typerank3/src/` | React 示例   |
+| `examples/next-typerank3/app/`  | Next.js 示例 |
+| `examples/ts-typerank3/src/`    | TS 示例      |
+| `examples/typerank3/`           | JS 示例      |
+| `tests/baseline/`               | E2E 测试     |
+| `packages/pitype-core/tests/`   | 单元测试     |
 
 ## 🌐 访问地址
 
 - Vue3: http://localhost:4174
+- React: http://localhost:5174
+- Next.js: http://localhost:5176
 - TypeScript: http://localhost:5173
 - JavaScript: http://localhost:4173
 
@@ -144,6 +150,12 @@ npm run --workspace pitype-core <command>
 
 # 在 Vue3 示例运行命令
 npm run --workspace vue3-typerank3 <command>
+
+# 在 React 示例运行命令
+npm run --workspace react-typerank3 <command>
+
+# 在 Next.js 示例运行命令
+npm run --workspace next-typerank3 <command>
 
 # 在 TS 示例运行命令
 npm run --workspace ts-typerank3 <command>
