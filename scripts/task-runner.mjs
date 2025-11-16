@@ -26,6 +26,11 @@ const tasks = [
     command: 'npm run test:unit -- --coverage'
   },
   {
+    key: 'bench',
+    label: 'TypingSession benchmark',
+    command: 'npm run bench:typing-session'
+  },
+  {
     key: 'e2e',
     label: 'Baseline E2E (Playwright)',
     command: 'npm run test:baseline'
