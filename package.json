@@ -26,7 +26,8 @@
     "format:check": "prettier --check \"**/*.{js,ts,mjs,cjs,json,md,yml,yaml}\"",
     "type-check": "cd packages/pitype-core && tsc --noEmit -p tsconfig.typecheck.json",
     "prepare": "husky install",
-    "release": "semantic-release"
+    "release": "semantic-release",
+    "task:menu": "node scripts/task-runner.mjs"
   },
   "workspaces": [
     "packages/*",
