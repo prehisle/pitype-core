@@ -6,6 +6,7 @@
   "license": "MIT",
   "scripts": {
     "pretest": "npx playwright install --with-deps chromium",
+    "postinstall": "node scripts/install-rollup-native.mjs",
     "build:core": "npm run --workspace pitype-core build",
     "sync:demo": "npm run build:core && node scripts/sync-demo.mjs",
     "watch:core": "npm run --workspace pitype-core watch",
