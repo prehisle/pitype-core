@@ -1,5 +1,5 @@
 {
-  "*.{ts,js,mjs,cjs}": ["eslint --fix", "prettier --write"],
+  "*.{ts,js,mjs,cjs}": ["prettier --write"],
   "*.{json,md,yml,yaml}": ["prettier --write"],
   "packages/pitype-core/src/**/*.ts": ["vitest related --run"]
 }
