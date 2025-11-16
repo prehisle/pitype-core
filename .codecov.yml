@@ -1,0 +1,54 @@
+# Codecov 配置文件
+# 文档: https://docs.codecov.com/docs/codecov-yaml
+
+coverage:
+  # 精度设置
+  precision: 2
+  round: down
+
+  # 覆盖率状态检查
+  status:
+    project:
+      default:
+        target: 80% # 项目整体覆盖率目标
+        threshold: 1% # 允许覆盖率下降的阈值
+        if_ci_failed: error
+
+    patch:
+      default:
+        target: 70% # 新增代码（patch）的覆盖率目标
+        threshold: 1%
+        if_ci_failed: error
+
+# PR 评论配置
+comment:
+  layout: 'reach,diff,flags,tree'
+  behavior: default
+  require_changes: false
+  require_base: false
+  require_head: true
+
+# 忽略的文件和目录
+ignore:
+  - 'examples/**' # 示例代码
+  - 'scripts/**' # 构建脚本
+  - '**/*.spec.ts' # 测试文件
+  - '**/*.test.ts'
+  - 'tests/**' # 测试目录
+  - 'dist/**' # 构建产物
+  - 'coverage/**' # 覆盖率报告
+  - '*.config.ts' # 配置文件
+  - '*.config.js'
+  - '*.config.mjs'
+  - '*.config.cjs'
+
+# Flags 配置（用于区分不同类型的测试）
+flags:
+  unittests:
+    paths:
+      - packages/pitype-core/src/
+    carryforward: true
+
+# GitHub 检查
+github_checks:
+  annotations: true
