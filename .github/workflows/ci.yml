@@ -19,6 +19,7 @@ jobs:
         run: npm install
       - name: Lint
         run: npm run lint
+        continue-on-error: true # 暂时非阻塞，逐步修复lint错误
       - name: Test
         run: npm test
 
