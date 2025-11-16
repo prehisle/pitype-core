@@ -31,12 +31,40 @@ const cursorShapeDefaults = {
 const mobileUserAgentPattern = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i;
 
 export interface DomCursorAdapterOptions {
+  /**
+   * 文本显示容器元素。
+   *
+   * **重要**：光标元素和输入框元素应该是此元素的子元素，以确保正确的定位。
+   * 如果光标或输入框不在 textDisplay 内部，adapter 会在首次 updatePosition 时自动移动它们。
+   */
   textDisplay: HTMLElement;
+
+  /** 文本容器元素（可选），用于滚动控制 */
   textContainer?: HTMLElement | null;
+
+  /** 获取当前输入位置的回调 */
   getCurrentPosition: () => number;
+
+  /**
+   * 获取光标元素的回调。
+   *
+   * **DOM 结构要求**：光标元素应该是 textDisplay 的子元素。
+   * adapter 会在首次 updatePosition 时自动检查并修复位置。
+   */
   getCursor: () => HTMLElement | null;
+
+  /**
+   * 获取输入框元素的回调。
+   *
+   * **DOM 结构要求**：输入框元素应该是 textDisplay 的子元素。
+   * adapter 会在首次 updatePosition 时自动检查并修复位置。
+   */
   getInput: () => (HTMLInputElement & { focus?: (options?: FocusOptions) => void }) | null;
+
+  /** 获取字符元素数组的回调（可选） */
   getSpans?: () => HTMLElement[];
+
+  /** 设置字符元素数组的回调（可选） */
   setSpans?: (spans: HTMLElement[]) => void;
   windowRef?: Window;
   documentRef?: Document;
@@ -55,12 +83,47 @@ export interface DomCursorAdapterOptions {
 }
 
 export interface DomCursorAdapter {
+  /**
+   * 便捷初始化方法：按正确顺序自动执行 cacheCharSpans、resetAnimation、
+   * updatePosition、enableMobileSupport 和 enableResponsiveSync。
+   *
+   * 这是推荐的初始化方式，可以避免手动调用时的顺序错误。
+   *
+   * @param options 初始化选项
+   * @param options.enableMobile 是否启用移动端支持（默认 true）
+   * @param options.enableResponsive 是否启用响应式同步（默认 true）
+   *
+   * @example
+   * ```typescript
+   * // 创建 adapter 后，使用 initialize 一键初始化
+   * const adapter = createDomCursorAdapter({ ... });
+   * adapter.initialize();  // 使用默认选项
+   *
+   * // 或者自定义选项
+   * adapter.initialize({ enableMobile: false, enableResponsive: true });
+   * ```
+   */
+  initialize(options?: { enableMobile?: boolean; enableResponsive?: boolean }): void;
+
+  /** 缓存字符元素数组（通常由 initialize 自动调用） */
   cacheCharSpans(): HTMLElement[];
+
+  /** 更新光标位置（通常由 initialize 自动调用） */
   updatePosition(options?: { immediate?: boolean }): void;
+
+  /** 重置光标动画状态（通常由 initialize 自动调用） */
   resetAnimation(): void;
+
+  /** 调度光标位置刷新 */
   scheduleRefresh(): void;
+
+  /** 调度布局刷新 */
   scheduleLayoutRefresh(): void;
+
+  /** 启用响应式同步（监听容器尺寸变化） */
   enableResponsiveSync(): void;
+
+  /** 启用移动端支持 */
   enableMobileSupport(): void;
 
   // 光标外观配置方法
@@ -246,6 +309,29 @@ export function createDomCursorAdapter(options: DomCursorAdapterOptions): DomCur
     const cursor = getCursor();
     const input = getInput();
     if (!cursor || !input || !textDisplay) return;
+
+    // 确保光标和输入框在 textDisplay 内部（自动修复 DOM 结构）
+    // 只在真实 DOM 环境中执行（测试环境中 contains 可能不存在）
+    if (typeof textDisplay.contains === 'function') {
+      if (!textDisplay.contains(cursor)) {
+        textDisplay.appendChild(cursor);
+        if (typeof console !== 'undefined' && console.warn) {
+          console.warn(
+            '[pitype-core] DomCursorAdapter: 光标元素已自动移动到 textDisplay 内部。' +
+              '建议在创建光标时直接使用 textDisplay.appendChild(cursor) 来避免此警告。'
+          );
+        }
+      }
+      if (!textDisplay.contains(input)) {
+        textDisplay.appendChild(input);
+        if (typeof console !== 'undefined' && console.warn) {
+          console.warn(
+            '[pitype-core] DomCursorAdapter: 输入框元素已自动移动到 textDisplay 内部。' +
+              '建议在创建输入框时直接使用 textDisplay.appendChild(input) 来避免此警告。'
+          );
+        }
+      }
+    }
 
     let spans = getSpans();
     if (!spans || spans.length === 0) {
@@ -478,7 +564,32 @@ export function createDomCursorAdapter(options: DomCursorAdapterOptions): DomCur
     return currentCursorBlinkEnabled;
   }
 
+  /**
+   * 便捷初始化方法：按正确顺序执行初始化步骤。
+   * 利用 updatePosition 中的自动 fallback 机制，无需手动调用 cacheCharSpans。
+   */
+  function initialize(opts: { enableMobile?: boolean; enableResponsive?: boolean } = {}): void {
+    const { enableMobile = true, enableResponsive = true } = opts;
+
+    // 1. 重置动画状态（清除之前的动画）
+    resetAnimation();
+
+    // 2. 更新位置（内部会自动调用 cacheCharSpans 和 DOM 结构验证）
+    updatePosition({ immediate: true });
+
+    // 3. 启用移动端支持
+    if (enableMobile) {
+      enableMobileSupport();
+    }
+
+    // 4. 启用响应式同步
+    if (enableResponsive) {
+      enableResponsiveSync();
+    }
+  }
+
   return {
+    initialize,
     cacheCharSpans,
     updatePosition,
     resetAnimation,

@@ -9,3 +9,4 @@ coverage
 examples/typerank3/vendor/
 
 MonkeyType
+.playwright-mcp
