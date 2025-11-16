@@ -24,26 +24,40 @@
     "lint": "eslint . --ext .js,.ts,.mjs",
     "format": "prettier --write \"**/*.{js,ts,mjs,cjs,json,md}\"",
     "format:check": "prettier --check \"**/*.{js,ts,mjs,cjs,json,md,yml,yaml}\"",
-    "type-check": "cd packages/pitype-core && tsc --noEmit"
+    "type-check": "cd packages/pitype-core && tsc --noEmit",
+    "prepare": "husky install",
+    "release": "semantic-release"
   },
   "workspaces": [
     "packages/*",
     "examples/*"
   ],
   "devDependencies": {
+    "@commitlint/cli": "^19.0.0",
+    "@commitlint/config-conventional": "^19.0.0",
     "@eslint/js": "^9.39.1",
     "@playwright/test": "^1.47.2",
+    "@semantic-release/changelog": "^6.0.3",
+    "@semantic-release/commit-analyzer": "^12.0.0",
+    "@semantic-release/git": "^10.0.1",
+    "@semantic-release/github": "^10.0.0",
+    "@semantic-release/npm": "^12.0.0",
+    "@semantic-release/release-notes-generator": "^13.0.0",
     "@typescript-eslint/eslint-plugin": "^8.46.3",
     "@typescript-eslint/parser": "^8.46.3",
     "@vitest/coverage-v8": "^2.1.4",
     "chokidar": "^4.0.3",
     "concurrently": "^9.2.1",
+    "conventional-changelog-conventionalcommits": "^7.0.2",
     "eslint": "^9.39.1",
     "eslint-config-prettier": "^10.1.8",
     "globals": "^16.5.0",
     "http-server": "^14.1.1",
+    "husky": "^9.0.0",
+    "lint-staged": "^15.0.0",
     "live-server": "^1.2.2",
     "prettier": "^3.6.2",
+    "semantic-release": "^23.0.0",
     "typescript": "^5.6.3",
     "vitest": "^2.1.4"
   }
