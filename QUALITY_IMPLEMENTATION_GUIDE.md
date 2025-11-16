@@ -300,17 +300,6 @@ BREAKING CHANGE: TypingSession constructor signature changed"
 | -------- | -------- | ------ |
 | index.js | 500KB    | <300KB |
 
-### 性能目标 (Lighthouse)
-
-| 指标           | 目标分数 |
-| -------------- | -------- |
-| Performance    | ≥90      |
-| Accessibility  | ≥90      |
-| Best Practices | ≥90      |
-| SEO            | ≥90      |
-
----
-
 ## 🔧 故障排除
 
 ### 常见问题
