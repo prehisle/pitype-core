@@ -316,6 +316,9 @@ npm test
 
 - `examples/typerank3` - JavaScript 版本
 - `examples/ts-typerank3` - TypeScript 版本
+- `examples/react-typerank3` - React 版本
+- `examples/vue3-typerank3` - Vue3 版本
+- `examples/svelte-typerank3` - Svelte 版本
 
 ## License
 

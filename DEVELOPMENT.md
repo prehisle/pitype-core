@@ -58,6 +58,14 @@ npm run dev
 cd examples/ts-typerank3
 npm run dev
 
+# React
+cd examples/react-typerank3
+npm run dev
+
+# Svelte
+cd examples/svelte-typerank3
+npm run dev
+
 # 原生 JS
 npm run demo:serve
 ```
@@ -93,9 +101,15 @@ npm run bench:typing-session
 # Vue3 示例类型检查
 cd examples/vue3-typerank3
 npm run type-check
+
+# Svelte 示例类型检查
+cd examples/svelte-typerank3
+npm run check
 ```
 
 > `npm test` 会先执行 `pretest`（自动安装 Playwright Chromium），请保持网络通畅。
+>
+> `npm run test:baseline` 会自动启动 `examples/typerank3` 与 `examples/svelte-typerank3`，涵盖两种 UI 技术栈的端到端用例。
 
 ## 🎯 常用开发场景
 
@@ -186,7 +200,9 @@ pitype-core/
 ├── examples/
 │   ├── typerank3/            # 原生 JS 示例
 │   ├── ts-typerank3/         # TypeScript 示例
-│   └── vue3-typerank3/       # Vue3 示例
+│   ├── react-typerank3/      # React 示例
+│   ├── vue3-typerank3/       # Vue3 示例
+│   └── svelte-typerank3/     # Svelte 示例
 ├── tests/                    # 基线测试（Playwright）
 └── scripts/                  # 构建脚本
 ```
@@ -202,6 +218,12 @@ npm run --workspace vue3-typerank3 <command>
 
 # 在 TypeScript 示例 workspace 中运行命令
 npm run --workspace ts-typerank3 <command>
+
+# 在 React 示例 workspace 中运行命令
+npm run --workspace react-typerank3 <command>
+
+# 在 Svelte 示例 workspace 中运行命令
+npm run --workspace svelte-typerank3 <command>
 ```
 
 ## 🐛 调试技巧

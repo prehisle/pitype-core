@@ -20,7 +20,7 @@ Current design issues when integrating with Vue/React/Svelte:
 ## Current Status & Quick Links
 
 - ✅ `preserveChildren` / `textContentClass` 选项已实现，详见 [docs/04接入指南.md](docs/04接入指南.md)。
-- ✅ `examples/vue3-typerank3` 与 `examples/ts-typerank3` 已按照“文本内容与输入/光标分离”的架构改造，可作为直接模板。
+- ✅ `examples/vue3-typerank3`、`examples/react-typerank3`、`examples/svelte-typerank3` 与 `examples/ts-typerank3` 已按照“文本内容与输入/光标分离”的架构改造，可作为直接模板。
 - 🟡 `onCursorUpdate` 等 Hook 仍在规划，需要评估事件语义与性能。
 
 | 场景                  | 推荐结构/脚本                                                                         | 参考                                                     |

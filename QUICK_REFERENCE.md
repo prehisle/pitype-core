@@ -102,18 +102,22 @@ npm run vue3-demo:dev
 
 ## 📂 文件位置
 
-| 路径                           | 说明       |
-| ------------------------------ | ---------- |
-| `packages/pitype-core/src/`    | 核心库源码 |
-| `examples/vue3-typerank3/src/` | Vue3 示例  |
-| `examples/ts-typerank3/src/`   | TS 示例    |
-| `examples/typerank3/`          | JS 示例    |
-| `tests/baseline/`              | E2E 测试   |
-| `packages/pitype-core/tests/`  | 单元测试   |
+| 路径                             | 说明        |
+| -------------------------------- | ----------- |
+| `packages/pitype-core/src/`      | 核心库源码  |
+| `examples/vue3-typerank3/src/`   | Vue3 示例   |
+| `examples/react-typerank3/src/`  | React 示例  |
+| `examples/svelte-typerank3/src/` | Svelte 示例 |
+| `examples/ts-typerank3/src/`     | TS 示例     |
+| `examples/typerank3/`            | JS 示例     |
+| `tests/baseline/`                | E2E 测试    |
+| `packages/pitype-core/tests/`    | 单元测试    |
 
 ## 🌐 访问地址
 
 - Vue3: http://localhost:4174
+- React: http://localhost:5174
+- Svelte: http://localhost:5175
 - TypeScript: http://localhost:5173
 - JavaScript: http://localhost:4173
 
@@ -144,6 +148,12 @@ npm run --workspace pitype-core <command>
 
 # 在 Vue3 示例运行命令
 npm run --workspace vue3-typerank3 <command>
+
+# 在 React 示例运行命令
+npm run --workspace react-typerank3 <command>
+
+# 在 Svelte 示例运行命令
+npm run --workspace svelte-typerank3 <command>
 
 # 在 TS 示例运行命令
 npm run --workspace ts-typerank3 <command>
