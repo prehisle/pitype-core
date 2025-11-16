@@ -29,7 +29,11 @@ export {
 export {
   createDomTextRenderer,
   type DomTextRenderer,
-  type DomTextRendererOptions
+  type DomTextRendererOptions,
+  type LineBreakOptions,
+  type LineBreakDecision,
+  type LineBreakMatcher,
+  type LineBreakContext
 } from './dom/textRenderer.js';
 export {
   createDomCursorAdapter,

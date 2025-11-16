@@ -13,7 +13,51 @@ export interface DomTextRendererOptions {
   documentRef?: Document;
   preserveChildren?: boolean;
   textContentClass?: string;
+  lineBreakOptions?: LineBreakOptions;
 }
+
+export interface LineBreakDecision {
+  attachToPrevious?: boolean;
+  attachToNext?: boolean;
+}
+
+export interface LineBreakContext {
+  token: TextToken;
+  index: number;
+  tokens: TextToken[];
+  previousToken?: TextToken;
+  nextToken?: TextToken;
+}
+
+export type LineBreakMatcher = (context: LineBreakContext) => LineBreakDecision | void;
+
+export interface LineBreakOptions {
+  disableDefaultCjk?: boolean;
+  attachToPreviousChars?: string[];
+  attachToNextChars?: string[];
+  matchers?: LineBreakMatcher[];
+}
+
+const DEFAULT_ATTACH_TO_PREVIOUS = new Set([
+  '，',
+  '。',
+  '！',
+  '？',
+  '：',
+  '；',
+  '、',
+  '）',
+  '】',
+  '》',
+  '』',
+  '」',
+  '’',
+  '”',
+  '…',
+  '—'
+]);
+
+const DEFAULT_ATTACH_TO_NEXT = new Set(['（', '【', '《', '『', '「', '“', '‘']);
 
 export function createDomTextRenderer(
   textDisplay: HTMLElement,
@@ -22,6 +66,8 @@ export function createDomTextRenderer(
   const doc = options.documentRef ?? (typeof document !== 'undefined' ? document : undefined);
   const preserveChildren = options.preserveChildren ?? false;
   const textContentClass = options.textContentClass ?? 'pitype-text-content';
+  const normalizedLineBreakOptions = normalizeLineBreakOptions(options.lineBreakOptions);
+  const shouldApplyLineBreakRules = hasLineBreakRules(normalizedLineBreakOptions);
   let charSpans: HTMLElement[] = [];
 
   const render = (source: TextSource | null | undefined) => {
@@ -52,7 +98,11 @@ export function createDomTextRenderer(
       return currentWord;
     };
 
-    tokens.forEach((token) => {
+    let previousRenderableSpan: HTMLElement | null = null;
+    let previousRenderableToken: TextToken | null = null;
+    let pendingAttachToNext = false;
+
+    tokens.forEach((token, index) => {
       if (token.type === 'newline') {
         flushWord();
         const wrapper = doc.createElement('span');
@@ -63,6 +113,11 @@ export function createDomTextRenderer(
         wrapper.appendChild(lineBreak);
         fragment.appendChild(wrapper);
         fragment.appendChild(doc.createElement('br'));
+        if (shouldApplyLineBreakRules) {
+          previousRenderableSpan = null;
+          previousRenderableToken = null;
+          pendingAttachToNext = false;
+        }
         return;
       }
 
@@ -77,8 +132,36 @@ export function createDomTextRenderer(
       }
 
       const word = token.attachToPrevious && currentWord ? currentWord : ensureWord(token.language);
+      const previousSpan = shouldApplyLineBreakRules ? previousRenderableSpan : null;
+      const previousToken = shouldApplyLineBreakRules ? previousRenderableToken : null;
       const span = createTokenSpan(token, doc);
       word.appendChild(span);
+
+      if (shouldApplyLineBreakRules) {
+        if (pendingAttachToNext && previousSpan) {
+          applyNoBreak(previousSpan, span);
+        }
+        pendingAttachToNext = false;
+
+        const decision = evaluateLineBreakDecision(
+          {
+            token,
+            index,
+            tokens,
+            previousToken: previousToken ?? undefined,
+            nextToken: tokens[index + 1]
+          },
+          normalizedLineBreakOptions
+        );
+
+        if (decision?.attachToPrevious && previousSpan) {
+          applyNoBreak(previousSpan, span);
+        }
+
+        if (decision?.attachToNext) {
+          pendingAttachToNext = true;
+        }
+      }
 
       if (token.language === 'chinese' && token.type === 'char') {
         flushWord();
@@ -86,6 +169,11 @@ export function createDomTextRenderer(
 
       if (token.type === 'space' || token.type === 'punctuation') {
         flushWord();
+      }
+
+      if (shouldApplyLineBreakRules) {
+        previousRenderableSpan = span;
+        previousRenderableToken = token;
       }
     });
 
@@ -164,4 +252,65 @@ function createTokenSpan(token: TextToken, doc: Document): HTMLElement {
   span.setAttribute('data-char', token.char);
   span.textContent = token.char;
   return span;
+}
+
+interface NormalizedLineBreakOptions {
+  attachToPreviousChars: Set<string>;
+  attachToNextChars: Set<string>;
+  matchers: LineBreakMatcher[];
+}
+
+function normalizeLineBreakOptions(options?: LineBreakOptions): NormalizedLineBreakOptions {
+  const attachToPreviousChars = new Set(options?.attachToPreviousChars ?? []);
+  const attachToNextChars = new Set(options?.attachToNextChars ?? []);
+
+  if (!options?.disableDefaultCjk) {
+    DEFAULT_ATTACH_TO_PREVIOUS.forEach((char) => attachToPreviousChars.add(char));
+    DEFAULT_ATTACH_TO_NEXT.forEach((char) => attachToNextChars.add(char));
+  }
+
+  return {
+    attachToPreviousChars,
+    attachToNextChars,
+    matchers: options?.matchers ?? []
+  };
+}
+
+function hasLineBreakRules(options: NormalizedLineBreakOptions): boolean {
+  return (
+    options.attachToPreviousChars.size > 0 ||
+    options.attachToNextChars.size > 0 ||
+    options.matchers.length > 0
+  );
+}
+
+function evaluateLineBreakDecision(
+  context: LineBreakContext,
+  options: NormalizedLineBreakOptions
+): LineBreakDecision | undefined {
+  let decision: LineBreakDecision | undefined;
+
+  if (options.attachToPreviousChars.has(context.token.char)) {
+    decision = { ...(decision ?? {}), attachToPrevious: true };
+  }
+
+  if (options.attachToNextChars.has(context.token.char)) {
+    decision = { ...(decision ?? {}), attachToNext: true };
+  }
+
+  for (const matcher of options.matchers) {
+    const result = matcher(context);
+    if (!result) continue;
+    decision = {
+      attachToPrevious: decision?.attachToPrevious || result.attachToPrevious,
+      attachToNext: decision?.attachToNext || result.attachToNext
+    };
+  }
+
+  return decision;
+}
+
+function applyNoBreak(previousSpan: HTMLElement, currentSpan: HTMLElement): void {
+  previousSpan.classList.add('no-break');
+  currentSpan.classList.add('no-break');
 }

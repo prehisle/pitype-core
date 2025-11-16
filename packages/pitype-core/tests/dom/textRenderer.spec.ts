@@ -209,4 +209,83 @@ describe('createDomTextRenderer', () => {
     const textContainers = display.children.filter((child) => child.classList.contains('custom-text'));
     expect(textContainers.length).toBe(1);
   });
+
+  it('attaches default CJK punctuation to previous characters', () => {
+    const doc = new FakeDocument();
+    const display = doc.createElement('div');
+    const renderer = createDomTextRenderer(display as unknown as HTMLElement, {
+      documentRef: doc as unknown as Document
+    });
+    const source = createTextSource('稳定的节奏胜过瞬间的爆发。');
+
+    renderer.render(source);
+
+    const contentWrapper = display.children[0];
+    const spans = collectCharSpans(contentWrapper);
+    const punctuationIndex = spans.findIndex((node) => node.getAttribute('data-char') === '。');
+    const punctuation = spans[punctuationIndex];
+    const previous = spans[punctuationIndex - 1];
+    expect(punctuation?.classList.contains('no-break')).toBe(true);
+    expect(previous?.classList.contains('no-break')).toBe(true);
+  });
+
+  it('attaches default opening punctuation to following characters', () => {
+    const doc = new FakeDocument();
+    const display = doc.createElement('div');
+    const renderer = createDomTextRenderer(display as unknown as HTMLElement, {
+      documentRef: doc as unknown as Document
+    });
+    const source = createTextSource('“感受节奏”');
+
+    renderer.render(source);
+
+    const spans = collectCharSpans(display.children[0]);
+    const openingIndex = spans.findIndex((node) => node.getAttribute('data-char') === '“');
+    const opening = spans[openingIndex];
+    const nextChar = spans[openingIndex + 1];
+    expect(opening?.classList.contains('no-break')).toBe(true);
+    expect(nextChar?.classList.contains('no-break')).toBe(true);
+  });
+
+  it('supports custom line break matchers', () => {
+    const doc = new FakeDocument();
+    const display = doc.createElement('div');
+    const renderer = createDomTextRenderer(display as unknown as HTMLElement, {
+      documentRef: doc as unknown as Document,
+      lineBreakOptions: {
+        disableDefaultCjk: true,
+        matchers: [
+          ({ token, previousToken }) => {
+            if (token.char === '度' && previousToken?.language === 'english') {
+              return { attachToPrevious: true };
+            }
+            return undefined;
+          }
+        ]
+      }
+    });
+
+    renderer.render(createTextSource('42度'));
+
+    const spans = collectCharSpans(display.children[0]);
+    const degreeIndex = spans.findIndex((node) => node.getAttribute('data-char') === '度');
+    const degree = spans[degreeIndex];
+    const previous = spans[degreeIndex - 1];
+    expect(degree?.classList.contains('no-break')).toBe(true);
+    expect(previous?.classList.contains('no-break')).toBe(true);
+  });
 });
+
+function collectCharSpans(root: FakeElement): FakeElement[] {
+  const spans: FakeElement[] = [];
+
+  const traverse = (node: FakeElement) => {
+    if (node.getAttribute('data-char')) {
+      spans.push(node);
+    }
+    node.children.forEach(traverse);
+  };
+
+  traverse(root);
+  return spans;
+}

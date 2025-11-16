@@ -169,6 +169,39 @@ console.log(snapshot.cpm, snapshot.wpm, snapshot.accuracy);
 
 ### DOM 适配器
 
+#### `createDomTextRenderer(textDisplay: HTMLElement, options?: DomTextRendererOptions): DomTextRenderer`
+
+渲染文本源到 DOM，并提供行高亮、状态标记和中文排版禁则支持。
+
+```typescript
+import { createDomTextRenderer } from 'pitype-core';
+
+const textRenderer = createDomTextRenderer(document.getElementById('text-display')!, {
+  lineBreakOptions: {
+    // 追加需要贴靠前一个字符的符号（默认已包含常见中文标点）
+    attachToPreviousChars: ['%'],
+    // 需要与后一个字符保持同一行的符号（适用于开引号、货币符号等）
+    attachToNextChars: ['￥'],
+    // 通过 matcher 自定义任意组合
+    matchers: [
+      ({ token, previousToken }) => {
+        if (token.char === '度' && previousToken?.language === 'english') {
+          return { attachToPrevious: true };
+        }
+      }
+    ]
+  }
+});
+
+textRenderer.render(createTextSource('稳定的节奏胜过瞬间的爆发。'));
+```
+
+**说明：**
+- 未提供 `lineBreakOptions` 时，renderer 会自动让常见中文闭合标点（句号、逗号、问号等）贴靠前一个字符，开口符号（如 `“`、`（`）贴靠后一个字符，避免出现在行首/行尾。
+- `lineBreakOptions.attachToPreviousChars` / `attachToNextChars` 接受字符数组，可扩展任何禁则字符。
+- `lineBreakOptions.matchers` 提供回调 `(context) => LineBreakDecision`，可根据上下文（前后 token）动态设置贴靠方向，覆盖更复杂的场景（数字+单位、复合符号等）。
+- 所有禁则都会为相关节点添加 `.no-break` class，可在样式中自定义表现。
+
 #### `createDomInputController(options: DomInputControllerOptions): DomInputController`
 
 创建 DOM 输入控制器，处理浏览器输入事件。
