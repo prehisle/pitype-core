@@ -105,8 +105,11 @@ export function createDomAudioController(
     if (typeof source === 'string') {
       try {
         // 使用全局 Audio 构造函数（如果可用）
+        interface WindowWithAudio extends Window {
+          Audio?: typeof Audio;
+        }
         const AudioCtor =
-          (windowRef as Window)?.Audio || (typeof Audio !== 'undefined' ? Audio : null);
+          (windowRef as WindowWithAudio)?.Audio || (typeof Audio !== 'undefined' ? Audio : null);
         if (!AudioCtor) return null;
 
         const audio = new AudioCtor(source);
