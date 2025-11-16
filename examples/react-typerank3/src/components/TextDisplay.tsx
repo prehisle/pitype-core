@@ -104,7 +104,7 @@ export function TextDisplay({
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
           // 缓存字符元素
-          cursorAdapter.cacheCharSpans();
+          cursorAdapterRef.current?.cacheCharSpans();
 
           // 附加输入框
           if (inputRef.current) {
@@ -112,7 +112,7 @@ export function TextDisplay({
           }
 
           // 更新光标位置
-          cursorAdapter.updatePosition({ immediate: true });
+          cursorAdapterRef.current?.updatePosition({ immediate: true });
 
           // 聚焦输入框
           focusInput();
