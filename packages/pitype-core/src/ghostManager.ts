@@ -1,4 +1,4 @@
-import { createPlayer, type Player, type PlayerOptions } from './player.js';
+import { createPlayer, type Player } from './player.js';
 import { createDomCursorAdapter, type DomCursorAdapter } from './dom/cursorAdapter.js';
 import type { RecordingData } from './recorder.js';
 import type { CursorShape } from './dom/cursorAdapter.js';
@@ -104,10 +104,7 @@ export function createGhostManager(options: GhostManagerOptions): GhostManager {
     return cursorElement;
   }
 
-  function createGhostLabelElement(
-    config: GhostConfig,
-    cursorElement: HTMLElement
-  ): HTMLElement | undefined {
+  function createGhostLabelElement(config: GhostConfig): HTMLElement | undefined {
     if (!config.showLabel) return undefined;
 
     const labelElement = document.createElement('div');
@@ -152,7 +149,7 @@ export function createGhostManager(options: GhostManagerOptions): GhostManager {
     const cursorElement = createGhostCursorElement(config);
 
     // 创建名称标签（可选）
-    const labelElement = createGhostLabelElement(config, cursorElement);
+    const labelElement = createGhostLabelElement(config);
 
     let currentPosition = 0;
 
@@ -162,7 +159,7 @@ export function createGhostManager(options: GhostManagerOptions): GhostManager {
       textContainer,
       getCurrentPosition: () => currentPosition,
       getCursor: () => cursorElement,
-      getInput: () => dummyInput as any,
+      getInput: () => dummyInput,
       getSpans,
       cursorShape: config.shape || 'line',
       cursorColor: config.color || 'rgba(255, 215, 0, 0.8)',

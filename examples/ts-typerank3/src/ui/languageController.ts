@@ -10,9 +10,18 @@ export interface LanguageSelectorOptions {
   updatePageText?: () => void;
 }
 
+interface WindowWithHelpers extends Window {
+  applyLanguage?: (lang: string) => void;
+  updatePageText?: () => void;
+}
+
 export function initLanguageSelector({
-  applyLanguage = typeof window !== 'undefined' ? (window as any).applyLanguage : undefined,
-  updatePageText = typeof window !== 'undefined' ? (window as any).updatePageText : undefined
+  applyLanguage = typeof window !== 'undefined'
+    ? (window as WindowWithHelpers).applyLanguage
+    : undefined,
+  updatePageText = typeof window !== 'undefined'
+    ? (window as WindowWithHelpers).updatePageText
+    : undefined
 }: LanguageSelectorOptions = {}): void {
   const options = document.querySelectorAll('.language-option');
   if (!options.length) return;

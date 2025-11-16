@@ -41,7 +41,15 @@ module.exports = [
     rules: {
       ...tsPlugin.configs.recommended.rules,
       // Disable no-undef for TypeScript files - TypeScript handles this
-      'no-undef': 'off'
+      'no-undef': 'off',
+      // Allow unused vars with underscore prefix
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        {
+          argsIgnorePattern: '^_',
+          varsIgnorePattern: '^_'
+        }
+      ]
     }
   },
   prettier
