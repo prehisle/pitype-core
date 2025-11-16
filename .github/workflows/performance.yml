@@ -1,0 +1,146 @@
+name: Performance Monitoring
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  bundle-analysis:
+    name: Bundle Size Analysis
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build core library
+        run: npm run build:core
+
+      - name: Analyze bundle
+        run: |
+          echo "## 📦 Bundle Analysis" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          # 核心库大小
+          CORE_SIZE=$(wc -c < packages/pitype-core/dist/index.js)
+          CORE_SIZE_KB=$(echo "scale=2; $CORE_SIZE / 1024" | bc)
+
+          # 类型定义大小
+          TYPES_SIZE=$(wc -c < packages/pitype-core/dist/index.d.ts)
+          TYPES_SIZE_KB=$(echo "scale=2; $TYPES_SIZE / 1024" | bc)
+
+          echo "| File | Size |" >> $GITHUB_STEP_SUMMARY
+          echo "|------|------|" >> $GITHUB_STEP_SUMMARY
+          echo "| index.js | ${CORE_SIZE_KB} KB |" >> $GITHUB_STEP_SUMMARY
+          echo "| index.d.ts | ${TYPES_SIZE_KB} KB |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          # 检查是否超过阈值
+          MAX_SIZE_KB=500
+          if (( $(echo "$CORE_SIZE_KB > $MAX_SIZE_KB" | bc -l) )); then
+            echo "⚠️ **Warning**: Bundle size exceeds ${MAX_SIZE_KB}KB!" >> $GITHUB_STEP_SUMMARY
+            exit 1
+          else
+            echo "✅ Bundle size is within the ${MAX_SIZE_KB}KB limit" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Install size-limit
+        run: npm install --save-dev @size-limit/file
+
+      - name: Check size with size-limit
+        run: |
+          echo '[{"path": "packages/pitype-core/dist/index.js", "limit": "500 KB"}]' > .size-limit.json
+          npx size-limit
+
+  lighthouse:
+    name: Lighthouse Performance
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build Vue3 example
+        run: |
+          npm run build:core
+          cd examples/vue3-typerank3
+          npm run build
+
+      - name: Run Lighthouse CI
+        uses: treosh/lighthouse-ci-action@v11
+        with:
+          urls: |
+            http://localhost:4173
+          uploadArtifacts: true
+          temporaryPublicStorage: true
+          runs: 3
+          configPath: ./.lighthouserc.json
+
+  benchmark:
+    name: Performance Benchmark
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run benchmarks
+        run: |
+          # 创建基准测试脚本
+          mkdir -p benchmark
+          cat > benchmark/typing-session.bench.ts << 'EOF'
+          import { bench, describe } from 'vitest';
+          import { TypingSession, createTextSource } from '../packages/pitype-core/src/index.js';
+
+          describe('TypingSession Performance', () => {
+            bench('create session with 1000 chars', () => {
+              const text = 'a'.repeat(1000);
+              const textSource = createTextSource(text);
+              new TypingSession(textSource);
+            });
+
+            bench('process 100 input events', () => {
+              const textSource = createTextSource('test text');
+              const session = new TypingSession(textSource);
+              for (let i = 0; i < 100; i++) {
+                session.handleInput('t');
+              }
+            });
+          });
+          EOF
+
+          npm run test:unit -- --run benchmark/*.bench.ts --reporter=verbose
+
+      - name: Store benchmark result
+        uses: benchmark-action/github-action-benchmark@v1
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        with:
+          tool: 'benchmarkjs'
+          output-file-path: benchmark-results.json
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          auto-push: true
