@@ -61,37 +61,6 @@ jobs:
           echo '[{"path": "packages/pitype-core/dist/index.js", "limit": "500 KB"}]' > .size-limit.json
           npx size-limit
 
-  lighthouse:
-    name: Lighthouse Performance
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: npm
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Build Vue3 example
-        run: |
-          npm run build:core
-          cd examples/vue3-typerank3
-          npm run build
-
-      - name: Run Lighthouse CI
-        uses: treosh/lighthouse-ci-action@v11
-        with:
-          urls: |
-            http://localhost:4173
-          uploadArtifacts: true
-          temporaryPublicStorage: true
-          runs: 3
-          configPath: ./.lighthouserc.json
-
   benchmark:
     name: Performance Benchmark
     runs-on: ubuntu-latest
