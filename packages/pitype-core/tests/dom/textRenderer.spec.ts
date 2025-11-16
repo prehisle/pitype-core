@@ -31,6 +31,7 @@ class FakeElement {
   private attributes = new Map<string, string>();
   private _innerHTML = '';
   public firstChild: FakeElement | null = null;
+  public parentElement: FakeElement | null = null;
 
   constructor(tagName: string) {
     this.tagName = tagName.toUpperCase();
@@ -45,6 +46,7 @@ class FakeElement {
     if (this.children.length === 1) {
       this.firstChild = child;
     }
+    child.parentElement = this;
     return child;
   }
 
@@ -61,6 +63,7 @@ class FakeElement {
     if (this.children.length > 0) {
       this.firstChild = this.children[0];
     }
+    newNode.parentElement = this;
     return newNode;
   }
 
@@ -227,6 +230,7 @@ describe('createDomTextRenderer', () => {
     const previous = spans[punctuationIndex - 1];
     expect(punctuation?.classList.contains('no-break')).toBe(true);
     expect(previous?.classList.contains('no-break')).toBe(true);
+    expect(punctuation?.parentElement).toBe(previous?.parentElement);
   });
 
   it('attaches default opening punctuation to following characters', () => {

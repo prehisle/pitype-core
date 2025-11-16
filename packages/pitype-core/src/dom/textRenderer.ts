@@ -75,6 +75,9 @@ export function createDomTextRenderer(
     const tokens = source.tokens ?? [];
     const fragment = doc.createDocumentFragment();
     let currentWord: HTMLElement | null = null;
+    const lineBreakDecisions = shouldApplyLineBreakRules
+      ? computeLineBreakDecisions(tokens, normalizedLineBreakOptions)
+      : [];
 
     const flushWord = () => {
       if (currentWord) {
@@ -133,41 +136,47 @@ export function createDomTextRenderer(
 
       const word = token.attachToPrevious && currentWord ? currentWord : ensureWord(token.language);
       const previousSpan = shouldApplyLineBreakRules ? previousRenderableSpan : null;
-      const previousToken = shouldApplyLineBreakRules ? previousRenderableToken : null;
       const span = createTokenSpan(token, doc);
       word.appendChild(span);
 
+      let currentDecision: LineBreakDecision | undefined;
+      let nextDecision: LineBreakDecision | undefined;
+
       if (shouldApplyLineBreakRules) {
+        currentDecision = lineBreakDecisions[index];
+        nextDecision = lineBreakDecisions[index + 1];
+
         if (pendingAttachToNext && previousSpan) {
           applyNoBreak(previousSpan, span);
         }
         pendingAttachToNext = false;
 
-        const decision = evaluateLineBreakDecision(
-          {
-            token,
-            index,
-            tokens,
-            previousToken: previousToken ?? undefined,
-            nextToken: tokens[index + 1]
-          },
-          normalizedLineBreakOptions
-        );
-
-        if (decision?.attachToPrevious && previousSpan) {
+        if (currentDecision?.attachToPrevious && previousSpan) {
           applyNoBreak(previousSpan, span);
         }
 
-        if (decision?.attachToNext) {
+        if (currentDecision?.attachToNext) {
           pendingAttachToNext = true;
         }
       }
 
-      if (token.language === 'chinese' && token.type === 'char') {
+      const shouldKeepWordForNext =
+        shouldApplyLineBreakRules &&
+        Boolean(currentDecision?.attachToNext || nextDecision?.attachToPrevious);
+
+      const shouldFlushChineseChar =
+        token.language === 'chinese' &&
+        token.type === 'char' &&
+        (!shouldApplyLineBreakRules || !shouldKeepWordForNext);
+      const shouldFlushSpace = token.type === 'space';
+      const shouldFlushPunctuation =
+        token.type === 'punctuation' && !(shouldApplyLineBreakRules && shouldKeepWordForNext);
+
+      if (shouldFlushChineseChar) {
         flushWord();
       }
 
-      if (token.type === 'space' || token.type === 'punctuation') {
+      if (shouldFlushSpace || shouldFlushPunctuation) {
         flushWord();
       }
 
@@ -252,6 +261,38 @@ function createTokenSpan(token: TextToken, doc: Document): HTMLElement {
   span.setAttribute('data-char', token.char);
   span.textContent = token.char;
   return span;
+}
+
+function computeLineBreakDecisions(
+  tokens: TextToken[],
+  options: NormalizedLineBreakOptions
+): Array<LineBreakDecision | undefined> {
+  const decisions: Array<LineBreakDecision | undefined> = new Array(tokens.length);
+  let previousRenderableToken: TextToken | undefined;
+
+  tokens.forEach((token, index) => {
+    if (token.type === 'newline') {
+      decisions[index] = undefined;
+      previousRenderableToken = undefined;
+      return;
+    }
+
+    const decision = evaluateLineBreakDecision(
+      {
+        token,
+        index,
+        tokens,
+        previousToken: previousRenderableToken,
+        nextToken: tokens[index + 1]
+      },
+      options
+    );
+
+    decisions[index] = decision;
+    previousRenderableToken = token;
+  });
+
+  return decisions;
 }
 
 interface NormalizedLineBreakOptions {
