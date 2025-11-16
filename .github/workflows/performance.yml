@@ -104,12 +104,3 @@ jobs:
           EOF
 
           npm run bench:typing-session
-
-      - name: Store benchmark result
-        uses: benchmark-action/github-action-benchmark@v1
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        with:
-          tool: 'benchmarkjs'
-          output-file-path: benchmark-results.json
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          auto-push: true
