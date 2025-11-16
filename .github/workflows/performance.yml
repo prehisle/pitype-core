@@ -103,7 +103,7 @@ jobs:
           });
           EOF
 
-          npm run test:unit -- --run benchmark/*.bench.ts --reporter=verbose
+          npm run bench:typing-session
 
       - name: Store benchmark result
         uses: benchmark-action/github-action-benchmark@v1
