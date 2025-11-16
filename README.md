@@ -17,12 +17,12 @@
 
 ## 架构速览
 
-| 角色         | 路径                                               | 职责                                       |
-| ------------ | -------------------------------------------------- | ------------------------------------------ |
-| 🧱 核心引擎  | `packages/pitype-core`                             | Headless TypingSession、DOM 适配器、统计等 |
-| 🌐 示例应用  | `examples/{typerank3,ts-typerank3,vue3-typerank3}` | 各技术栈的 UI 展示和 E2E 测试入口          |
-| 🛠️ 脚本      | `scripts/`                                         | 构建/同步、Rollup native 安装、任务菜单    |
-| ⚙️ CI & 发布 | `.github/workflows/`                               | 质量门禁、性能监控、基准测试、自动发布     |
+| 角色         | 路径                                                                                 | 职责                                       |
+| ------------ | ------------------------------------------------------------------------------------ | ------------------------------------------ |
+| 🧱 核心引擎  | `packages/pitype-core`                                                               | Headless TypingSession、DOM 适配器、统计等 |
+| 🌐 示例应用  | `examples/{typerank3,ts-typerank3,vue3-typerank3,react-typerank3,angular-typerank3}` | 各技术栈的 UI 展示和 E2E 测试入口          |
+| 🛠️ 脚本      | `scripts/`                                                                           | 构建/同步、Rollup native 安装、任务菜单    |
+| ⚙️ CI & 发布 | `.github/workflows/`                                                                 | 质量门禁、性能监控、基准测试、自动发布     |
 
 ## 项目结构
 
@@ -33,7 +33,9 @@ pitype-core/
 ├── examples/
 │   ├── typerank3/            # JavaScript 示例应用
 │   ├── ts-typerank3/         # TypeScript 示例应用
-│   └── vue3-typerank3/       # Vue3 示例应用 ✨
+│   ├── react-typerank3/      # React 18 示例
+│   ├── vue3-typerank3/       # Vue3 示例应用 ✨
+│   └── angular-typerank3/    # Angular 19 示例
 └── scripts/                  # 构建和同步脚本
 ```
 
@@ -101,6 +103,21 @@ npm run ts-demo:dev
 - ✅ packages/pitype-core 源码
 - ✅ examples/ts-typerank3/src 下的所有文件
 - ✅ HTML 和 CSS
+
+#### Angular 19 示例 (angular-typerank3)
+
+```bash
+# 启动开发服务器（支持热更新）
+npm run angular-demo:dev
+```
+
+访问 http://localhost:4200
+
+**自动热更新内容：**
+
+- ✅ packages/pitype-core 源码（通过 `watch:core`）
+- ✅ examples/angular-typerank3/src 下的所有文件
+- ✅ Angular CLI Dev Server（Vite）实时刷新
 
 ### 构建
 
@@ -202,6 +219,19 @@ TypeScript 重写版本，提供完整类型安全。
 
 查看 [examples/react-typerank3](./examples/react-typerank3) 了解更多。
 
+### angular-typerank3 (Angular 19)
+
+Angular 19 独立组件示例，以 SPA 方式复刻 TypeScript 版本全部交互。
+
+**特性：**
+
+- Standalone Component + CLI Vite 构建，默认严格模式
+- 以生命周期钩子托管 DOM 初始化，集中清理事件监听
+- 完整复用 `language.ts`、`texts.ts`、`ui/*` 以保持功能对齐
+- 兼容 `watch:core` 的 workspace 依赖链
+
+查看 [examples/angular-typerank3](./examples/angular-typerank3) 了解更多。
+
 ## CI 与发布
 
 - **Quality Gate**（`quality-gate.yml`）：在 PR/main push 时执行 lint、unit + coverage、Playwright 基线、type-check、构建和安全审计，所有检查通过后才允许合并。
@@ -233,18 +263,19 @@ TypeScript 重写版本，提供完整类型安全。
 
 ## 脚本说明
 
-| 脚本                     | 说明                           |
-| ------------------------ | ------------------------------ |
-| `npm run vue3-demo:dev`  | 启动 Vue3 示例开发环境（推荐） |
-| `npm run react-demo:dev` | 启动 React 示例开发环境        |
-| `npm run ts-demo:dev`    | 启动 TypeScript 示例开发环境   |
-| `npm run baseline:dev`   | 启动 JavaScript 示例开发环境   |
-| `npm run build:core`     | 构建核心包                     |
-| `npm run watch:core`     | 监听核心包变化并自动重新编译   |
-| `npm run sync:demo`      | 同步核心包到 JavaScript 示例   |
-| `npm test`               | 运行所有测试                   |
-| `npm run lint`           | 运行 ESLint                    |
-| `npm run format`         | 格式化代码                     |
+| 脚本                       | 说明                           |
+| -------------------------- | ------------------------------ |
+| `npm run vue3-demo:dev`    | 启动 Vue3 示例开发环境（推荐） |
+| `npm run react-demo:dev`   | 启动 React 示例开发环境        |
+| `npm run angular-demo:dev` | 启动 Angular 19 示例开发环境   |
+| `npm run ts-demo:dev`      | 启动 TypeScript 示例开发环境   |
+| `npm run baseline:dev`     | 启动 JavaScript 示例开发环境   |
+| `npm run build:core`       | 构建核心包                     |
+| `npm run watch:core`       | 监听核心包变化并自动重新编译   |
+| `npm run sync:demo`        | 同步核心包到 JavaScript 示例   |
+| `npm test`                 | 运行所有测试                   |
+| `npm run lint`             | 运行 ESLint                    |
+| `npm run format`           | 格式化代码                     |
 
 > 💡 更多命令和使用场景请查看 [DEVELOPMENT.md](./DEVELOPMENT.md)
 
@@ -253,6 +284,8 @@ TypeScript 重写版本，提供完整类型安全。
 - **核心引擎**: TypeScript 5.x
 - **Vue3 示例**: Vue 3.4+, TypeScript 5.x, Vite 5.x
 - **TypeScript 示例**: TypeScript 5.x, Vite 5.x
+- **React 示例**: React 18, TypeScript 5.6, Vite 5.x
+- **Angular 示例**: Angular 19, TypeScript 5.6, CLI Vite 构建器
 - **JavaScript 示例**: 原生 ES6+, Live Server
 - **测试**: Playwright (E2E), Vitest (单元测试)
 - **工具链**: npm workspaces, concurrently, chokidar
