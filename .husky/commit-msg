@@ -1,4 +1,7 @@
 #!/usr/bin/env sh
 . "$(dirname -- "$0")/_/husky.sh"
 
-npx --no -- commitlint --edit $1
+MSG=$(cat "$1")
+echo "$MSG" | grep -q '^chore(release):' && exit 0
+
+npx --no -- commitlint --edit "$1"
