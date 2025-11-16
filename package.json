@@ -17,6 +17,8 @@
     "ts-demo:dev": "concurrently --kill-others-on-fail \"npm:watch:core\" \"npm:ts-demo:serve\"",
     "vue3-demo:serve": "npm run --workspace vue3-typerank3 dev",
     "vue3-demo:dev": "concurrently --kill-others-on-fail \"npm:watch:core\" \"npm:vue3-demo:serve\"",
+    "react-demo:serve": "npm run --workspace react-typerank3 dev",
+    "react-demo:dev": "concurrently --kill-others-on-fail \"npm:watch:core\" \"npm:react-demo:serve\"",
     "test": "npm run test:baseline && npm run test:unit",
     "test:baseline": "playwright test",
     "test:unit": "vitest --run --passWithNoTests",

@@ -180,6 +180,28 @@ TypeScript 重写版本，提供完整类型安全。
 
 **特性：**
 
+- 完整的 TypeScript 类型定义
+- 使用 Vite 构建
+- 直接使用 pitype-core workspace 包
+- 开发时热更新支持
+
+查看 [examples/ts-typerank3](./examples/ts-typerank3) 了解更多。
+
+### react-typerank3 (React)
+
+基于 React 18 的打字练习应用，完整复刻 ts-typerank3 功能。
+
+**特性：**
+
+- React 18 + TypeScript
+- Vite 5.x 构建工具
+- React Hooks 封装 pitype-core API
+- Context 实现多语言和主题管理
+- 完整的响应式设计和移动端支持
+- 5 个主题和 3 种语言支持
+
+查看 [examples/react-typerank3](./examples/react-typerank3) 了解更多。
+
 ## CI 与发布
 
 - **Quality Gate**（`quality-gate.yml`）：在 PR/main push 时执行 lint、unit + coverage、Playwright 基线、type-check、构建和安全审计，所有检查通过后才允许合并。
@@ -188,13 +210,6 @@ TypeScript 重写版本，提供完整类型安全。
 - **脚本自动化**：`pretest` 会安装 Playwright 浏览器，`postinstall` 会在 Linux x64 环境拉取 Rollup 原生二进制，确保 CI、本地环境一致。
 
 👉 详细流程与常见故障排除，参见 [DEVELOPMENT.md](./DEVELOPMENT.md#ci--release)。
-
-- 完整的 TypeScript 类型定义
-- 使用 Vite 构建
-- 直接使用 pitype-core workspace 包
-- 开发时热更新支持
-
-查看 [examples/ts-typerank3](./examples/ts-typerank3) 了解更多。
 
 ## 开发工作流
 
@@ -218,17 +233,18 @@ TypeScript 重写版本，提供完整类型安全。
 
 ## 脚本说明
 
-| 脚本                    | 说明                           |
-| ----------------------- | ------------------------------ |
-| `npm run vue3-demo:dev` | 启动 Vue3 示例开发环境（推荐） |
-| `npm run ts-demo:dev`   | 启动 TypeScript 示例开发环境   |
-| `npm run baseline:dev`  | 启动 JavaScript 示例开发环境   |
-| `npm run build:core`    | 构建核心包                     |
-| `npm run watch:core`    | 监听核心包变化并自动重新编译   |
-| `npm run sync:demo`     | 同步核心包到 JavaScript 示例   |
-| `npm test`              | 运行所有测试                   |
-| `npm run lint`          | 运行 ESLint                    |
-| `npm run format`        | 格式化代码                     |
+| 脚本                     | 说明                           |
+| ------------------------ | ------------------------------ |
+| `npm run vue3-demo:dev`  | 启动 Vue3 示例开发环境（推荐） |
+| `npm run react-demo:dev` | 启动 React 示例开发环境        |
+| `npm run ts-demo:dev`    | 启动 TypeScript 示例开发环境   |
+| `npm run baseline:dev`   | 启动 JavaScript 示例开发环境   |
+| `npm run build:core`     | 构建核心包                     |
+| `npm run watch:core`     | 监听核心包变化并自动重新编译   |
+| `npm run sync:demo`      | 同步核心包到 JavaScript 示例   |
+| `npm test`               | 运行所有测试                   |
+| `npm run lint`           | 运行 ESLint                    |
+| `npm run format`         | 格式化代码                     |
 
 > 💡 更多命令和使用场景请查看 [DEVELOPMENT.md](./DEVELOPMENT.md)
 
