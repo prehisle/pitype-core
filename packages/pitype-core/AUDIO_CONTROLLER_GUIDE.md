@@ -18,7 +18,7 @@ Pitype Core 现在支持完整的音频反馈功能，包括：
 ### 1. 引入必要的模块
 
 ```typescript
-import { createDomAudioController, type SoundPack } from '@pitype/core';
+import { createDomAudioController, type SoundPack } from 'pitype-core';
 ```
 
 ### 2. 准备音效文件
@@ -79,7 +79,7 @@ audioController.playSound('complete');
 最简单的方式是让 `SessionRuntime` 自动触发音效：
 
 ```typescript
-import { createSessionRuntime, createDomAudioController } from '@pitype/core';
+import { createSessionRuntime, createDomAudioController } from 'pitype-core';
 
 // 创建音频控制器
 const audioController = createDomAudioController({
@@ -212,7 +212,7 @@ import {
   createDomAudioController,
   createSessionRuntime,
   type DomAudioController
-} from '@pitype/core';
+} from 'pitype-core';
 
 const audioController = shallowRef<DomAudioController>();
 const audioEnabled = ref(false);
@@ -273,7 +273,7 @@ import {
   createDomCursorAdapter,
   createDomTextRenderer,
   createTextSource
-} from '@pitype/core';
+} from 'pitype-core';
 
 const textDisplayRef = ref<HTMLElement | null>(null);
 const cursorRef = ref<HTMLElement | null>(null);

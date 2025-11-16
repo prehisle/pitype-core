@@ -162,7 +162,7 @@ player.value.play();
 ## 📦 依赖关系
 
 ```
-@pitype/core
+pitype-core
 ├── createDomCursorAdapter      (光标配置)
 ├── createDomAudioController     (音频反馈)
 ├── createSessionRuntime         (集成录制)

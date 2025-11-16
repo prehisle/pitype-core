@@ -100,7 +100,7 @@ npm run test:unit
 npm run test:baseline
 ```
 
-## 核心包 (@pitype/core)
+## 核心包 (pitype-core)
 
 无 UI 的打字会话引擎，提供：
 
@@ -147,7 +147,7 @@ TypeScript 重写版本，提供完整类型安全。
 **特性：**
 - 完整的 TypeScript 类型定义
 - 使用 Vite 构建
-- 直接使用 @pitype/core workspace 包
+- 直接使用 pitype-core workspace 包
 - 开发时热更新支持
 
 查看 [examples/ts-typerank3](./examples/ts-typerank3) 了解更多。

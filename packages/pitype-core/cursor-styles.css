@@ -115,7 +115,7 @@
 
 /*
 // 在 JavaScript 中使用：
-import { createDomCursorAdapter } from '@pitype/core';
+import { createDomCursorAdapter } from 'pitype-core';
 
 const cursorAdapter = createDomCursorAdapter({
   textDisplay: document.getElementById('text-display'),

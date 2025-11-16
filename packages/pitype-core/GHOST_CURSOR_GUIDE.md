@@ -18,7 +18,7 @@
 ### 基础用法
 
 ```typescript
-import { createGhostManager, type RecordingData } from '@pitype/core';
+import { createGhostManager, type RecordingData } from 'pitype-core';
 
 // 1. 创建幽灵管理器
 const ghostManager = createGhostManager({
@@ -147,7 +147,7 @@ import {
   createSessionRuntime,
   createTextSource,
   type RecordingData
-} from '@pitype/core';
+} from 'pitype-core';
 
 // 假设有多个历史录制
 const recordings: RecordingData[] = [recordingA, recordingB, recordingC];
@@ -251,7 +251,7 @@ import {
   createSessionRuntime,
   type GhostManager,
   type RecordingData
-} from '@pitype/core';
+} from 'pitype-core';
 
 const textDisplayRef = ref<HTMLElement | null>(null);
 const textContainerRef = ref<HTMLElement | null>(null);
@@ -539,7 +539,7 @@ onUnmounted(() => {
 **A**: 结合录制数据的统计信息：
 
 ```typescript
-import { getRecordingStats } from '@pitype/core';
+import { getRecordingStats } from 'pitype-core';
 
 // 获取录制统计
 const stats = getRecordingStats(recording);

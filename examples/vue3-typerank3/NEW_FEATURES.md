@@ -97,7 +97,7 @@ npm run dev
 
 ## 📝 技术实现
 
-所有功能都基于 `@pitype/core` 核心库实现：
+所有功能都基于 `pitype-core` 核心库实现：
 
 ```typescript
 import {
@@ -107,7 +107,7 @@ import {
   createPlayer,                // 回放播放器
   type CursorShape,
   type RecordingData
-} from '@pitype/core';
+} from 'pitype-core';
 ```
 
 ### 核心代码片段

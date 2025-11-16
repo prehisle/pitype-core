@@ -7,7 +7,7 @@ import {
   createDomTextRenderer,
   createDomThemeController,
   type StatsSnapshot
-} from '@pitype/core';
+} from 'pitype-core';
 import {
   initLanguageSelector,
   getActiveLanguage

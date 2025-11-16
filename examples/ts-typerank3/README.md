@@ -40,13 +40,13 @@ ts-typerank3/
 └── package.json
 ```
 
-**核心功能**: 直接使用 `@pitype/core` workspace 包，而不是复制代码，确保与仓库核心逻辑保持同步。
+**核心功能**: 直接使用 `pitype-core` workspace 包，而不是复制代码，确保与仓库核心逻辑保持同步。
 
 ## 开发
 
 ### 快速启动（推荐）
 
-**从项目根目录启动，支持 @pitype/core 和 ts-typerank3 的热更新：**
+**从项目根目录启动，支持 pitype-core 和 ts-typerank3 的热更新：**
 
 ```bash
 # 在项目根目录执行
@@ -56,7 +56,7 @@ npm run ts-demo:dev
 这个命令会自动：
 1. 监听 `packages/pitype-core` 源码变化并自动重新编译
 2. 启动 Vite 开发服务器（端口 3000）
-3. 当 @pitype/core 重新编译后，Vite 会自动重载页面
+3. 当 pitype-core 重新编译后，Vite 会自动重载页面
 
 浏览器会自动打开 http://localhost:3000
 
@@ -115,13 +115,13 @@ npm run preview
 2. **更好的 IDE 支持**: 完整的类型提示和自动补全
 3. **构建系统**: 使用 Vite 替代原生 ES 模块
 4. **开发体验**: 热更新、快速构建
-5. **代码复用**: 直接使用 `@pitype/core` workspace 包，不重复维护核心逻辑
+5. **代码复用**: 直接使用 `pitype-core` workspace 包，不重复维护核心逻辑
 
 ## 模块说明
 
-### 核心依赖 (@pitype/core)
+### 核心依赖 (pitype-core)
 
-本项目直接使用仓库中的 `@pitype/core` 包，包含：
+本项目直接使用仓库中的 `pitype-core` 包，包含：
 - 文本分词器 (tokenizeText)
 - 文本源管理 (createTextSource)
 - 打字会话 (TypingSession)

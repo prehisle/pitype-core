@@ -18,7 +18,7 @@ Pitype Core 现在支持完整的录制和回放功能，包括：
 ### 方式 1: 使用 SessionRuntime 自动录制（推荐）
 
 ```typescript
-import { createSessionRuntime, createTextSource } from '@pitype/core';
+import { createSessionRuntime, createTextSource } from 'pitype-core';
 
 // 创建 SessionRuntime 并启用录制
 const sessionRuntime = createSessionRuntime({
@@ -56,7 +56,7 @@ sessionRuntime.startSession(source);
 ### 方式 2: 使用独立 Recorder 手动录制
 
 ```typescript
-import { TypingSession, createRecorder, createTextSource } from '@pitype/core';
+import { TypingSession, createRecorder, createTextSource } from 'pitype-core';
 
 // 创建录制器
 const recorder = createRecorder({
@@ -86,7 +86,7 @@ console.log('录制完成:', recording);
 ### 基础回放
 
 ```typescript
-import { createPlayer } from '@pitype/core';
+import { createPlayer } from 'pitype-core';
 
 // 假设已经有录制数据
 const recording = sessionRuntime.getLastRecording();
@@ -155,7 +155,7 @@ player.destroy();
 ### 导出录制数据
 
 ```typescript
-import { exportRecordingToFile, serializeRecording } from '@pitype/core';
+import { exportRecordingToFile, serializeRecording } from 'pitype-core';
 
 const recording = sessionRuntime.getLastRecording();
 
@@ -175,7 +175,7 @@ if (recording) {
 ### 导入录制数据
 
 ```typescript
-import { importRecordingFromFile, deserializeRecording } from '@pitype/core';
+import { importRecordingFromFile, deserializeRecording } from 'pitype-core';
 
 // 方式 1: 从文件导入（浏览器环境）
 const fileInput = document.getElementById('file-input') as HTMLInputElement;
@@ -265,7 +265,7 @@ import {
   exportRecordingToFile,
   type RecordingData,
   type Player
-} from '@pitype/core';
+} from 'pitype-core';
 
 const textDisplayRef = ref<HTMLElement | null>(null);
 const cursorRef = ref<HTMLElement | null>(null);

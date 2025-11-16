@@ -161,7 +161,7 @@ pitype-core/
 
 ```bash
 # 在核心库 workspace 中运行命令
-npm run --workspace @pitype/core <command>
+npm run --workspace pitype-core <command>
 
 # 在 Vue3 示例 workspace 中运行命令
 npm run --workspace vue3-typerank3 <command>

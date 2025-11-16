@@ -1,4 +1,4 @@
-# Framework Integration Proposal for @pitype/core
+# Framework Integration Proposal for pitype-core
 
 ## Problem
 

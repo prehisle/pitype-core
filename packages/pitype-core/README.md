@@ -1,4 +1,4 @@
-# @pitype/core
+# pitype-core
 
 无 UI 的打字练习引擎，提供核心功能模块。
 
@@ -12,7 +12,7 @@
 ## 安装
 
 ```bash
-npm install @pitype/core
+npm install pitype-core
 ```
 
 ## 核心模块
@@ -24,7 +24,7 @@ npm install @pitype/core
 将文本分词为 token 数组，支持中英文混合文本。
 
 ```typescript
-import { tokenizeText } from '@pitype/core';
+import { tokenizeText } from 'pitype-core';
 
 const tokens = tokenizeText('Hello 世界', { locale: 'zh-CN' });
 // 返回包含每个字符/单词信息的 token 数组
@@ -47,7 +47,7 @@ const tokens = tokenizeText('Hello 世界', { locale: 'zh-CN' });
 创建文本源对象，管理练习文本。
 
 ```typescript
-import { createTextSource } from '@pitype/core';
+import { createTextSource } from 'pitype-core';
 
 const source = createTextSource('The quick brown fox', {
   id: 'text-1',
@@ -77,7 +77,7 @@ console.log(source.getLength());
 核心打字会话类，管理输入状态和评估逻辑。
 
 ```typescript
-import { TypingSession, createTextSource } from '@pitype/core';
+import { TypingSession, createTextSource } from 'pitype-core';
 
 const source = createTextSource('Hello World');
 const session = new TypingSession(source);
@@ -107,7 +107,7 @@ console.log(state.position, state.isCompleted);
 创建会话运行时，处理会话生命周期和统计追踪。
 
 ```typescript
-import { createSessionRuntime, createTextSource } from '@pitype/core';
+import { createSessionRuntime, createTextSource } from 'pitype-core';
 
 const runtime = createSessionRuntime({
   onEvaluate: (event) => {
@@ -148,7 +148,7 @@ const stats = runtime.getLatestSnapshot();
 创建统计追踪器，实时计算 CPM/WPM/准确率等指标。
 
 ```typescript
-import { createStatsTracker } from '@pitype/core';
+import { createStatsTracker } from 'pitype-core';
 
 const tracker = createStatsTracker(session);
 
@@ -174,7 +174,7 @@ console.log(snapshot.cpm, snapshot.wpm, snapshot.accuracy);
 创建 DOM 输入控制器，处理浏览器输入事件。
 
 ```typescript
-import { createDomInputController } from '@pitype/core';
+import { createDomInputController } from 'pitype-core';
 
 const inputController = createDomInputController({
   getTypingSession: () => currentSession,
@@ -202,7 +202,7 @@ inputController.detachInput();
 创建 DOM 统计面板适配器，自动更新统计显示。
 
 ```typescript
-import { createDomStatsPanel } from '@pitype/core';
+import { createDomStatsPanel } from 'pitype-core';
 
 const statsPanel = createDomStatsPanel({
   getLocaleText: (key) => translations[key],
@@ -246,7 +246,7 @@ import type {
   StatsSnapshot,
   EvaluateEvent,
   UndoEvent
-} from '@pitype/core';
+} from 'pitype-core';
 ```
 
 ## 开发

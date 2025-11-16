@@ -252,7 +252,7 @@ import {
   type RecordingData,
   type Player,
   type GhostManager
-} from '@pitype/core';
+} from 'pitype-core';
 import { allTexts } from './texts';
 
 const textContainerRef = ref<HTMLElement | null>(null);

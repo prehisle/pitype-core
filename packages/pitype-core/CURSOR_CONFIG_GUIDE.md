@@ -16,7 +16,7 @@ Pitype Core 现在支持完整的光标外观自定义功能，包括：
 ### 1. 引入必要的模块和样式
 
 ```typescript
-import { createDomCursorAdapter, type CursorShape } from '@pitype/core';
+import { createDomCursorAdapter, type CursorShape } from 'pitype-core';
 
 // 确保引入光标样式
 import './cursor-styles.css'; // 或使用你自己的样式
@@ -148,7 +148,7 @@ console.log(cursorAdapter.getCursorBlink());    // true
 
 <script setup lang="ts">
 import { ref, shallowRef, onMounted } from 'vue';
-import { createDomCursorAdapter, type CursorShape } from '@pitype/core';
+import { createDomCursorAdapter, type CursorShape } from 'pitype-core';
 
 const textDisplayRef = ref<HTMLElement | null>(null);
 const cursorRef = ref<HTMLElement | null>(null);
