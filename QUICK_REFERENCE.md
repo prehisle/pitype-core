@@ -41,6 +41,7 @@ npm run task:menu lint
 npm test              # 运行所有测试
 npm run test:unit     # 单元测试
 npm run test:baseline # E2E 测试（Playwright）
+npm run bench:typing-session # TypingSession 基准测试
 ```
 
 ## 🔨 构建命令

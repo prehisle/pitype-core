@@ -20,6 +20,7 @@
     "test": "npm run test:baseline && npm run test:unit",
     "test:baseline": "playwright test",
     "test:unit": "vitest --run --passWithNoTests",
+    "bench:typing-session": "vitest bench benchmark/typing-session.bench.ts --reporter=verbose",
     "test:coverage": "vitest --run --coverage",
     "baseline:serve": "http-server examples/typerank3 -p 4173 -c-1",
     "pretest:baseline": "npm run sync:demo",
