@@ -96,9 +96,16 @@ npm test
 # 仅运行单元测试
 npm run test:unit
 
+# 生成覆盖率报告
+npm run test:unit -- --coverage
+
 # 仅运行 E2E 测试
 npm run test:baseline
 ```
+
+**测试覆盖率状态**: ✅ 核心模块达到 **88.96%** 语句覆盖率
+
+> 📖 **详细测试指南**: 查看 [docs/05测试指南.md](./docs/05测试指南.md) 了解完整测试文档
 
 ## 核心包 (pitype-core)
 
