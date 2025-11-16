@@ -1,10 +1,5 @@
 import { describe, expect, it, beforeEach, vi } from 'vitest';
-import {
-  createPlayer,
-  getRecordingStats,
-  type Player,
-  type PlayerState
-} from '../src/player.js';
+import { createPlayer, getRecordingStats } from '../src/player.js';
 import { createTextSource } from '../src/textSource.js';
 import type { RecordingData } from '../src/recorder.js';
 
@@ -18,11 +13,46 @@ describe('Player', () => {
       textSource: createTextSource('hello'),
       events: [
         { type: 'session:start', timestamp: 0 },
-        { type: 'input:evaluate', timestamp: 100, index: 0, expected: 'h', actual: 'h', correct: true },
-        { type: 'input:evaluate', timestamp: 250, index: 1, expected: 'e', actual: 'e', correct: true },
-        { type: 'input:evaluate', timestamp: 450, index: 2, expected: 'l', actual: 'l', correct: true },
-        { type: 'input:evaluate', timestamp: 700, index: 3, expected: 'l', actual: 'l', correct: true },
-        { type: 'input:evaluate', timestamp: 1000, index: 4, expected: 'o', actual: 'o', correct: true }
+        {
+          type: 'input:evaluate',
+          timestamp: 100,
+          index: 0,
+          expected: 'h',
+          actual: 'h',
+          correct: true
+        },
+        {
+          type: 'input:evaluate',
+          timestamp: 250,
+          index: 1,
+          expected: 'e',
+          actual: 'e',
+          correct: true
+        },
+        {
+          type: 'input:evaluate',
+          timestamp: 450,
+          index: 2,
+          expected: 'l',
+          actual: 'l',
+          correct: true
+        },
+        {
+          type: 'input:evaluate',
+          timestamp: 700,
+          index: 3,
+          expected: 'l',
+          actual: 'l',
+          correct: true
+        },
+        {
+          type: 'input:evaluate',
+          timestamp: 1000,
+          index: 4,
+          expected: 'o',
+          actual: 'o',
+          correct: true
+        }
       ],
       startTime: Date.now(),
       endTime: Date.now() + 1000
@@ -151,7 +181,14 @@ describe('Player', () => {
         ...recording,
         events: [
           { type: 'session:start', timestamp: 0 },
-          { type: 'input:evaluate', timestamp: 10, index: 0, expected: 'h', actual: 'h', correct: true }
+          {
+            type: 'input:evaluate',
+            timestamp: 10,
+            index: 0,
+            expected: 'h',
+            actual: 'h',
+            correct: true
+          }
         ]
       };
 
@@ -251,7 +288,14 @@ describe('Player', () => {
         ...recording,
         events: [
           { type: 'session:start', timestamp: 0 },
-          { type: 'input:evaluate', timestamp: 5, index: 0, expected: 'h', actual: 'h', correct: true }
+          {
+            type: 'input:evaluate',
+            timestamp: 5,
+            index: 0,
+            expected: 'h',
+            actual: 'h',
+            correct: true
+          }
         ]
       };
 
@@ -298,11 +342,39 @@ describe('getRecordingStats', () => {
       textSource: createTextSource('hello world'),
       events: [
         { type: 'session:start', timestamp: 0 },
-        { type: 'input:evaluate', timestamp: 100, index: 0, expected: 'h', actual: 'h', correct: true },
-        { type: 'input:evaluate', timestamp: 200, index: 1, expected: 'e', actual: 'e', correct: true },
+        {
+          type: 'input:evaluate',
+          timestamp: 100,
+          index: 0,
+          expected: 'h',
+          actual: 'h',
+          correct: true
+        },
+        {
+          type: 'input:evaluate',
+          timestamp: 200,
+          index: 1,
+          expected: 'e',
+          actual: 'e',
+          correct: true
+        },
         { type: 'input:undo', timestamp: 250, index: 1, expected: 'e', actual: 'e', correct: true },
-        { type: 'input:evaluate', timestamp: 300, index: 1, expected: 'e', actual: 'x', correct: false },
-        { type: 'input:evaluate', timestamp: 1000, index: 2, expected: 'l', actual: 'l', correct: true }
+        {
+          type: 'input:evaluate',
+          timestamp: 300,
+          index: 1,
+          expected: 'e',
+          actual: 'x',
+          correct: false
+        },
+        {
+          type: 'input:evaluate',
+          timestamp: 1000,
+          index: 2,
+          expected: 'l',
+          actual: 'l',
+          correct: true
+        }
       ],
       startTime: 0,
       endTime: 1000

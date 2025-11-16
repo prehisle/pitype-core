@@ -379,7 +379,7 @@ describe('createDomCursorAdapter', () => {
     });
 
     it('应该防止重复调度', () => {
-      const raf = vi.fn((cb) => 0);
+      const raf = vi.fn((_cb) => 0);
 
       const adapter = createDomCursorAdapter({
         textDisplay: new FakeElement() as unknown as HTMLElement,

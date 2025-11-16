@@ -102,7 +102,6 @@ export function createDomTextRenderer(
     };
 
     let previousRenderableSpan: HTMLElement | null = null;
-    let previousRenderableToken: TextToken | null = null;
     let pendingAttachToNext = false;
 
     tokens.forEach((token, index) => {
@@ -118,7 +117,6 @@ export function createDomTextRenderer(
         fragment.appendChild(doc.createElement('br'));
         if (shouldApplyLineBreakRules) {
           previousRenderableSpan = null;
-          previousRenderableToken = null;
           pendingAttachToNext = false;
         }
         return;
@@ -182,7 +180,6 @@ export function createDomTextRenderer(
 
       if (shouldApplyLineBreakRules) {
         previousRenderableSpan = span;
-        previousRenderableToken = token;
       }
     });
 

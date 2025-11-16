@@ -10,9 +10,12 @@ module.exports = [
       'node_modules/**',
       'dist/**',
       'packages/**/dist/**',
+      'examples/**/dist/**',
       'examples/typerank3/vendor/**',
       'playwright-report/**',
-      'test-results/**'
+      'test-results/**',
+      'coverage/**',
+      'monkeytype/**'
     ]
   },
   {

@@ -6,8 +6,12 @@ import type { RecordingData } from '../src/recorder.js';
 // Fake DOM 元素
 class FakeElement {
   public children: FakeElement[] = [];
-  public classList: any;
-  public style: Record<string, any> = {};
+  public classList: {
+    add: (...tokens: string[]) => void;
+    remove: (...tokens: string[]) => void;
+    contains: (token: string) => boolean;
+  };
+  public style: Record<string, string | number> = {};
   public dataset: Record<string, string> = {};
   public scrollLeft = 0;
   public scrollTop = 0;
@@ -63,8 +67,8 @@ class FakeElement {
 
 // 模拟 document.createElement
 global.document = {
-  createElement: (tag: string) => new FakeElement()
-} as any;
+  createElement: () => new FakeElement()
+} as unknown as Document;
 
 describe('GhostManager', () => {
   let ghostManager: GhostManager;
@@ -79,8 +83,22 @@ describe('GhostManager', () => {
       textSource: createTextSource('hello'),
       events: [
         { type: 'session:start', timestamp: 0 },
-        { type: 'input:evaluate', timestamp: 100, index: 0, expected: 'h', actual: 'h', correct: true },
-        { type: 'input:evaluate', timestamp: 200, index: 1, expected: 'e', actual: 'e', correct: true }
+        {
+          type: 'input:evaluate',
+          timestamp: 100,
+          index: 0,
+          expected: 'h',
+          actual: 'h',
+          correct: true
+        },
+        {
+          type: 'input:evaluate',
+          timestamp: 200,
+          index: 1,
+          expected: 'e',
+          actual: 'e',
+          correct: true
+        }
       ],
       startTime: 0,
       endTime: 200
@@ -99,8 +117,9 @@ describe('GhostManager', () => {
     });
 
     let time = 0;
-    const raf = vi.fn((cb: any) => {
+    const raf = vi.fn((callback: FrameRequestCallback) => {
       // 不实际调用回调，避免无限循环
+      void callback(time as DOMHighResTimeStamp);
       return ++time;
     });
 
@@ -111,8 +130,8 @@ describe('GhostManager', () => {
       windowRef: {
         requestAnimationFrame: raf,
         cancelAnimationFrame: vi.fn(),
-        performance: { now: () => time }
-      } as any,
+        performance: { now: () => time } as Performance
+      } as unknown as Window,
       performanceNow: () => time
     });
   });
@@ -274,7 +293,14 @@ describe('GhostManager', () => {
         textSource: createTextSource('h'),
         events: [
           { type: 'session:start', timestamp: 0 },
-          { type: 'input:evaluate', timestamp: 10, index: 0, expected: 'h', actual: 'h', correct: true }
+          {
+            type: 'input:evaluate',
+            timestamp: 10,
+            index: 0,
+            expected: 'h',
+            actual: 'h',
+            correct: true
+          }
         ],
         startTime: 0,
         endTime: 10
@@ -312,7 +338,14 @@ describe('GhostManager', () => {
         textSource: createTextSource('h'),
         events: [
           { type: 'session:start', timestamp: 0 },
-          { type: 'input:evaluate', timestamp: 5, index: 0, expected: 'h', actual: 'h', correct: true }
+          {
+            type: 'input:evaluate',
+            timestamp: 5,
+            index: 0,
+            expected: 'h',
+            actual: 'h',
+            correct: true
+          }
         ],
         startTime: 0,
         endTime: 5

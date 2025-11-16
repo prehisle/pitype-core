@@ -207,7 +207,14 @@ describe('serializeRecording / deserializeRecording', () => {
       textSource: createTextSource('test'),
       events: [
         { type: 'session:start', timestamp: 1000 },
-        { type: 'input:evaluate', timestamp: 1100, index: 0, expected: 't', actual: 't', correct: true }
+        {
+          type: 'input:evaluate',
+          timestamp: 1100,
+          index: 0,
+          expected: 't',
+          actual: 't',
+          correct: true
+        }
       ],
       startTime: 1000,
       endTime: 2000,
@@ -246,9 +253,7 @@ describe('importRecordingFromFile', () => {
     const recording: RecordingData = {
       id: 'test-id',
       textSource: createTextSource('test'),
-      events: [
-        { type: 'session:start', timestamp: 1000 }
-      ],
+      events: [{ type: 'session:start', timestamp: 1000 }],
       startTime: 1000,
       endTime: 2000
     };
