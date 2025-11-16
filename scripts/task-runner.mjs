@@ -39,6 +39,26 @@ const tasks = [
     key: 'sync',
     label: 'Sync demo assets',
     command: 'npm run sync:demo'
+  },
+  {
+    key: 'watch-core',
+    label: 'Core watch (tsc --watch)',
+    command: 'npm run watch:core'
+  },
+  {
+    key: 'vue-dev',
+    label: 'Vue3 demo dev server',
+    command: 'npm run vue3-demo:dev'
+  },
+  {
+    key: 'ts-dev',
+    label: 'TS demo dev server',
+    command: 'npm run ts-demo:dev'
+  },
+  {
+    key: 'baseline-dev',
+    label: 'Baseline demo dev server',
+    command: 'npm run baseline:dev'
   }
 ];
 

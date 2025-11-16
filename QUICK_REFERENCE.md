@@ -21,7 +21,7 @@ npm run build:core
 # 打开交互菜单，选择要运行的任务
 npm run task:menu
 
-# 也可以直接指定关键字（如 lint、unit、e2e 等）
+# 也可以直接指定关键字（如 lint、unit、e2e、vue-dev、watch-core 等）
 npm run task:menu lint
 ```
 
