@@ -21,3 +21,13 @@ jobs:
         run: npm run lint
       - name: Test
         run: npm test
+
+      # 增强功能：生成覆盖率报告（不阻塞）
+      - name: Generate coverage report
+        run: npm run test:coverage
+        continue-on-error: true
+
+      # 增强功能：类型检查（不阻塞）
+      - name: Type check
+        run: npm run type-check
+        continue-on-error: true
