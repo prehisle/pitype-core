@@ -6,6 +6,7 @@ import { StatsPanel } from './components/StatsPanel';
 import { TextDisplay } from './components/TextDisplay';
 import { ResultModal } from './components/ResultModal';
 import { InfoModal } from './components/InfoModal';
+import { Footer } from './components/Footer';
 import { textLibrary } from './texts';
 import type { StatsSnapshot } from 'pitype-core';
 
@@ -72,6 +73,7 @@ function AppContent() {
           isResultModalVisible={isResultModalVisible}
         />
       </div>
+      <Footer />
       <ResultModal
         visible={showResultModal}
         snapshot={finalSnapshot}

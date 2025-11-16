@@ -9,19 +9,26 @@ interface UseInputControllerOptions {
 
 export function useInputController(options: UseInputControllerOptions) {
   const controllerRef = useRef<DomInputController | null>(null);
+  const optionsRef = useRef(options);
+
+  // 更新 options ref，但不触发重新创建
+  useEffect(() => {
+    optionsRef.current = options;
+  });
 
   useEffect(() => {
+    // 创建控制器，使用稳定的函数引用
     controllerRef.current = createDomInputController({
-      getTypingSession: options.getTypingSession,
-      isResultModalVisible: options.isResultModalVisible,
-      onCompositionEnd: options.onCompositionEnd
+      getTypingSession: () => optionsRef.current.getTypingSession(),
+      isResultModalVisible: () => optionsRef.current.isResultModalVisible(),
+      onCompositionEnd: () => optionsRef.current.onCompositionEnd?.()
     });
 
     return () => {
       controllerRef.current?.detachInput();
       controllerRef.current = null;
     };
-  }, [options.getTypingSession, options.isResultModalVisible, options.onCompositionEnd]);
+  }, []); // 只创建一次
 
   const attachInput = useCallback((input: HTMLInputElement) => {
     controllerRef.current?.attachInput(input);

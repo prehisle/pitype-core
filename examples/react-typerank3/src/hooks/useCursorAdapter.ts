@@ -1,4 +1,4 @@
-import { useRef, useEffect, useCallback } from 'react';
+import { useRef, useEffect, useCallback, useMemo } from 'react';
 import { createDomCursorAdapter, type DomCursorAdapter } from 'pitype-core';
 
 interface UseCursorAdapterOptions {
@@ -13,28 +13,40 @@ interface UseCursorAdapterOptions {
 
 export function useCursorAdapter(options: UseCursorAdapterOptions) {
   const adapterRef = useRef<DomCursorAdapter | null>(null);
+  const optionsRef = useRef(options);
+  const initializedRef = useRef(false);
+
+  // 更新 options ref，但不触发重新创建
+  useEffect(() => {
+    optionsRef.current = options;
+  });
 
   useEffect(() => {
     if (!options.textDisplayRef.current || !options.textContainerRef.current) return;
+    if (initializedRef.current) return;
 
+    // 创建适配器，使用稳定的函数引用
     adapterRef.current = createDomCursorAdapter({
       textDisplay: options.textDisplayRef.current,
       textContainer: options.textContainerRef.current,
-      getCurrentPosition: options.getCurrentPosition,
-      getCursor: options.getCursor,
-      getInput: options.getInput,
-      getSpans: options.getSpans,
-      setSpans: options.setSpans
+      getCurrentPosition: () => optionsRef.current.getCurrentPosition(),
+      getCursor: () => optionsRef.current.getCursor(),
+      getInput: () => optionsRef.current.getInput(),
+      getSpans: () => optionsRef.current.getSpans(),
+      setSpans: (spans) => optionsRef.current.setSpans(spans)
     });
 
     // 启用响应式和移动端支持
     adapterRef.current.enableResponsiveSync();
     adapterRef.current.enableMobileSupport();
 
+    initializedRef.current = true;
+
     return () => {
       adapterRef.current = null;
+      initializedRef.current = false;
     };
-  }, [options]);
+  }, [options.textDisplayRef, options.textContainerRef]); // 只在 DOM refs 变化时重新创建
 
   const cacheCharSpans = useCallback(() => {
     adapterRef.current?.cacheCharSpans();
@@ -52,11 +64,14 @@ export function useCursorAdapter(options: UseCursorAdapterOptions) {
     adapterRef.current?.resetAnimation();
   }, []);
 
-  return {
-    adapter: adapterRef.current,
-    cacheCharSpans,
-    updatePosition,
-    scheduleRefresh,
-    resetAnimation
-  };
+  return useMemo(
+    () => ({
+      adapter: adapterRef.current,
+      cacheCharSpans,
+      updatePosition,
+      scheduleRefresh,
+      resetAnimation
+    }),
+    [cacheCharSpans, updatePosition, scheduleRefresh, resetAnimation]
+  );
 }

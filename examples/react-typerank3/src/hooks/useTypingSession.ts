@@ -16,23 +16,29 @@ interface UseTypingSessionOptions {
 
 export function useTypingSession(options: UseTypingSessionOptions = {}) {
   const runtimeRef = useRef<SessionRuntime | null>(null);
+  const optionsRef = useRef(options);
   const [snapshot, setSnapshot] = useState<StatsSnapshot | null>(null);
   const [isCompleted, setIsCompleted] = useState(false);
 
-  // 初始化 SessionRuntime
+  // 更新 options ref，但不触发重新创建
+  useEffect(() => {
+    optionsRef.current = options;
+  });
+
+  // 初始化 SessionRuntime（只创建一次）
   useEffect(() => {
     runtimeRef.current = createSessionRuntime({
       snapshotIntervalMs: 1000,
-      onEvaluate: options.onEvaluate,
-      onUndo: options.onUndo,
+      onEvaluate: (event) => optionsRef.current.onEvaluate?.(event),
+      onUndo: (event) => optionsRef.current.onUndo?.(event),
       onComplete: (snap) => {
         setIsCompleted(true);
         setSnapshot(snap);
-        options.onComplete?.(snap);
+        optionsRef.current.onComplete?.(snap);
       },
       onSnapshot: (snap) => {
         setSnapshot(snap);
-        options.onSnapshot?.(snap);
+        optionsRef.current.onSnapshot?.(snap);
       }
     });
 
@@ -40,7 +46,7 @@ export function useTypingSession(options: UseTypingSessionOptions = {}) {
       runtimeRef.current?.dispose();
       runtimeRef.current = null;
     };
-  }, [options.onEvaluate, options.onUndo, options.onComplete, options.onSnapshot]);
+  }, []); // 只创建一次
 
   const startSession = useCallback((text: string, locale: string, textId: string) => {
     if (!runtimeRef.current) return;

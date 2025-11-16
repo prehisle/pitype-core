@@ -3,16 +3,19 @@ import { createDomTextRenderer, type DomTextRenderer, type TextSource } from 'pi
 
 export function useTextRenderer(containerRef: React.RefObject<HTMLDivElement>) {
   const rendererRef = useRef<DomTextRenderer | null>(null);
+  const initializedRef = useRef(false);
 
   useEffect(() => {
-    if (!containerRef.current) return;
+    if (!containerRef.current || initializedRef.current) return;
 
     rendererRef.current = createDomTextRenderer(containerRef.current);
+    initializedRef.current = true;
 
     return () => {
       rendererRef.current = null;
+      initializedRef.current = false;
     };
-  }, [containerRef]);
+  }, [containerRef]); // containerRef 是稳定的，但保留依赖以防万一
 
   const render = useCallback((source: TextSource) => {
     if (!rendererRef.current) return;

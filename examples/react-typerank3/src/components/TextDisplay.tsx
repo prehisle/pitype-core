@@ -36,21 +36,24 @@ export function TextDisplay({
   const { render, applySpanState, resetSpanState, getSpans, setSpans } =
     useTextRenderer(textDisplayRef);
 
+  // 光标适配器 ref（提前声明，以便在回调中使用）
+  const cursorAdapterRef = useRef<any>(null);
+
   // 打字会话
   const { startSession, getSession } = useTypingSession({
     onEvaluate: (event) => {
       applySpanState(event.index, event.correct);
-      cursorAdapter.scheduleRefresh();
+      cursorAdapterRef.current?.scheduleRefresh();
     },
     onUndo: (event) => {
       resetSpanState(event.index);
-      cursorAdapter.scheduleRefresh();
+      cursorAdapterRef.current?.scheduleRefresh();
     },
     onComplete: (snapshot) => {
       if (cursorRef.current) {
         cursorRef.current.remove();
       }
-      cursorAdapter.resetAnimation();
+      cursorAdapterRef.current?.resetAnimation();
       onComplete(snapshot);
     },
     onSnapshot
@@ -67,12 +70,17 @@ export function TextDisplay({
     setSpans
   });
 
+  // 更新 cursorAdapter ref
+  useEffect(() => {
+    cursorAdapterRef.current = cursorAdapter;
+  }, [cursorAdapter]);
+
   // 输入控制器
   const { attachInput, focusInput } = useInputController({
     getTypingSession: getSession,
     isResultModalVisible,
     onCompositionEnd: () => {
-      cursorAdapter.updatePosition();
+      cursorAdapterRef.current?.updatePosition();
     }
   });
 
