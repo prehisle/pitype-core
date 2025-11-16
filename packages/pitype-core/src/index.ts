@@ -5,11 +5,7 @@ export {
   type TypingSessionOptions,
   type TypingState
 } from './typingSession.js';
-export {
-  createStatsTracker,
-  type StatsSnapshot,
-  type StatsTracker
-} from './statsTracker.js';
+export { createStatsTracker, type StatsSnapshot, type StatsTracker } from './statsTracker.js';
 export {
   createSessionRuntime,
   type SessionRuntime,

@@ -46,11 +46,7 @@ export interface Recorder {
 }
 
 export function createRecorder(options: RecorderOptions = {}): Recorder {
-  const {
-    id: customId,
-    includeMetadata = true,
-    customMetadata = {}
-  } = options;
+  const { id: customId, includeMetadata = true, customMetadata = {} } = options;
 
   let recording = false;
   let currentSession: TypingSession | null = null;
@@ -187,10 +183,7 @@ export function deserializeRecording(json: string): RecordingData {
 /**
  * 导出录制数据到文件（浏览器环境）
  */
-export function exportRecordingToFile(
-  recording: RecordingData,
-  filename?: string
-): void {
+export function exportRecordingToFile(recording: RecordingData, filename?: string): void {
   if (typeof window === 'undefined' || typeof Blob === 'undefined') {
     throw new Error('File export is only available in browser environments');
   }

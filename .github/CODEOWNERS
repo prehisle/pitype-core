@@ -1,0 +1,21 @@
+# Code Owners
+# 这个文件定义了代码审查的默认负责人
+
+# 默认所有文件
+* @stoa
+
+# 核心库代码需要额外审查
+/packages/pitype-core/src/ @stoa
+/packages/pitype-core/tests/ @stoa
+
+# CI/CD配置需要团队审查
+/.github/ @stoa
+/.husky/ @stoa
+
+# 发布相关配置
+/.releaserc.json @stoa
+/package.json @stoa
+
+# 文档
+/docs/ @stoa
+*.md @stoa

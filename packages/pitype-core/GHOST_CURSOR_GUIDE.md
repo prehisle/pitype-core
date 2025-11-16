@@ -30,10 +30,10 @@ const ghostManager = createGhostManager({
 // 2. 添加幽灵（使用历史录制数据）
 const ghostId = ghostManager.addGhost({
   name: '用户A',
-  recording: recordingA,  // 历史录制数据
-  color: 'rgba(255, 0, 0, 0.8)',  // 红色光标
+  recording: recordingA, // 历史录制数据
+  color: 'rgba(255, 0, 0, 0.8)', // 红色光标
   shape: 'line',
-  showLabel: true  // 显示名称标签
+  showLabel: true // 显示名称标签
 });
 
 // 3. 开始打字练习时，启动所有幽灵
@@ -164,9 +164,9 @@ const ghostManager = createGhostManager({
 
 // 添加多个幽灵（不同颜色）
 const colors = [
-  'rgba(255, 99, 132, 0.8)',  // 粉红
-  'rgba(54, 162, 235, 0.8)',  // 蓝色
-  'rgba(255, 206, 86, 0.8)'   // 黄色
+  'rgba(255, 99, 132, 0.8)', // 粉红
+  'rgba(54, 162, 235, 0.8)', // 蓝色
+  'rgba(255, 206, 86, 0.8)' // 黄色
 ];
 
 recordings.forEach((recording, index) => {
@@ -228,11 +228,7 @@ const sessionRuntime = createSessionRuntime({
           />
           幽灵 #{{ index + 1 }} ({{ recording.events.length }} 个事件)
         </label>
-        <input
-          type="color"
-          v-model="ghostColors[index]"
-          @change="updateGhostColor(index)"
-        />
+        <input type="color" v-model="ghostColors[index]" @change="updateGhostColor(index)" />
       </div>
     </div>
 
@@ -294,7 +290,7 @@ function initializeGhosts() {
   });
 
   // 添加选中的幽灵
-  selectedGhosts.value.forEach(index => {
+  selectedGhosts.value.forEach((index) => {
     ghostManager.value!.addGhost({
       name: `幽灵 #${index + 1}`,
       recording: savedRecordings.value[index],
@@ -376,15 +372,15 @@ onUnmounted(() => {
 }
 
 /* 不同颜色的幽灵光标 */
-.ghost-cursor[data-ghost-name="用户A"] {
+.ghost-cursor[data-ghost-name='用户A'] {
   background-color: rgba(255, 99, 132, 0.8);
 }
 
-.ghost-cursor[data-ghost-name="用户B"] {
+.ghost-cursor[data-ghost-name='用户B'] {
   background-color: rgba(54, 162, 235, 0.8);
 }
 
-.ghost-cursor[data-ghost-name="用户C"] {
+.ghost-cursor[data-ghost-name='用户C'] {
   background-color: rgba(255, 206, 86, 0.8);
 }
 ```
@@ -423,7 +419,7 @@ if (ghost) {
 const ghostManager = createGhostManager({
   textDisplay: element,
   getSpans: () => spans,
-  autoRemoveOnComplete: true,  // 自动移除
+  autoRemoveOnComplete: true, // 自动移除
   onGhostComplete: (ghostId) => {
     console.log(`幽灵 ${ghostId} 已完成并移除`);
   }
@@ -487,7 +483,7 @@ ghostManager.startAll();
 
 ```typescript
 // 练习完成
-sessionRuntime.getSession()?.subscribe(event => {
+sessionRuntime.getSession()?.subscribe((event) => {
   if (event.type === 'session:complete') {
     ghostManager.stopAll();
 
@@ -522,6 +518,7 @@ onUnmounted(() => {
 ### Q: 幽灵光标不显示？
 
 **A**: 检查以下几点：
+
 1. 确保录制数据有效
 2. 确保 `getSpans()` 返回正确的字符元素
 3. 检查 CSS 样式是否正确加载
@@ -530,6 +527,7 @@ onUnmounted(() => {
 ### Q: 幽灵光标位置不准确？
 
 **A**: 确保：
+
 1. 文本渲染完成后再初始化幽灵
 2. 调用 `cursorAdapter.cacheCharSpans()` 缓存字符元素
 3. 录制数据的文本源与当前文本相同
@@ -546,7 +544,7 @@ const stats = getRecordingStats(recording);
 
 // 按速度排序
 const ranked = savedRecordings
-  .map(r => ({ recording: r, stats: getRecordingStats(r) }))
+  .map((r) => ({ recording: r, stats: getRecordingStats(r) }))
   .sort((a, b) => b.stats.duration - a.stats.duration);
 
 // 显示前 3 名作为幽灵
@@ -572,6 +570,7 @@ ranked.slice(0, 3).forEach((item, index) => {
 ## 🎉 完整示例项目
 
 参考 `examples/vue3-typerank3` 查看完整的幽灵光标实现，包括：
+
 - 历史录制管理
 - 幽灵选择 UI
 - 颜色自定义

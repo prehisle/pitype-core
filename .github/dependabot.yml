@@ -1,0 +1,49 @@
+version: 2
+updates:
+  # npm依赖更新
+  - package-ecosystem: 'npm'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+      day: 'monday'
+      time: '09:00'
+    open-pull-requests-limit: 10
+    reviewers:
+      - 'stoa'
+    labels:
+      - 'dependencies'
+      - 'automated'
+    commit-message:
+      prefix: 'chore(deps)'
+      include: 'scope'
+    # 版本更新策略
+    versioning-strategy: increase
+    # 忽略某些依赖的更新
+    ignore:
+      - dependency-name: '*'
+        update-types: ['version-update:semver-major']
+    # 分组更新
+    groups:
+      development-dependencies:
+        dependency-type: 'development'
+        patterns:
+          - '@types/*'
+          - 'eslint*'
+          - 'prettier'
+      testing-dependencies:
+        patterns:
+          - 'vitest'
+          - '@vitest/*'
+          - 'playwright'
+          - '@playwright/*'
+
+  # GitHub Actions更新
+  - package-ecosystem: 'github-actions'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+    labels:
+      - 'ci'
+      - 'automated'
+    commit-message:
+      prefix: 'ci'

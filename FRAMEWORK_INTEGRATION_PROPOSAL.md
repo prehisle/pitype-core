@@ -24,8 +24,8 @@ Current design issues when integrating with Vue/React/Svelte:
 ```typescript
 export interface DomTextRendererOptions {
   documentRef?: Document;
-  preserveChildren?: boolean;  // NEW: Don't clear non-text elements
-  textContentClass?: string;    // NEW: Class to identify text elements
+  preserveChildren?: boolean; // NEW: Don't clear non-text elements
+  textContentClass?: string; // NEW: Class to identify text elements
 }
 
 export function createDomTextRenderer(
@@ -41,7 +41,7 @@ export function createDomTextRenderer(
     if (preserveChildren) {
       // Remove only text-related elements
       const textElements = textDisplay.querySelectorAll(`.${textContentClass}, .word, .char`);
-      textElements.forEach(el => el.remove());
+      textElements.forEach((el) => el.remove());
 
       // Insert new text at the beginning
       textDisplay.insertBefore(fragment, textDisplay.firstChild);
@@ -57,6 +57,7 @@ export function createDomTextRenderer(
 ```
 
 **Usage in Vue:**
+
 ```vue
 <template>
   <div ref="textDisplay" class="text-display">
@@ -67,7 +68,7 @@ export function createDomTextRenderer(
 
 <script setup>
 const textRenderer = createDomTextRenderer(textDisplay.value, {
-  preserveChildren: true  // ← Don't destroy input/cursor
+  preserveChildren: true // ← Don't destroy input/cursor
 });
 </script>
 ```
@@ -92,9 +93,9 @@ Then update `cursorAdapter` to handle nested structure:
 
 ```typescript
 export interface DomCursorAdapterConfig {
-  textDisplay: HTMLElement;      // The text-content container
-  textContainer: HTMLElement;     // The outer container
-  positionContext?: HTMLElement;  // NEW: Where to position cursor (default: textContainer)
+  textDisplay: HTMLElement; // The text-content container
+  textContainer: HTMLElement; // The outer container
+  positionContext?: HTMLElement; // NEW: Where to position cursor (default: textContainer)
   // ...
 }
 ```
@@ -106,7 +107,7 @@ Instead of manipulating cursor styles directly, provide hooks:
 ```typescript
 export interface DomCursorAdapterConfig {
   // ...
-  onCursorUpdate?: (metrics: CursorMetrics) => void;  // NEW
+  onCursorUpdate?: (metrics: CursorMetrics) => void; // NEW
 }
 
 function updatePosition(options = {}) {
@@ -125,6 +126,7 @@ function updatePosition(options = {}) {
 ```
 
 **Usage in Vue:**
+
 ```vue
 <script setup>
 const cursorStyle = ref({});
@@ -150,6 +152,7 @@ createDomCursorAdapter({
 ## Recommended Architecture
 
 ### For Pure JS Apps (Current)
+
 ```
 text-container
   └── text-display (managed by textRenderer)
@@ -159,6 +162,7 @@ text-container
 ```
 
 ### For Framework Apps (Recommended)
+
 ```
 text-container (Vue component root)
   ├── text-display (managed by textRenderer)
@@ -195,11 +199,13 @@ text-container (Vue component root)
 ## Migration Guide
 
 ### For Existing Pure JS Apps
+
 No changes needed - default behavior unchanged.
 
 ### For New Framework Integrations
 
 **Before:**
+
 ```js
 // Had to manually append after render()
 textRenderer.render(source);
@@ -208,15 +214,17 @@ textDisplay.appendChild(cursor);
 ```
 
 **After (Option 1):**
+
 ```js
 // Elements preserved automatically
 const textRenderer = createDomTextRenderer(textDisplay, {
   preserveChildren: true
 });
-textRenderer.render(source);  // input/cursor not touched
+textRenderer.render(source); // input/cursor not touched
 ```
 
 **After (Option 2 - Recommended):**
+
 ```html
 <!-- Separate text container -->
 <div class="text-display">
@@ -226,8 +234,8 @@ textRenderer.render(source);  // input/cursor not touched
 </div>
 
 <script>
-const textRenderer = createDomTextRenderer(textContent);
-// No need to re-append - they're siblings
+  const textRenderer = createDomTextRenderer(textContent);
+  // No need to re-append - they're siblings
 </script>
 ```
 
@@ -242,6 +250,7 @@ const textRenderer = createDomTextRenderer(textContent);
 See `examples/vue3-typerank3` for full implementation using current workaround.
 
 With proposed changes:
+
 - No need to manually appendChild after render()
 - Cleaner template structure
 - Better TypeScript support

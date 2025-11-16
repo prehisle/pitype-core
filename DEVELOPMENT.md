@@ -36,6 +36,7 @@ npm run baseline:dev
 ```
 
 **说明：**
+
 - 这些命令会同时监听 `pitype-core` 和示例代码的变化
 - 修改核心库会自动重新构建并刷新页面
 - 修改示例代码会通过 HMR 快速更新
@@ -194,6 +195,7 @@ npx vitest --inspect-brk
 ### 在示例中查看性能
 
 所有示例都显示实时统计数据：
+
 - **CPM**: 正确字符每分钟
 - **总 CPM**: 总字符每分钟（包括错误）
 - **WPM**: 单词每分钟
@@ -206,10 +208,10 @@ npx vitest --inspect-brk
 
 ```javascript
 // 在浏览器控制台中执行
-localStorage.setItem('cursorAnimationMode', 'off');    // 关闭动画
-localStorage.setItem('cursorAnimationMode', 'slow');   // 慢速（150ms）
+localStorage.setItem('cursorAnimationMode', 'off'); // 关闭动画
+localStorage.setItem('cursorAnimationMode', 'slow'); // 慢速（150ms）
 localStorage.setItem('cursorAnimationMode', 'medium'); // 中速（115ms）
-localStorage.setItem('cursorAnimationMode', 'fast');   // 快速（85ms，默认）
+localStorage.setItem('cursorAnimationMode', 'fast'); // 快速（85ms，默认）
 ```
 
 ## 🚢 发布流程
@@ -247,6 +249,7 @@ A: 确保使用 `*-demo:dev` 命令而不是 `*-demo:serve`。`dev` 命令会同
 ### Q: 测试失败怎么办？
 
 A:
+
 1. 确保先运行 `npm run build:core`
 2. 检查是否有 TypeScript 类型错误
 3. 查看测试输出的详细错误信息
@@ -254,6 +257,7 @@ A:
 ### Q: Vite 报错找不到模块？
 
 A:
+
 1. 删除 `node_modules` 和 lock 文件
 2. 重新运行 `npm install`
 3. 重新运行 `npm run build:core`
@@ -261,6 +265,7 @@ A:
 ### Q: 如何添加新的示例项目？
 
 A:
+
 1. 在 `examples/` 下创建新目录
 2. 在根 `package.json` 的 `workspaces` 中添加
 3. 参考现有示例配置依赖关系

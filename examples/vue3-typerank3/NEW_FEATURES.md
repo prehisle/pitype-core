@@ -79,6 +79,7 @@ audioController.value = createDomAudioController({
 ### 录制数据格式
 
 导出的 JSON 文件包含：
+
 - 文本源信息
 - 完整的事件序列（带时间戳）
 - 最终统计数据
@@ -87,6 +88,7 @@ audioController.value = createDomAudioController({
 ## 🚀 快速体验
 
 1. 启动开发服务器：
+
 ```bash
 npm run dev
 ```
@@ -101,10 +103,10 @@ npm run dev
 
 ```typescript
 import {
-  createDomCursorAdapter,     // 光标适配器
-  createDomAudioController,    // 音频控制器
-  createSessionRuntime,        // 会话运行时（集成录制）
-  createPlayer,                // 回放播放器
+  createDomCursorAdapter, // 光标适配器
+  createDomAudioController, // 音频控制器
+  createSessionRuntime, // 会话运行时（集成录制）
+  createPlayer, // 回放播放器
   type CursorShape,
   type RecordingData
 } from 'pitype-core';
@@ -113,6 +115,7 @@ import {
 ### 核心代码片段
 
 #### 光标配置
+
 ```typescript
 const cursorAdapter = createDomCursorAdapter({
   // ... 其他配置
@@ -126,21 +129,25 @@ cursorAdapter.setCursorShape('outline');
 ```
 
 #### 音频反馈
+
 ```typescript
 const audioController = createDomAudioController({
-  soundPack: { /* ... */ },
+  soundPack: {
+    /* ... */
+  },
   enabled: true,
   volume: 0.7
 });
 
 // SessionRuntime 自动集成
 const sessionRuntime = createSessionRuntime({
-  audioController: audioController,  // 自动触发音效
-  enableRecording: true              // 自动录制
+  audioController: audioController, // 自动触发音效
+  enableRecording: true // 自动录制
 });
 ```
 
 #### 练习回放
+
 ```typescript
 // 获取录制数据
 const recording = sessionRuntime.getLastRecording();
@@ -160,18 +167,21 @@ player.play();
 ## 🎯 功能特点
 
 ### 光标配置
+
 - ✅ 4 种形状可选
 - ✅ 无限颜色自定义
 - ✅ 闪烁效果可控
 - ✅ 配置自动持久化
 
 ### 音频反馈
+
 - ✅ 4 种音效独立控制
 - ✅ 音效池技术，支持快速连续按键
 - ✅ 音量精确控制
 - ✅ 配置自动持久化
 
 ### 练习回放
+
 - ✅ 自动录制每次练习
 - ✅ 毫秒级精确回放
 - ✅ 0.5x - 5x 倍速播放

@@ -19,11 +19,11 @@ npm run build:core
 
 ## 📦 启动开发服务器
 
-| 命令 | 示例 | 端口 | 说明 |
-|------|------|------|------|
-| `npm run vue3-demo:dev` | Vue3 | 4174 | ✨ 推荐 |
-| `npm run ts-demo:dev` | TypeScript | 5173 | Vite HMR |
-| `npm run baseline:dev` | JavaScript | 4173 | 原生 JS |
+| 命令                    | 示例       | 端口 | 说明     |
+| ----------------------- | ---------- | ---- | -------- |
+| `npm run vue3-demo:dev` | Vue3       | 4174 | ✨ 推荐  |
+| `npm run ts-demo:dev`   | TypeScript | 5173 | Vite HMR |
+| `npm run baseline:dev`  | JavaScript | 4173 | 原生 JS  |
 
 ## 🧪 测试命令
 
@@ -81,14 +81,14 @@ npm run vue3-demo:dev
 
 ## 📂 文件位置
 
-| 路径 | 说明 |
-|------|------|
-| `packages/pitype-core/src/` | 核心库源码 |
-| `examples/vue3-typerank3/src/` | Vue3 示例 |
-| `examples/ts-typerank3/src/` | TS 示例 |
-| `examples/typerank3/` | JS 示例 |
-| `tests/baseline/` | E2E 测试 |
-| `packages/pitype-core/tests/` | 单元测试 |
+| 路径                           | 说明       |
+| ------------------------------ | ---------- |
+| `packages/pitype-core/src/`    | 核心库源码 |
+| `examples/vue3-typerank3/src/` | Vue3 示例  |
+| `examples/ts-typerank3/src/`   | TS 示例    |
+| `examples/typerank3/`          | JS 示例    |
+| `tests/baseline/`              | E2E 测试   |
+| `packages/pitype-core/tests/`  | 单元测试   |
 
 ## 🌐 访问地址
 

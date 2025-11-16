@@ -32,10 +32,10 @@ const cursorAdapter = createDomCursorAdapter({
   getInput: () => document.getElementById('input'),
 
   // === 新增配置选项 ===
-  cursorShape: 'line',           // 光标形状
-  cursorColor: '#61dafb',        // 光标颜色
-  cursorBlinkEnabled: true,      // 启用闪烁
-  cursorBlinkRate: 530           // 闪烁周期（毫秒）
+  cursorShape: 'line', // 光标形状
+  cursorColor: '#61dafb', // 光标颜色
+  cursorBlinkEnabled: true, // 启用闪烁
+  cursorBlinkRate: 530 // 闪烁周期（毫秒）
 });
 ```
 
@@ -52,9 +52,9 @@ cursorAdapter.setCursorColor('#ff6b6b');
 cursorAdapter.setCursorBlink(true);
 
 // 读取当前配置
-console.log(cursorAdapter.getCursorShape());    // 'outline'
-console.log(cursorAdapter.getCursorColor());    // '#ff6b6b'
-console.log(cursorAdapter.getCursorBlink());    // true
+console.log(cursorAdapter.getCursorShape()); // 'outline'
+console.log(cursorAdapter.getCursorColor()); // '#ff6b6b'
+console.log(cursorAdapter.getCursorBlink()); // true
 ```
 
 ---
@@ -110,8 +110,14 @@ console.log(cursorAdapter.getCursorBlink());    // true
 
 ```css
 @keyframes cursor-blink {
-  0%, 49% { opacity: 1; }
-  50%, 100% { opacity: 0; }
+  0%,
+  49% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0;
+  }
 }
 ```
 
@@ -304,5 +310,6 @@ cursorAdapter.setCursorBlink(true);
 ## 完整示例
 
 参考文件：
+
 - `/packages/pitype-core/cursor-styles.css` - CSS 样式参考
 - `/examples/vue3-typerank3/src/App.vue` - Vue 3 集成示例

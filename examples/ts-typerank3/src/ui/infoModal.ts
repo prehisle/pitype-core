@@ -17,14 +17,7 @@ export interface InfoModalOptions {
 export function initInfoModal(options?: InfoModalOptions): void {
   if (!options) return;
 
-  const {
-    triggers = [],
-    modal,
-    titleElement,
-    contentElement,
-    closeButton,
-    infoMap = {}
-  } = options;
+  const { triggers = [], modal, titleElement, contentElement, closeButton, infoMap = {} } = options;
   if (!modal) return;
 
   const show = (type: string): void => {

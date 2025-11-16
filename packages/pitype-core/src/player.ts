@@ -66,9 +66,8 @@ export function createPlayer(options: PlayerOptions): Player {
   let progressTimer: ReturnType<typeof setInterval> | null = null;
 
   const events = recording.events;
-  const duration = events.length > 0
-    ? (events[events.length - 1].timestamp - events[0].timestamp)
-    : 0;
+  const duration =
+    events.length > 0 ? events[events.length - 1].timestamp - events[0].timestamp : 0;
 
   function clearTimers(): void {
     if (eventTimer !== null) {
@@ -301,12 +300,11 @@ export function getRecordingStats(recording: RecordingData): {
   characterCount: number;
 } {
   const events = recording.events;
-  const duration = events.length > 0
-    ? (events[events.length - 1].timestamp - events[0].timestamp)
-    : 0;
+  const duration =
+    events.length > 0 ? events[events.length - 1].timestamp - events[0].timestamp : 0;
 
-  const inputCount = events.filter(e => e.type === 'input:evaluate').length;
-  const undoCount = events.filter(e => e.type === 'input:undo').length;
+  const inputCount = events.filter((e) => e.type === 'input:evaluate').length;
+  const undoCount = events.filter((e) => e.type === 'input:undo').length;
 
   // 计算字符数（基于文本源）
   const characterCount = recording.textSource.content.length;

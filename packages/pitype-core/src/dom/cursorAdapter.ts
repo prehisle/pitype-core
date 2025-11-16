@@ -28,8 +28,7 @@ const cursorShapeDefaults = {
   outline: { widthMultiplier: 1, heightMultiplier: 1 }
 } as const;
 
-const mobileUserAgentPattern =
-  /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i;
+const mobileUserAgentPattern = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i;
 
 export interface DomCursorAdapterOptions {
   textDisplay: HTMLElement;
@@ -116,7 +115,10 @@ export function createDomCursorAdapter(options: DomCursorAdapterOptions): DomCur
   function loadCursorShape(): CursorShape {
     if (initialCursorShape) return initialCursorShape;
     const stored = localStorage?.getItem(cursorShapePreferenceKey);
-    if (stored && (stored === 'block' || stored === 'line' || stored === 'underline' || stored === 'outline')) {
+    if (
+      stored &&
+      (stored === 'block' || stored === 'line' || stored === 'underline' || stored === 'outline')
+    ) {
       return stored as CursorShape;
     }
     return 'block';
@@ -344,7 +346,11 @@ export function createDomCursorAdapter(options: DomCursorAdapterOptions): DomCur
     mobileSupportAttached = true;
   }
 
-  function applyCursorMetrics(metrics: CursorMetrics, cursor: HTMLElement, input: HTMLElement): void {
+  function applyCursorMetrics(
+    metrics: CursorMetrics,
+    cursor: HTMLElement,
+    input: HTMLElement
+  ): void {
     // 根据光标形状调整尺寸
     const shapeConfig = cursorShapeDefaults[currentCursorShape];
     const adjustedWidth = metrics.width * shapeConfig.widthMultiplier;
@@ -431,8 +437,7 @@ export function createDomCursorAdapter(options: DomCursorAdapterOptions): DomCur
   }
 
   function shouldReduceMotion(): boolean {
-    const reduceMotionQuery =
-      windowRef?.matchMedia?.('(prefers-reduced-motion: reduce)') ?? null;
+    const reduceMotionQuery = windowRef?.matchMedia?.('(prefers-reduced-motion: reduce)') ?? null;
     return !!reduceMotionQuery?.matches;
   }
 

@@ -104,7 +104,10 @@ export function createGhostManager(options: GhostManagerOptions): GhostManager {
     return cursorElement;
   }
 
-  function createGhostLabelElement(config: GhostConfig, cursorElement: HTMLElement): HTMLElement | undefined {
+  function createGhostLabelElement(
+    config: GhostConfig,
+    cursorElement: HTMLElement
+  ): HTMLElement | undefined {
     if (!config.showLabel) return undefined;
 
     const labelElement = document.createElement('div');
@@ -253,37 +256,37 @@ export function createGhostManager(options: GhostManagerOptions): GhostManager {
   }
 
   function startAll(): void {
-    ghosts.forEach(ghost => {
+    ghosts.forEach((ghost) => {
       ghost.player.play();
     });
   }
 
   function pauseAll(): void {
-    ghosts.forEach(ghost => {
+    ghosts.forEach((ghost) => {
       ghost.player.pause();
     });
   }
 
   function resumeAll(): void {
-    ghosts.forEach(ghost => {
+    ghosts.forEach((ghost) => {
       ghost.player.resume();
     });
   }
 
   function stopAll(): void {
-    ghosts.forEach(ghost => {
+    ghosts.forEach((ghost) => {
       ghost.player.stop();
     });
   }
 
   function setSpeedAll(speed: number): void {
-    ghosts.forEach(ghost => {
+    ghosts.forEach((ghost) => {
       ghost.player.setSpeed(speed);
     });
   }
 
   function destroy(): void {
-    ghosts.forEach(ghost => {
+    ghosts.forEach((ghost) => {
       ghost.player.destroy();
       ghost.cursorElement.remove();
       ghost.labelElement?.remove();

@@ -11,20 +11,14 @@ export interface LanguageSelectorOptions {
 }
 
 export function initLanguageSelector({
-  applyLanguage = typeof window !== 'undefined'
-    ? (window as any).applyLanguage
-    : undefined,
-  updatePageText = typeof window !== 'undefined'
-    ? (window as any).updatePageText
-    : undefined
+  applyLanguage = typeof window !== 'undefined' ? (window as any).applyLanguage : undefined,
+  updatePageText = typeof window !== 'undefined' ? (window as any).updatePageText : undefined
 }: LanguageSelectorOptions = {}): void {
   const options = document.querySelectorAll('.language-option');
   if (!options.length) return;
 
-  const safeApplyLanguage =
-    typeof applyLanguage === 'function' ? applyLanguage : () => {};
-  const safeUpdatePageText =
-    typeof updatePageText === 'function' ? updatePageText : () => {};
+  const safeApplyLanguage = typeof applyLanguage === 'function' ? applyLanguage : () => {};
+  const safeUpdatePageText = typeof updatePageText === 'function' ? updatePageText : () => {};
 
   let currentLanguage = getActiveLanguage();
   syncActiveClass(options, currentLanguage);
