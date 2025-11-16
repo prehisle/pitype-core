@@ -29,13 +29,19 @@ module.exports = [
     languageOptions: {
       parser: tsParser,
       sourceType: 'module',
-      ecmaVersion: 'latest'
+      ecmaVersion: 'latest',
+      globals: {
+        ...globals.browser,
+        ...globals.node
+      }
     },
     plugins: {
       '@typescript-eslint': tsPlugin
     },
     rules: {
-      ...tsPlugin.configs.recommended.rules
+      ...tsPlugin.configs.recommended.rules,
+      // Disable no-undef for TypeScript files - TypeScript handles this
+      'no-undef': 'off'
     }
   },
   prettier
