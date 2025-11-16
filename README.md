@@ -1,8 +1,28 @@
 # pitype-core
 
-打字练习引擎和示例应用的 Monorepo。
+打字练习引擎和示例应用的 Monorepo，包含核心引擎、多个示例以及打包/CI 工具链。
 
-> 📖 **详细开发指南**: 查看 [DEVELOPMENT.md](./DEVELOPMENT.md) 了解所有开发命令和常用场景
+> 📚 **文档导航**
+>
+> - [DEVELOPMENT.md](./DEVELOPMENT.md)：本地开发、脚本说明与常见问题
+> - [QUICK_REFERENCE.md](./QUICK_REFERENCE.md)：按场景划分的命令速查
+> - [docs/05测试指南.md](./docs/05测试指南.md)：单元、基线与基准测试操作
+> - [docs/04接入指南.md](./docs/04接入指南.md)：第三方项目如何集成 `pitype-core`
+> - [docs/03规划与实施方案.md](./docs/03规划与实施方案.md)：整体规划和演进背景
+> - [docs/framework-integration-proposal.md](./docs/framework-integration-proposal.md)：各框架接入架构与 Hook 计划
+> - [docs/incremental-implementation-plan.md](./docs/incremental-implementation-plan.md)：质量门禁增量落地路线
+> - [docs/quality-implementation-guide.md](./docs/quality-implementation-guide.md)：CI/CD 门禁与团队规范
+> - [docs/codecov-setup-guide.md](./docs/codecov-setup-guide.md)：Codecov 配置与覆盖率可视化
+> - [docs/contributor-guide.md](./docs/contributor-guide.md)：贡献指南、提交与测试要求
+
+## 架构速览
+
+| 角色         | 路径                                               | 职责                                       |
+| ------------ | -------------------------------------------------- | ------------------------------------------ |
+| 🧱 核心引擎  | `packages/pitype-core`                             | Headless TypingSession、DOM 适配器、统计等 |
+| 🌐 示例应用  | `examples/{typerank3,ts-typerank3,vue3-typerank3}` | 各技术栈的 UI 展示和 E2E 测试入口          |
+| 🛠️ 脚本      | `scripts/`                                         | 构建/同步、Rollup native 安装、任务菜单    |
+| ⚙️ CI & 发布 | `.github/workflows/`                               | 质量门禁、性能监控、基准测试、自动发布     |
 
 ## 项目结构
 
@@ -33,6 +53,8 @@ npm run sync:demo
 ```
 
 > **注意**: `examples/typerank3/vendor/` 是生成目录，不提交到 git
+>
+> 💡 **命令菜单**：执行 `npm run task:menu` 可快速选择常用任务（构建、测试、开发服务器、基准测试等），无需记忆所有脚本。
 
 ### 开发
 
@@ -157,6 +179,15 @@ npm run test:baseline
 TypeScript 重写版本，提供完整类型安全。
 
 **特性：**
+
+## CI 与发布
+
+- **Quality Gate**（`quality-gate.yml`）：在 PR/main push 时执行 lint、unit + coverage、Playwright 基线、type-check、构建和安全审计，所有检查通过后才允许合并。
+- **Performance Monitoring**（`performance.yml`）：在 push/PR 时运行 bundle 分析与 TypingSession 基准测试，结果写入 GitHub Step Summary。
+- **自动发布**：`npx semantic-release` 根据 commit 信息决定版本（`feat` → `minor`，`fix` → `patch`），并发布到 npm / GitHub Release。需要在 CI 中配置 `NPM_TOKEN`、`GITHUB_TOKEN`。
+- **脚本自动化**：`pretest` 会安装 Playwright 浏览器，`postinstall` 会在 Linux x64 环境拉取 Rollup 原生二进制，确保 CI、本地环境一致。
+
+👉 详细流程与常见故障排除，参见 [DEVELOPMENT.md](./DEVELOPMENT.md#ci--release)。
 
 - 完整的 TypeScript 类型定义
 - 使用 Vite 构建

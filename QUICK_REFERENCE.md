@@ -35,7 +35,7 @@ npm run task:menu lint
 | `npm run ts-demo:dev`   | TypeScript | 5173 | Vite HMR |
 | `npm run baseline:dev`  | JavaScript | 4173 | 原生 JS  |
 
-## 🧪 测试命令
+## 🧪 测试命令（含自动化）
 
 ```bash
 npm test              # 运行所有测试
@@ -43,6 +43,8 @@ npm run test:unit     # 单元测试
 npm run test:baseline # E2E 测试（Playwright）
 npm run bench:typing-session # TypingSession 基准测试
 ```
+
+> `npm test` 前会自动执行 `pretest`：安装 Playwright 浏览器；请保证网络可访问 Playwright CDN。
 
 ## 🔨 构建命令
 
@@ -52,12 +54,20 @@ npm run sync:demo     # 同步到 JS 示例
 npm run watch:core    # 监听并自动构建
 ```
 
-## 📝 代码质量
+## 📝 代码质量 & 维护
 
 ```bash
 npm run lint          # ESLint 检查
 npm run format        # Prettier 格式化
 ```
+
+发布/CI 相关：
+
+- `npx semantic-release`（CI 自动执行）按 commit 类型计算版本并发布 npm/GitHub，需要配置 `NPM_TOKEN`、`GITHUB_TOKEN`。
+- `npm run task:menu` → `release` 子任务（未来可扩展）帮助本地模拟。
+- Playwright 浏览器安装、Rollup 原生依赖都会在 `pretest`/`postinstall` 阶段自动完成。
+
+更多细节见 [DEVELOPMENT.md#ci--release](./DEVELOPMENT.md#ci--release)。
 
 ## 🎯 常见场景
 

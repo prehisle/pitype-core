@@ -17,6 +17,18 @@ Current design issues when integrating with Vue/React/Svelte:
    - Not intuitive why two refs are needed
    - Documentation lacks framework-specific guidance
 
+## Current Status & Quick Links
+
+- ✅ `preserveChildren` / `textContentClass` 选项已实现，详见 [docs/04接入指南.md](docs/04接入指南.md)。
+- ✅ `examples/vue3-typerank3` 与 `examples/ts-typerank3` 已按照“文本内容与输入/光标分离”的架构改造，可作为直接模板。
+- 🟡 `onCursorUpdate` 等 Hook 仍在规划，需要评估事件语义与性能。
+
+| 场景                  | 推荐结构/脚本                                                                         | 参考                                                     |
+| --------------------- | ------------------------------------------------------------------------------------- | -------------------------------------------------------- |
+| Vue/React/Svelte 组件 | `text-content` 交给 renderer，input/cursor 由框架模板管理，开启 `preserveChildren`    | `examples/vue3-typerank3/src/components/TextDisplay.vue` |
+| 纯 JS                 | 可沿用旧结构，但建议明确 `textContainer`/`textDisplay`，必要时开启 `preserveChildren` | `examples/typerank3/script.js`                           |
+| 自定义渲染            | 依赖未来的 Hook（`onCursorUpdate` 等）把位置数据映射到响应式状态                      | 规划中                                                   |
+
 ## Proposed Solutions
 
 ### Solution 1: Add `preserveChildren` Option (Minimal Change)
@@ -254,3 +266,10 @@ With proposed changes:
 - No need to manually appendChild after render()
 - Cleaner template structure
 - Better TypeScript support
+
+## Action Checklist
+
+- [ ] 在 React/Svelte 示例中复刻 `text-content + preserveChildren` 模式，并记录差异化实现。
+- [ ] 设计并实现 `onCursorUpdate`/`onTextRender` Hook API，配套 Vitest 契约测试。
+- [ ] 更新 `docs/04接入指南.md` 与 README，加入上述架构图与 Hook 使用示例。
+- [ ] 在 Playwright 基线中新增针对 `preserveChildren` 的用例，验证 input/cursor 不会被移除。

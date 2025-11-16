@@ -1,5 +1,11 @@
 # 开发指南
 
+> 👩‍💻 **阅读指引**
+>
+> - 只想运行示例或快速验证：阅读「🚀 快速开始」与「📦 开发命令」。
+> - 需要修改核心/测试：继续看「🧪 测试命令」「🎯 常用开发场景」。
+> - 想了解 CI、发布或常见故障：跳到文末的「CI & Release」与「常见问题」。
+
 ## 🚀 快速开始
 
 ### 首次安装
@@ -81,10 +87,15 @@ npm run test:unit
 # 只运行基线测试（Playwright）
 npm run test:baseline
 
+# TypingSession 基准测试
+npm run bench:typing-session
+
 # Vue3 示例类型检查
 cd examples/vue3-typerank3
 npm run type-check
 ```
+
+> `npm test` 会先执行 `pretest`（自动安装 Playwright Chromium），请保持网络通畅。
 
 ## 🎯 常用开发场景
 
@@ -130,6 +141,28 @@ npm test
 # 4. 检查代码格式
 npm run lint
 ```
+
+## ⚙️ CI & Release
+
+- **Quality Gate**（`.github/workflows/quality-gate.yml`）：lint、unit + coverage（上传 Codecov）、Playwright 基线、type-check、build、npm audit/Snyk，全都通过才算成功。
+- **Performance Monitoring**（`.github/workflows/performance.yml`）：构建核心 & 统计 bundle 大小，运行 TypingSession 基准测试并输出 Step Summary。
+- **自动发布**：`npx semantic-release` 依据 commit 类型自动发布 npm/GitHub Release。必须在 CI Secret 中配置 `NPM_TOKEN`、`GITHUB_TOKEN`；首次发布前确保已有 `v0.x.x` tag 以维持版本线。
+- **安装脚本**：
+  - `postinstall`：在 Linux x64 环境下载 Rollup 原生二进制（`scripts/install-rollup-native.mjs`），避免 Vite/ts-demo 构建失败。
+  - `pretest`：执行 `npx playwright install --with-deps chromium`，确保基线测试始终具备浏览器。
+- **commitlint/Husky**：提交前自动运行 lint-staged 和 commitlint；`chore(release):` 类自动提交会跳过 commitlint。
+
+## ❓ 常见问题
+
+| 问题                                       | 解决方案                                                                                                         |
+| ------------------------------------------ | ---------------------------------------------------------------------------------------------------------------- |
+| `npm ci` 报 lock file 不同步               | 运行 `npm install` 同步 `package-lock.json`，或确保最近没有未提交的包版本变更                                    |
+| Playwright 报 “Executable doesn’t exist”   | 执行 `npx playwright install --with-deps chromium`（CI 由 `pretest` 自动完成）                                   |
+| Rollup 缺少 `@rollup/rollup-linux-x64-gnu` | 确保 `postinstall` 没有失败；如本地是非 Linux x64，可忽略该依赖                                                  |
+| `semantic-release` 报 `Invalid npm token`  | 在 CI 中配置有效 `NPM_TOKEN`，且若启用 2FA 需改为 “Authorization only”；确保 `GITHUB_TOKEN` 具备 repo write 权限 |
+| Dependabot PR 被 commitlint 拒绝           | 我们已禁用 `body-max-line-length`，若仍有其他规则，可按需在 `.commitlintrc.json` 中调节                          |
+
+更多操作细节与调试命令，见 [QUICK_REFERENCE.md](./QUICK_REFERENCE.md) 与 [docs/05测试指南.md](./docs/05测试指南.md)。
 
 ## 📝 代码质量
 

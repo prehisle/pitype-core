@@ -10,6 +10,21 @@
 
 ---
 
+## 📈 当前进度速览
+
+| 步骤         | 目标                             | 状态 | 备注                                                  |
+| ------------ | -------------------------------- | ---- | ----------------------------------------------------- |
+| 0. 准备      | 初始化 monorepo/脚本             | ✅   | config 与脚本已就位                                   |
+| 1. 代码规范  | EditorConfig、Prettier、ESLint   | ✅   | lint-staged/格式化已启用                              |
+| 2. Git Hooks | Husky + lint-staged + commitlint | ✅   | pre-commit/commit-msg 在用（release commit 自动豁免） |
+| 3. 增强 CI   | 覆盖率 & type-check（soft fail） | ✅   | quality-gate workflow 已执行                          |
+| 4. Codecov   | 覆盖率可视化                     | ✅   | CODECOV_TOKEN 配置完成                                |
+| 5. 安全扫描  | npm audit/Snyk/CodeQL            | 🟡   | 已接入，阈值待收紧                                    |
+| 6. 性能监控  | Bundle + TypingSession Bench     | ✅   | performance workflow 输出 summary                     |
+| 7. 自动发布  | semantic-release                 | ✅   | 需确保 `NPM_TOKEN`、`GH_TOKEN` 可用                   |
+
+---
+
 ## 📅 实施路线图（共7步）
 
 ### ✅ 第0步：准备工作（当前）

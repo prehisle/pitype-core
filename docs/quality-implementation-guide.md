@@ -4,6 +4,13 @@
 
 本指南为 pitype-core 项目提供完整的质量提升方案和CI/CD质量门禁实施步骤。
 
+> 📚 相关文档：
+>
+> - [DEVELOPMENT.md](./DEVELOPMENT.md)：本地命令、常见问题
+> - [QUICK_REFERENCE.md](./QUICK_REFERENCE.md)：命令速查/场景导航
+> - [.github/workflows/quality-gate.yml](.github/workflows/quality-gate.yml)：实际 CI 配置
+> - [.github/workflows/performance.yml](.github/workflows/performance.yml)：性能与基准测试
+
 ## 📊 质量门禁架构
 
 ```
@@ -54,8 +61,8 @@
 │     └─ PR评论: 自动发布大小报告                              │
 ├─────────────────────────────────────────────────────────────┤
 │  8️⃣  性能监控 (Performance Job)                              │
-│     ├─ Lighthouse: 性能评分                                  │
-│     └─ Bundle分析: 详细大小报告                              │
+│     ├─ Bundle Summary：Step Summary 输出 index.js/index.d.ts 大小 │
+│     └─ TypingSession Benchmark：运行 `npm run bench:typing-session` 并记录结果 │
 └─────────────────────────────────────────────────────────────┘
                               ↓
 ┌─────────────────────────────────────────────────────────────┐
@@ -418,6 +425,18 @@ npm test -- --testTimeout=10000
 - [ ] 实现自动化性能回归检测
 - [ ] 引入 AI 辅助代码审查
 - [ ] 建立详细的质量 Dashboard
+
+---
+
+## 🔐 CI Secrets 与环境变量
+
+| 名称                               | 作用                                                                 |
+| ---------------------------------- | -------------------------------------------------------------------- |
+| `NPM_TOKEN`                        | 供 semantic-release 发布 npm 包（2FA 需设置为 “Authorization only”） |
+| `GITHUB_TOKEN` / `GH_TOKEN`        | 创建 Release / Issues / 评论以及推送标签                             |
+| `CODECOV_TOKEN`                    | 上传覆盖率报告                                                       |
+| `SNYK_TOKEN`（可选）               | 运行 Snyk 安全扫描                                                   |
+| `PLAYWRIGHT_BROWSERS_PATH`（可选） | 控制 Playwright 浏览器缓存目录，以减少 CI 下载时间                   |
 
 ---
 
