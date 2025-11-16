@@ -36,9 +36,9 @@ export function useCursorAdapter(options: UseCursorAdapterOptions) {
       setSpans: (spans) => optionsRef.current.setSpans(spans)
     });
 
-    // 启用响应式和移动端支持
-    adapterRef.current.enableResponsiveSync();
-    adapterRef.current.enableMobileSupport();
+    // 注意：不在这里调用 enableResponsiveSync() 和 enableMobileSupport()
+    // 这些方法应该在 cacheCharSpans() 和首次 updatePosition() 之后调用
+    // 否则会导致光标位置偏移（因为此时 spans 还未缓存）
 
     initializedRef.current = true;
 
@@ -64,14 +64,18 @@ export function useCursorAdapter(options: UseCursorAdapterOptions) {
     adapterRef.current?.resetAnimation();
   }, []);
 
+  const getAdapter = useCallback(() => {
+    return adapterRef.current;
+  }, []);
+
   return useMemo(
     () => ({
-      adapter: adapterRef.current,
+      getAdapter,
       cacheCharSpans,
       updatePosition,
       scheduleRefresh,
       resetAnimation
     }),
-    [cacheCharSpans, updatePosition, scheduleRefresh, resetAnimation]
+    [getAdapter, cacheCharSpans, updatePosition, scheduleRefresh, resetAnimation]
   );
 }

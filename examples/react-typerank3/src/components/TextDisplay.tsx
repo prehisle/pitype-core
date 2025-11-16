@@ -103,18 +103,30 @@ export function TextDisplay({
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
-          // 缓存字符元素
+          // 1. 将光标移动到 textDisplay 内部（而不是 textContainer）
+          if (cursorRef.current && textDisplayRef.current) {
+            textDisplayRef.current.appendChild(cursorRef.current);
+          }
+
+          // 2. 缓存字符元素
           cursorAdapterRef.current?.cacheCharSpans();
 
-          // 附加输入框
+          // 3. 重置光标动画状态（必须在 updatePosition 之前）
+          cursorAdapterRef.current?.resetAnimation();
+
+          // 4. 附加输入框
           if (inputRef.current) {
             attachInput(inputRef.current);
           }
 
-          // 更新光标位置
+          // 5. 更新光标位置
           cursorAdapterRef.current?.updatePosition({ immediate: true });
 
-          // 聚焦输入框
+          // 6. 启用移动端支持和响应式同步（必须在 updatePosition 之后）
+          cursorAdapterRef.current?.getAdapter()?.enableMobileSupport();
+          cursorAdapterRef.current?.getAdapter()?.enableResponsiveSync();
+
+          // 7. 聚焦输入框
           focusInput();
 
           setInitialized(true);
