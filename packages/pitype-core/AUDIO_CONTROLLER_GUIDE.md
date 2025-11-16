@@ -37,7 +37,7 @@ const keyPressAudio = new Audio('/sounds/keypress.mp3');
 keyPressAudio.preload = 'auto';
 
 const soundPack: SoundPack = {
-  keyPress: keyPressAudio,
+  keyPress: keyPressAudio
   // ... 其他音效
 };
 ```
@@ -47,9 +47,9 @@ const soundPack: SoundPack = {
 ```typescript
 const audioController = createDomAudioController({
   soundPack: soundPack,
-  enabled: true,        // 默认启用
-  volume: 0.5,          // 音量 50%
-  poolSize: 3           // 音效池大小
+  enabled: true, // 默认启用
+  volume: 0.5, // 音量 50%
+  poolSize: 3 // 音效池大小
 });
 
 // 预加载所有音效（可选，建议在页面加载后执行）
@@ -95,7 +95,7 @@ const audioController = createDomAudioController({
 
 // 创建 SessionRuntime 并传入音频控制器
 const sessionRuntime = createSessionRuntime({
-  audioController: audioController,  // 自动触发音效
+  audioController: audioController, // 自动触发音效
   onEvaluate: (event) => {
     // 你的其他逻辑
   },
@@ -125,10 +125,10 @@ audioController.playSound(type: 'keyPress' | 'correct' | 'error' | 'complete'): 
 
 ```typescript
 // 设置音量（0-1）
-audioController.setVolume(0.8);  // 80%
+audioController.setVolume(0.8); // 80%
 
 // 获取当前音量
-const volume = audioController.getVolume();  // 0.8
+const volume = audioController.getVolume(); // 0.8
 ```
 
 ### 启用/禁用
@@ -141,10 +141,10 @@ audioController.enable();
 audioController.disable();
 
 // 切换音频状态
-const isEnabled = audioController.toggle();  // 返回新状态
+const isEnabled = audioController.toggle(); // 返回新状态
 
 // 获取当前状态
-const enabled = audioController.isEnabled();  // true/false
+const enabled = audioController.isEnabled(); // true/false
 ```
 
 ### 更新音效包
@@ -183,23 +183,13 @@ audioController.destroy();
 <template>
   <div class="audio-settings">
     <label>
-      <input
-        type="checkbox"
-        :checked="audioEnabled"
-        @change="toggleAudio"
-      />
+      <input type="checkbox" :checked="audioEnabled" @change="toggleAudio" />
       启用音效
     </label>
 
     <label>
       音量: {{ Math.round(audioVolume * 100) }}%
-      <input
-        type="range"
-        min="0"
-        max="100"
-        :value="audioVolume * 100"
-        @input="updateVolume"
-      />
+      <input type="range" min="0" max="100" :value="audioVolume * 100" @input="updateVolume" />
     </label>
 
     <button @click="testSound">测试音效</button>
@@ -298,7 +288,7 @@ onMounted(async () => {
 
   // 2. 创建 SessionRuntime 并集成音频
   const sessionRuntime = createSessionRuntime({
-    audioController: audioController.value,  // 自动触发音效
+    audioController: audioController.value, // 自动触发音效
     onEvaluate: (event) => {
       textRenderer.value?.applySpanState(event.index, event.correct);
       cursorAdapter.value?.scheduleRefresh();
@@ -310,17 +300,21 @@ onMounted(async () => {
 
   // 3. 创建其他组件...
   const textRenderer = shallowRef(createDomTextRenderer(textDisplayRef.value!));
-  const cursorAdapter = shallowRef(createDomCursorAdapter({
-    textDisplay: textDisplayRef.value!,
-    getCurrentPosition: () => sessionRuntime.getSession()?.getState().position ?? 0,
-    getCursor: () => cursorRef.value,
-    getInput: () => hiddenInputRef.value,
-    getSpans: () => textRenderer.value?.getSpans() ?? []
-  }));
+  const cursorAdapter = shallowRef(
+    createDomCursorAdapter({
+      textDisplay: textDisplayRef.value!,
+      getCurrentPosition: () => sessionRuntime.getSession()?.getState().position ?? 0,
+      getCursor: () => cursorRef.value,
+      getInput: () => hiddenInputRef.value,
+      getSpans: () => textRenderer.value?.getSpans() ?? []
+    })
+  );
 
-  const inputController = shallowRef(createDomInputController({
-    getTypingSession: () => sessionRuntime.getSession()
-  }));
+  const inputController = shallowRef(
+    createDomInputController({
+      getTypingSession: () => sessionRuntime.getSession()
+    })
+  );
 
   inputController.value.attachInput(hiddenInputRef.value);
 
@@ -452,7 +446,7 @@ interface DomAudioController {
 ```typescript
 const audioController = createDomAudioController({
   soundPack: { keyPress: '/sounds/keypress.mp3' },
-  poolSize: 5  // 增加池大小以支持更快的连续按键
+  poolSize: 5 // 增加池大小以支持更快的连续按键
 });
 ```
 
@@ -492,6 +486,7 @@ const audioController = createDomAudioController({
 ### Q: 为什么音效不播放？
 
 **A**: 检查以下几点：
+
 1. 确保音频已启用：`audioController.isEnabled()`
 2. 确保音量不是 0：`audioController.getVolume()`
 3. 确保音效文件路径正确
@@ -501,6 +496,7 @@ const audioController = createDomAudioController({
 ### Q: 如何获取免费的音效文件？
 
 **A**: 推荐资源：
+
 - [Freesound.org](https://freesound.org/)
 - [Zapsplat.com](https://www.zapsplat.com/)
 - [Mixkit.co](https://mixkit.co/free-sound-effects/)
@@ -508,6 +504,7 @@ const audioController = createDomAudioController({
 ### Q: 音效延迟怎么办？
 
 **A**: 尝试以下方法：
+
 1. 使用 `preloadSounds()` 预加载音效
 2. 减小音效文件大小
 3. 增加音效池大小
@@ -522,13 +519,13 @@ const sessionRuntime = createSessionRuntime({
   onEvaluate: (event) => {
     // 根据字符类型播放不同音效
     if (event.char === ' ') {
-      audioController.playSound('keyPress');  // 空格音
+      audioController.playSound('keyPress'); // 空格音
     } else if (event.char === '\n') {
-      audioController.playSound('complete');   // 回车音
+      audioController.playSound('complete'); // 回车音
     } else if (event.correct) {
-      audioController.playSound('correct');    // 正确音
+      audioController.playSound('correct'); // 正确音
     } else {
-      audioController.playSound('error');      // 错误音
+      audioController.playSound('error'); // 错误音
     }
   }
 });
@@ -539,5 +536,6 @@ const sessionRuntime = createSessionRuntime({
 ## 完整示例
 
 参考文件：
+
 - `/packages/pitype-core/src/dom/audioController.ts` - 音频控制器实现
 - `/packages/pitype-core/src/sessionRuntime.ts` - SessionRuntime 集成示例

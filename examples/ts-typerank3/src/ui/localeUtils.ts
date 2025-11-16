@@ -16,10 +16,8 @@ export function createLocaleHelpers({
   applyLanguage = () => {}
 }: LocaleHelpersOptions = {}): LocaleHelpers {
   const safeGetText = typeof getText === 'function' ? getText : () => '';
-  const safeUpdatePageText =
-    typeof updatePageText === 'function' ? updatePageText : () => {};
-  const safeApplyLanguage =
-    typeof applyLanguage === 'function' ? applyLanguage : () => {};
+  const safeUpdatePageText = typeof updatePageText === 'function' ? updatePageText : () => {};
+  const safeApplyLanguage = typeof applyLanguage === 'function' ? applyLanguage : () => {};
 
   const restartButton = document.getElementById('restart-btn');
 

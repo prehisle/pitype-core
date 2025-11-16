@@ -54,6 +54,7 @@ npm run ts-demo:dev
 ```
 
 这个命令会自动：
+
 1. 监听 `packages/pitype-core` 源码变化并自动重新编译
 2. 启动 Vite 开发服务器（端口 3000）
 3. 当 pitype-core 重新编译后，Vite 会自动重载页面
@@ -122,6 +123,7 @@ npm run preview
 ### 核心依赖 (pitype-core)
 
 本项目直接使用仓库中的 `pitype-core` 包，包含：
+
 - 文本分词器 (tokenizeText)
 - 文本源管理 (createTextSource)
 - 打字会话 (TypingSession)

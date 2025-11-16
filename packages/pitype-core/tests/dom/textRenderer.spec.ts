@@ -209,7 +209,9 @@ describe('createDomTextRenderer', () => {
     renderer.render(createTextSource('abc'));
 
     expect(display.children.includes(persistent)).toBe(true);
-    const textContainers = display.children.filter((child) => child.classList.contains('custom-text'));
+    const textContainers = display.children.filter((child) =>
+      child.classList.contains('custom-text')
+    );
     expect(textContainers.length).toBe(1);
   });
 

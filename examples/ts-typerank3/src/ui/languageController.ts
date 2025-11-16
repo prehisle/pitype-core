@@ -10,21 +10,24 @@ export interface LanguageSelectorOptions {
   updatePageText?: () => void;
 }
 
+interface WindowWithHelpers extends Window {
+  applyLanguage?: (lang: string) => void;
+  updatePageText?: () => void;
+}
+
 export function initLanguageSelector({
   applyLanguage = typeof window !== 'undefined'
-    ? (window as any).applyLanguage
+    ? (window as WindowWithHelpers).applyLanguage
     : undefined,
   updatePageText = typeof window !== 'undefined'
-    ? (window as any).updatePageText
+    ? (window as WindowWithHelpers).updatePageText
     : undefined
 }: LanguageSelectorOptions = {}): void {
   const options = document.querySelectorAll('.language-option');
   if (!options.length) return;
 
-  const safeApplyLanguage =
-    typeof applyLanguage === 'function' ? applyLanguage : () => {};
-  const safeUpdatePageText =
-    typeof updatePageText === 'function' ? updatePageText : () => {};
+  const safeApplyLanguage = typeof applyLanguage === 'function' ? applyLanguage : () => {};
+  const safeUpdatePageText = typeof updatePageText === 'function' ? updatePageText : () => {};
 
   let currentLanguage = getActiveLanguage();
   syncActiveClass(options, currentLanguage);

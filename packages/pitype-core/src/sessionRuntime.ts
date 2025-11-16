@@ -41,7 +41,7 @@ export interface SessionRuntimeOptions extends SessionRuntimeCallbacks {
   recorderOptions?: {
     id?: string;
     includeMetadata?: boolean;
-    customMetadata?: Record<string, any>;
+    customMetadata?: Record<string, unknown>;
   };
 }
 
@@ -129,7 +129,7 @@ export function createSessionRuntime(options: SessionRuntimeOptions = {}): Sessi
         options.onUndo?.(event);
         notifySnapshot();
         break;
-      case 'session:complete':
+      case 'session:complete': {
         stopTimer();
         notifySnapshot();
         const finalSnapshot = getSnapshot();
@@ -142,6 +142,7 @@ export function createSessionRuntime(options: SessionRuntimeOptions = {}): Sessi
         // 触发完成音效
         audioController?.playSound('complete');
         break;
+      }
       case 'session:reset':
         stopTimer();
         notifySnapshot();

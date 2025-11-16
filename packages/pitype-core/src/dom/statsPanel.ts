@@ -42,7 +42,11 @@ export function createDomStatsPanel({
   };
 }
 
-function renderRealtime(snapshot: typeof EMPTY_SNAPSHOT, elements: StatElementMap, label: () => string) {
+function renderRealtime(
+  snapshot: typeof EMPTY_SNAPSHOT,
+  elements: StatElementMap,
+  label: () => string
+) {
   setText(elements.cpm, formatNumber(snapshot.correctCpm));
   setText(elements.totalCpm, formatNumber(snapshot.totalCpm));
   setText(elements.wpm, formatNumber(snapshot.wpm));
@@ -51,7 +55,11 @@ function renderRealtime(snapshot: typeof EMPTY_SNAPSHOT, elements: StatElementMa
   setText(elements.chars, formatNumber(snapshot.totalChars));
 }
 
-function renderResults(snapshot: typeof EMPTY_SNAPSHOT, elements: StatElementMap, label: () => string) {
+function renderResults(
+  snapshot: typeof EMPTY_SNAPSHOT,
+  elements: StatElementMap,
+  label: () => string
+) {
   setText(elements.time, formatDuration(snapshot.durationMs, label));
   setText(elements.cpm, formatNumber(snapshot.correctCpm));
   setText(elements.totalCpm, formatNumber(snapshot.totalCpm));

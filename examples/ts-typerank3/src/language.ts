@@ -195,17 +195,22 @@ export function getText(path: string): string {
 
   // 解析路径，如 'ui.statsLabels.cpm'
   const keys = path.split('.');
-  let result: any = langData;
+  let result: unknown = langData;
 
   for (const key of keys) {
-    if (result[key] === undefined) {
+    if (
+      typeof result !== 'object' ||
+      result === null ||
+      !(key in result) ||
+      (result as Record<string, unknown>)[key] === undefined
+    ) {
       console.warn(`Missing translation key: ${path}`);
       return path;
     }
-    result = result[key];
+    result = (result as Record<string, unknown>)[key];
   }
 
-  return result;
+  return typeof result === 'string' ? result : String(result);
 }
 
 // 更新页面上的所有文本

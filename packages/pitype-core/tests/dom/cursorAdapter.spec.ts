@@ -109,7 +109,7 @@ describe('createDomCursorAdapter', () => {
       textContainer: new FakeElement() as unknown as HTMLElement,
       getCurrentPosition: () => 0,
       getCursor: () => cursor as unknown as HTMLElement,
-      getInput: () => (input as unknown as HTMLInputElement),
+      getInput: () => input as unknown as HTMLInputElement,
       getSpans: () => [span as unknown as HTMLElement],
       windowRef: undefined,
       documentRef: undefined,

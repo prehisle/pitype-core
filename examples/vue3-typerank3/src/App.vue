@@ -582,9 +582,13 @@ function ensureGhostColor(recordingId: string, fallbackIndex?: number): string {
 }
 
 function getGhostName(recording: RecordingData, fallbackIndex = 0): string {
-  if (recording.metadata?.name) return recording.metadata.name;
-  if (recording.metadata?.label) return recording.metadata.label;
-  const availableIndex = availableGhostRecordings.value.findIndex(item => item.id === recording.id);
+  const name = recording.metadata?.name;
+  if (typeof name === 'string') return name;
+  const label = recording.metadata?.label;
+  if (typeof label === 'string') return label;
+  const availableIndex = availableGhostRecordings.value.findIndex(
+    (item) => item.id === recording.id
+  );
   const resolvedIndex = availableIndex > -1 ? availableIndex : fallbackIndex;
   return `幽灵 #${resolvedIndex + 1}`;
 }

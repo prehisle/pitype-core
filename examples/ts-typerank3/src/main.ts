@@ -8,10 +8,7 @@ import {
   createDomThemeController,
   type StatsSnapshot
 } from 'pitype-core';
-import {
-  initLanguageSelector,
-  getActiveLanguage
-} from './ui/languageController';
+import { initLanguageSelector, getActiveLanguage } from './ui/languageController';
 import { createResultModal } from './ui/resultModal';
 import { initInfoModal } from './ui/infoModal';
 import { createLocaleHelpers } from './ui/localeUtils';
@@ -29,8 +26,7 @@ const restartBtn = document.getElementById('restart-btn') as HTMLElement;
 
 const urlParams = new URLSearchParams(window.location.search);
 const forcedTextIndexParam = urlParams.get('text');
-const forcedTextIndex =
-  forcedTextIndexParam !== null ? Number(forcedTextIndexParam) : null;
+const forcedTextIndex = forcedTextIndexParam !== null ? Number(forcedTextIndexParam) : null;
 const textLibrary = texts;
 
 const localeHelpers = createLocaleHelpers({
@@ -260,9 +256,7 @@ function init(): void {
   resultModal.style.display = 'none';
 }
 
-function showResults(
-  snapshot?: StatsSnapshot | null
-): void {
+function showResults(snapshot?: StatsSnapshot | null): void {
   const finalSnapshot = snapshot ?? sessionRuntime.getLatestSnapshot();
   if (!finalSnapshot || !statsPanel) return;
   statsPanel.renderResults(finalSnapshot);

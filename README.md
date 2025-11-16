@@ -46,6 +46,7 @@ npm run vue3-demo:dev
 访问 http://localhost:4174
 
 **自动热更新内容：**
+
 - ✅ packages/pitype-core 源码
 - ✅ examples/vue3-typerank3/src 下的所有文件
 - ✅ Vue 组件支持 HMR（热模块替换）
@@ -60,6 +61,7 @@ npm run baseline:dev
 访问 http://localhost:4173
 
 **自动热更新内容：**
+
 - ✅ packages/pitype-core 源码
 - ✅ examples/typerank3 的所有文件
 
@@ -73,6 +75,7 @@ npm run ts-demo:dev
 访问 http://localhost:5173
 
 **自动热更新内容：**
+
 - ✅ packages/pitype-core 源码
 - ✅ examples/ts-typerank3/src 下的所有文件
 - ✅ HTML 和 CSS
@@ -125,6 +128,7 @@ npm run test:baseline
 基于 Vue 3 组合式 API 的现代化打字练习应用。
 
 **特性：**
+
 - Vue 3 组合式 API（Composition API）
 - 完整的 TypeScript 类型安全
 - Vite 5.x 构建工具
@@ -140,6 +144,7 @@ npm run test:baseline
 基于原生 JavaScript 的完整打字练习应用。
 
 **特性：**
+
 - 纯 JavaScript ES6+
 - 多主题支持
 - 多语言支持（简体中文/繁体中文/英文）
@@ -152,6 +157,7 @@ npm run test:baseline
 TypeScript 重写版本，提供完整类型安全。
 
 **特性：**
+
 - 完整的 TypeScript 类型定义
 - 使用 Vite 构建
 - 直接使用 pitype-core workspace 包
@@ -170,26 +176,28 @@ TypeScript 重写版本，提供完整类型安全。
 ### 修改示例应用
 
 **JavaScript 版本：**
+
 - 直接修改 `examples/typerank3` 下的文件
 - Live Server 会自动刷新浏览器
 
 **TypeScript 版本：**
+
 - 修改 `examples/ts-typerank3/src` 下的文件
 - Vite 会自动触发 HMR
 
 ## 脚本说明
 
-| 脚本 | 说明 |
-|------|------|
+| 脚本                    | 说明                           |
+| ----------------------- | ------------------------------ |
 | `npm run vue3-demo:dev` | 启动 Vue3 示例开发环境（推荐） |
-| `npm run ts-demo:dev` | 启动 TypeScript 示例开发环境 |
-| `npm run baseline:dev` | 启动 JavaScript 示例开发环境 |
-| `npm run build:core` | 构建核心包 |
-| `npm run watch:core` | 监听核心包变化并自动重新编译 |
-| `npm run sync:demo` | 同步核心包到 JavaScript 示例 |
-| `npm test` | 运行所有测试 |
-| `npm run lint` | 运行 ESLint |
-| `npm run format` | 格式化代码 |
+| `npm run ts-demo:dev`   | 启动 TypeScript 示例开发环境   |
+| `npm run baseline:dev`  | 启动 JavaScript 示例开发环境   |
+| `npm run build:core`    | 构建核心包                     |
+| `npm run watch:core`    | 监听核心包变化并自动重新编译   |
+| `npm run sync:demo`     | 同步核心包到 JavaScript 示例   |
+| `npm test`              | 运行所有测试                   |
+| `npm run lint`          | 运行 ESLint                    |
+| `npm run format`        | 格式化代码                     |
 
 > 💡 更多命令和使用场景请查看 [DEVELOPMENT.md](./DEVELOPMENT.md)
 

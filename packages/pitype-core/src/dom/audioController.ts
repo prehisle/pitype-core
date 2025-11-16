@@ -105,7 +105,11 @@ export function createDomAudioController(
     if (typeof source === 'string') {
       try {
         // 使用全局 Audio 构造函数（如果可用）
-        const AudioCtor = (windowRef as any)?.Audio || (typeof Audio !== 'undefined' ? Audio : null);
+        interface WindowWithAudio extends Window {
+          Audio?: typeof Audio;
+        }
+        const AudioCtor =
+          (windowRef as WindowWithAudio)?.Audio || (typeof Audio !== 'undefined' ? Audio : null);
         if (!AudioCtor) return null;
 
         const audio = new AudioCtor(source);
@@ -153,7 +157,7 @@ export function createDomAudioController(
   // 初始化所有音效池
   function initializeAllPools(): void {
     const types: SoundType[] = ['keyPress', 'correct', 'error', 'complete'];
-    types.forEach(type => {
+    types.forEach((type) => {
       if (currentSoundPack[type]) {
         initializePool(type);
       }
@@ -181,7 +185,7 @@ export function createDomAudioController(
       // 使用 promise 播放，忽略错误（避免未交互时的警告）
       const playPromise = audio.play();
       if (playPromise !== undefined) {
-        playPromise.catch(error => {
+        playPromise.catch((error) => {
           // 忽略用户未交互导致的自动播放失败
           if (error.name !== 'NotAllowedError') {
             console.warn(`Failed to play sound: ${type}`, error);
@@ -199,8 +203,8 @@ export function createDomAudioController(
     localStorage?.setItem(audioVolumeKey, String(currentVolume));
 
     // 更新所有音频元素的音量
-    audioPools.forEach(pool => {
-      pool.elements.forEach(audio => {
+    audioPools.forEach((pool) => {
+      pool.elements.forEach((audio) => {
         audio.volume = currentVolume;
       });
     });
@@ -243,8 +247,8 @@ export function createDomAudioController(
     currentSoundPack = { ...soundPack };
 
     // 清理旧的音效池
-    audioPools.forEach(pool => {
-      pool.elements.forEach(audio => {
+    audioPools.forEach((pool) => {
+      pool.elements.forEach((audio) => {
         audio.pause();
         audio.src = '';
       });
@@ -259,8 +263,8 @@ export function createDomAudioController(
   async function preloadSounds(): Promise<void> {
     const promises: Promise<void>[] = [];
 
-    audioPools.forEach(pool => {
-      pool.elements.forEach(audio => {
+    audioPools.forEach((pool) => {
+      pool.elements.forEach((audio) => {
         const promise = new Promise<void>((resolve) => {
           if (audio.readyState >= 2) {
             // 已经加载完成
@@ -284,8 +288,8 @@ export function createDomAudioController(
 
   // 销毁控制器
   function destroy(): void {
-    audioPools.forEach(pool => {
-      pool.elements.forEach(audio => {
+    audioPools.forEach((pool) => {
+      pool.elements.forEach((audio) => {
         audio.pause();
         audio.src = '';
       });

@@ -22,7 +22,8 @@ export interface DomThemeController {
 export function createDomThemeController(
   options: DomThemeControllerOptions = {}
 ): DomThemeController {
-  const documentRef = options.documentRef ?? (typeof document !== 'undefined' ? document : undefined);
+  const documentRef =
+    options.documentRef ?? (typeof document !== 'undefined' ? document : undefined);
   const storage: StorageLike | undefined =
     options.storage ?? (typeof localStorage !== 'undefined' ? localStorage : undefined);
   const selector = options.selector ?? '.theme-option';

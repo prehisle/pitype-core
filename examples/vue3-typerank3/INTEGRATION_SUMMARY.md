@@ -7,6 +7,7 @@
 ## 🎯 集成内容
 
 ### 1. 光标形状配置 ✅
+
 - ✅ 在设置面板中添加光标配置 UI
 - ✅ 支持 4 种光标形状（方块、竖线、下划线、轮廓）
 - ✅ 颜色选择器
@@ -14,6 +15,7 @@
 - ✅ 配置持久化
 
 ### 2. 音频反馈系统 ✅
+
 - ✅ 在设置面板中添加音频配置 UI
 - ✅ 启用/禁用开关
 - ✅ 音量滑块（0-100%）
@@ -21,6 +23,7 @@
 - ✅ 配置持久化
 
 ### 3. 练习回放功能 ✅
+
 - ✅ 自动录制每次练习
 - ✅ 在设置面板中添加回放控制 UI
 - ✅ 播放/停止按钮
@@ -30,6 +33,7 @@
 ## 📁 修改的文件
 
 ### 核心文件
+
 1. **`src/App.vue`** - 主要修改
    - 导入新的模块和类型
    - 添加状态变量（光标、音频、回放）
@@ -41,6 +45,7 @@
    - 导入新的 `styles.css`
 
 ### 新增文件
+
 3. **`src/styles.css`** - 新增样式
    - 光标形状样式（`.cursor-block`, `.cursor-line`, 等）
    - 光标闪烁动画
@@ -78,10 +83,13 @@ npm run dev
 ## 🎨 UI 展示
 
 ### 设置按钮
+
 位置：页面右上角，"重新开始"按钮旁边
 
 ### 设置面板
+
 包含三个部分：
+
 1. 🎨 光标设置
    - 下拉选择框：选择光标形状
    - 颜色选择器：自定义颜色
@@ -101,6 +109,7 @@ npm run dev
 ## 🔧 技术细节
 
 ### 状态管理
+
 ```typescript
 // 光标配置
 const cursorShape = ref<CursorShape>('block');
@@ -118,6 +127,7 @@ const playbackSpeed = ref(1.0);
 ```
 
 ### 控制器初始化
+
 ```typescript
 // 光标适配器（带配置）
 cursorAdapter.value = createDomCursorAdapter({
@@ -129,7 +139,9 @@ cursorAdapter.value = createDomCursorAdapter({
 
 // 音频控制器
 audioController.value = createDomAudioController({
-  soundPack: { /* ... */ },
+  soundPack: {
+    /* ... */
+  },
   enabled: audioEnabled.value,
   volume: audioVolume.value
 });
@@ -142,6 +154,7 @@ sessionRuntime = createSessionRuntime({
 ```
 
 ### 回放实现
+
 ```typescript
 // 创建播放器
 player.value = createPlayer({
@@ -172,6 +185,7 @@ pitype-core
 ## 🎯 功能演示流程
 
 ### 完整体验流程
+
 1. **启动应用** → 看到默认光标（方块，金色）
 2. **打开设置** → 点击右上角"设置"按钮
 3. **调整光标** → 选择"竖线"形状，改为蓝色，启用闪烁
@@ -187,6 +201,7 @@ pitype-core
 ## ⚠️ 注意事项
 
 ### 音效文件
+
 当前使用的是占位音效。要启用真实音效：
 
 1. 创建 `public/sounds/` 目录
@@ -198,6 +213,7 @@ pitype-core
 3. 修改 `App.vue` 中的音频控制器配置
 
 ### 浏览器兼容性
+
 - 光标配置：所有现代浏览器 ✅
 - 音频反馈：需要用户交互后才能播放（浏览器限制）
 - 练习回放：所有现代浏览器 ✅

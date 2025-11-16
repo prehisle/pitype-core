@@ -31,11 +31,13 @@ const tokens = tokenizeText('Hello 世界', { locale: 'zh-CN' });
 ```
 
 **参数:**
+
 - `text`: 待分词的文本
 - `options`: 可选配置
   - `locale`: 语言环境 (如 'en', 'zh-CN')
 
 **返回:** `TextToken[]` - token 数组，每个 token 包含:
+
 - `text`: 字符内容
 - `type`: token 类型 ('word', 'space', 'punctuation')
 - `wordBoundary`: 是否为单词边界
@@ -59,12 +61,14 @@ console.log(source.getLength());
 ```
 
 **参数:**
+
 - `text`: 练习文本
 - `options`: 可选配置
   - `id`: 文本唯一标识
   - `locale`: 语言环境
 
 **返回:** `TextSource` 对象，提供方法:
+
 - `getText()`: 获取原始文本
 - `getTokens()`: 获取 token 数组
 - `getLength()`: 获取字符总数
@@ -83,7 +87,7 @@ const source = createTextSource('Hello World');
 const session = new TypingSession(source);
 
 // 输入字符
-session.input('H');  // 返回评估结果
+session.input('H'); // 返回评估结果
 session.input('e');
 
 // 回退
@@ -95,6 +99,7 @@ console.log(state.position, state.isCompleted);
 ```
 
 **主要方法:**
+
 - `input(char: string)`: 输入字符并评估
 - `backspace()`: 回退一个字符
 - `getState()`: 获取当前状态
@@ -135,6 +140,7 @@ const stats = runtime.getLatestSnapshot();
 ```
 
 **回调参数:**
+
 - `onEvaluate`: 字符评估时触发
 - `onUndo`: 回退时触发
 - `onComplete`: 完成时触发，接收最终统计快照
@@ -158,6 +164,7 @@ console.log(snapshot.cpm, snapshot.wpm, snapshot.accuracy);
 ```
 
 **统计指标:**
+
 - `cpm`: 每分钟正确字符数 (Characters Per Minute)
 - `totalCpm`: 每分钟总字符数 (包括错误)
 - `wpm`: 每分钟单词数 (Words Per Minute，cpm / 5)
@@ -197,6 +204,7 @@ textRenderer.render(createTextSource('稳定的节奏胜过瞬间的爆发。'))
 ```
 
 **说明：**
+
 - 未提供 `lineBreakOptions` 时，renderer 会自动让常见中文闭合标点（句号、逗号、问号等）贴靠前一个字符，开口符号（如 `“`、`（`）贴靠后一个字符，避免出现在行首/行尾。
 - `lineBreakOptions.attachToPreviousChars` / `attachToNextChars` 接受字符数组，可扩展任何禁则字符。
 - `lineBreakOptions.matchers` 提供回调 `(context) => LineBreakDecision`，可根据上下文（前后 token）动态设置贴靠方向，覆盖更复杂的场景（数字+单位、复合符号等）。

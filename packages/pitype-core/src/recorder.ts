@@ -19,7 +19,7 @@ export interface RecordingData {
   metadata?: {
     version?: string;
     userAgent?: string;
-    [key: string]: any;
+    [key: string]: unknown;
   };
 }
 
@@ -29,7 +29,7 @@ export interface RecorderOptions {
   /** 是否包含元数据（默认 true） */
   includeMetadata?: boolean;
   /** 自定义元数据 */
-  customMetadata?: Record<string, any>;
+  customMetadata?: Record<string, unknown>;
 }
 
 export interface Recorder {
@@ -46,14 +46,10 @@ export interface Recorder {
 }
 
 export function createRecorder(options: RecorderOptions = {}): Recorder {
-  const {
-    id: customId,
-    includeMetadata = true,
-    customMetadata = {}
-  } = options;
+  const { id: customId, includeMetadata = true, customMetadata = {} } = options;
 
   let recording = false;
-  let currentSession: TypingSession | null = null;
+  let _currentSession: TypingSession | null = null;
   let currentTextSource: TextSource | null = null;
   let events: TypingEvent[] = [];
   let startTime: number = 0;
@@ -72,7 +68,7 @@ export function createRecorder(options: RecorderOptions = {}): Recorder {
 
     // 重置状态
     recording = true;
-    currentSession = session;
+    _currentSession = session;
     currentTextSource = textSource;
     events = [];
     startTime = Date.now();
@@ -123,7 +119,7 @@ export function createRecorder(options: RecorderOptions = {}): Recorder {
     }
 
     // 清理当前状态
-    currentSession = null;
+    _currentSession = null;
     currentTextSource = null;
     events = [];
 
@@ -154,7 +150,7 @@ export function createRecorder(options: RecorderOptions = {}): Recorder {
       unsubscribe = null;
     }
     recording = false;
-    currentSession = null;
+    _currentSession = null;
     currentTextSource = null;
     events = [];
     startTime = 0;
@@ -187,10 +183,7 @@ export function deserializeRecording(json: string): RecordingData {
 /**
  * 导出录制数据到文件（浏览器环境）
  */
-export function exportRecordingToFile(
-  recording: RecordingData,
-  filename?: string
-): void {
+export function exportRecordingToFile(recording: RecordingData, filename?: string): void {
   if (typeof window === 'undefined' || typeof Blob === 'undefined') {
     throw new Error('File export is only available in browser environments');
   }

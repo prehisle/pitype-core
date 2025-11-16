@@ -22,7 +22,7 @@ import { createSessionRuntime, createTextSource } from 'pitype-core';
 
 // 创建 SessionRuntime 并启用录制
 const sessionRuntime = createSessionRuntime({
-  enableRecording: true,  // 启用录制
+  enableRecording: true, // 启用录制
   recorderOptions: {
     includeMetadata: true,
     customMetadata: {
@@ -95,7 +95,7 @@ if (recording) {
   // 创建播放器
   const player = createPlayer({
     recording: recording,
-    playbackSpeed: 1.0,  // 正常速度
+    playbackSpeed: 1.0, // 正常速度
     onEvent: (event, currentTime) => {
       console.log('事件:', event.type, '时间:', currentTime);
 
@@ -123,26 +123,26 @@ if (recording) {
 
 ```typescript
 // 播放控制
-player.play();       // 开始播放
-player.pause();      // 暂停
-player.resume();     // 恢复播放
-player.stop();       // 停止并重置
+player.play(); // 开始播放
+player.pause(); // 暂停
+player.resume(); // 恢复播放
+player.stop(); // 停止并重置
 
 // 跳转到指定时间（毫秒）
-player.seek(5000);   // 跳转到 5 秒位置
+player.seek(5000); // 跳转到 5 秒位置
 
 // 倍速播放
-player.setSpeed(0.5);  // 0.5x 慢速
-player.setSpeed(1.0);  // 1x 正常速度
-player.setSpeed(2.0);  // 2x 快速
-player.setSpeed(5.0);  // 5x 超快速
+player.setSpeed(0.5); // 0.5x 慢速
+player.setSpeed(1.0); // 1x 正常速度
+player.setSpeed(2.0); // 2x 快速
+player.setSpeed(5.0); // 5x 超快速
 
 // 获取播放信息
-const currentTime = player.getCurrentTime();  // 当前播放时间（毫秒）
-const duration = player.getDuration();         // 总时长（毫秒）
-const speed = player.getSpeed();               // 当前播放速度
-const state = player.getState();               // 播放状态：'idle' | 'playing' | 'paused' | 'completed'
-const isPlaying = player.isPlaying();          // 是否正在播放
+const currentTime = player.getCurrentTime(); // 当前播放时间（毫秒）
+const duration = player.getDuration(); // 总时长（毫秒）
+const speed = player.getSpeed(); // 当前播放速度
+const state = player.getState(); // 播放状态：'idle' | 'playing' | 'paused' | 'completed'
+const isPlaying = player.isPlaying(); // 是否正在播放
 
 // 销毁播放器
 player.destroy();
@@ -234,13 +234,7 @@ if (json) {
       </label>
 
       <div class="progress">
-        <input
-          type="range"
-          :min="0"
-          :max="duration"
-          :value="currentTime"
-          @input="seekTo"
-        />
+        <input type="range" :min="0" :max="duration" :value="currentTime" @input="seekTo" />
         <span>{{ formatTime(currentTime) }} / {{ formatTime(duration) }}</span>
       </div>
     </div>
@@ -410,11 +404,17 @@ onUnmounted(() => {
 }
 
 @keyframes blink {
-  0%, 50% { opacity: 1; }
-  51%, 100% { opacity: 0; }
+  0%,
+  50% {
+    opacity: 1;
+  }
+  51%,
+  100% {
+    opacity: 0;
+  }
 }
 
-.progress input[type="range"] {
+.progress input[type='range'] {
   width: 100%;
 }
 </style>
@@ -431,15 +431,17 @@ onUnmounted(() => {
 创建录制器。
 
 **选项**:
+
 ```typescript
 interface RecorderOptions {
-  id?: string;                    // 录制 ID（默认自动生成）
-  includeMetadata?: boolean;      // 是否包含元数据（默认 true）
-  customMetadata?: Record<string, any>;  // 自定义元数据
+  id?: string; // 录制 ID（默认自动生成）
+  includeMetadata?: boolean; // 是否包含元数据（默认 true）
+  customMetadata?: Record<string, any>; // 自定义元数据
 }
 ```
 
 **方法**:
+
 - `start(session, textSource)` - 开始录制
 - `stop(finalStats?)` - 停止录制，返回录制数据
 - `isRecording()` - 是否正在录制
@@ -453,18 +455,20 @@ interface RecorderOptions {
 创建播放器。
 
 **选项**:
+
 ```typescript
 interface PlayerOptions {
-  recording: RecordingData;       // 录制数据
-  playbackSpeed?: number;         // 播放速度（默认 1.0）
-  onEvent?: (event, time) => void;     // 事件回调
-  onComplete?: () => void;        // 完成回调
-  onProgress?: (time, duration) => void;  // 进度回调
-  progressInterval?: number;      // 进度更新间隔（默认 100ms）
+  recording: RecordingData; // 录制数据
+  playbackSpeed?: number; // 播放速度（默认 1.0）
+  onEvent?: (event, time) => void; // 事件回调
+  onComplete?: () => void; // 完成回调
+  onProgress?: (time, duration) => void; // 进度回调
+  progressInterval?: number; // 进度更新间隔（默认 100ms）
 }
 ```
 
 **方法**:
+
 - `play()` - 开始播放
 - `pause()` - 暂停播放
 - `resume()` - 恢复播放
@@ -482,13 +486,14 @@ interface PlayerOptions {
 
 ```typescript
 interface RecordingData {
-  id: string;                     // 录制 ID
-  textSource: TextSource;         // 文本源
-  events: TypingEvent[];          // 事件序列
-  startTime: number;              // 开始时间（Unix 时间戳）
-  endTime: number;                // 结束时间
-  finalStats?: StatsSnapshot;     // 最终统计
-  metadata?: {                    // 元数据
+  id: string; // 录制 ID
+  textSource: TextSource; // 文本源
+  events: TypingEvent[]; // 事件序列
+  startTime: number; // 开始时间（Unix 时间戳）
+  endTime: number; // 结束时间
+  finalStats?: StatsSnapshot; // 最终统计
+  metadata?: {
+    // 元数据
     version?: string;
     userAgent?: string;
     duration?: number;
@@ -544,6 +549,7 @@ interface RecordingData {
 ## 完整示例
 
 参考文件：
+
 - `/packages/pitype-core/src/recorder.ts` - 录制器实现
 - `/packages/pitype-core/src/player.ts` - 播放器实现
 - `/packages/pitype-core/src/sessionRuntime.ts` - SessionRuntime 集成
