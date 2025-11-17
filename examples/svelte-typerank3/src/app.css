@@ -142,7 +142,7 @@ body {
     flex-shrink: 0;
 }
 
-.text-container {
+.pitype-text-container {
     flex: 1;
     overflow-y: auto;
     position: relative;
@@ -154,15 +154,15 @@ body {
 }
 
 /* 隐藏WebKit浏览器中的滚动条 */
-.text-container::-webkit-scrollbar {
+.pitype-text-container::-webkit-scrollbar {
     width: 0;
     height: 0;
     display: none; /* 完全隐藏滚动条 */
 }
 
 /* 移除滚动条轨道和滑块样式 */
-.text-container::-webkit-scrollbar-track,
-.text-container::-webkit-scrollbar-thumb {
+.pitype-text-container::-webkit-scrollbar-track,
+.pitype-text-container::-webkit-scrollbar-thumb {
     display: none;
     background: transparent;
 }
@@ -344,7 +344,7 @@ body {
         min-width: auto;
     }
     
-    .text-container {
+    .pitype-text-container {
         padding: 0 15px;
         margin-bottom: 10px;
     }

@@ -110,7 +110,7 @@ export class AppComponent implements AfterViewInit, OnDestroy {
   }
 
   private initializeDemo(): void {
-    this.textContainer = document.querySelector('.text-container') as HTMLElement | null;
+    this.textContainer = document.querySelector('.pitype-text-container') as HTMLElement | null;
     this.textDisplay = document.getElementById('text-display');
     this.resultModal = document.getElementById('result-modal');
     const restartBtn = document.getElementById('restart-btn');
@@ -327,7 +327,7 @@ export class AppComponent implements AfterViewInit, OnDestroy {
   private createCursor(): void {
     if (!this.textDisplay) return;
     this.cursor = document.createElement('div');
-    this.cursor.className = 'cursor';
+    this.cursor.className = 'pitype-cursor cursor';
     this.textDisplay.appendChild(this.cursor);
     this.cursorAdapter?.resetAnimation();
 
@@ -336,6 +336,7 @@ export class AppComponent implements AfterViewInit, OnDestroy {
       newInputField.type = 'text';
       newInputField.id = 'input-field';
       newInputField.setAttribute('autofocus', '');
+      newInputField.classList.add('pitype-input');
       this.textDisplay.appendChild(newInputField);
 
       this.inputField = newInputField;

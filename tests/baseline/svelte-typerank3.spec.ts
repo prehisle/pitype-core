@@ -14,7 +14,7 @@ test.describe('svelte-typerank3 baseline', () => {
       const originalScrollTo = Element.prototype.scrollTo;
       window.__scrollEvents = [];
       Element.prototype.scrollTo = function (...args) {
-        if (this.classList && this.classList.contains('text-container')) {
+        if (this.classList && this.classList.contains('pitype-text-container')) {
           window.__scrollEvents.push(args[0]);
         }
         if (originalScrollTo) {
@@ -40,8 +40,8 @@ test.describe('svelte-typerank3 baseline', () => {
 
   test('完成英文练习后可查看结果', async ({ page }) => {
     await page.goto('/');
-    await page.waitForSelector('#text-display span');
-    await page.click('#text-display');
+    await page.waitForSelector('.pitype-text-display span');
+    await page.click('.pitype-text-display');
     await page.keyboard.type(SAMPLE_TEXT);
     await expect(page.locator('#result-modal')).toBeVisible();
     await expect(page.locator('#final-accuracy')).toHaveText('100%');
@@ -59,8 +59,8 @@ test.describe('svelte-typerank3 baseline', () => {
     expect(textIndex).toBeGreaterThanOrEqual(0);
 
     await page.goto(`/?text=${textIndex}`);
-    await page.waitForSelector('#text-display span');
-    await page.click('#text-display');
+    await page.waitForSelector('.pitype-text-display span');
+    await page.click('.pitype-text-display');
     await page.keyboard.type(SAMPLE_TEXT_CN);
 
     await expect(page.locator('#result-modal')).toBeVisible();
@@ -70,8 +70,8 @@ test.describe('svelte-typerank3 baseline', () => {
 
   test('输入错误并撤回后准确率恢复', async ({ page }) => {
     await page.goto('/');
-    await page.waitForSelector('#text-display span');
-    await page.click('#text-display');
+    await page.waitForSelector('.pitype-text-display span');
+    await page.click('.pitype-text-display');
 
     await page.keyboard.type('T');
     await page.keyboard.type('x');
@@ -84,7 +84,7 @@ test.describe('svelte-typerank3 baseline', () => {
 
   test('语言切换会更新文案', async ({ page }) => {
     await page.goto('/');
-    const englishButton = page.locator('.language-option[data-lang="en-US"]');
+    const englishButton = page.locator('.pitype-language-option[data-lang="en-US"]');
     await englishButton.click();
     await expect(englishButton).toHaveClass(/active/);
     await expect(page.locator('.stat-item:nth-child(2)')).toContainText('Accuracy');
@@ -92,7 +92,7 @@ test.describe('svelte-typerank3 baseline', () => {
 
   test('主题切换会添加主题类名', async ({ page }) => {
     await page.goto('/');
-    const nordButton = page.locator('.theme-option[data-theme="nord"]');
+    const nordButton = page.locator('.pitype-theme-option[data-theme="nord"]');
     await nordButton.click();
     await expect(page.locator('body')).toHaveClass(/theme-nord/);
   });
@@ -100,18 +100,18 @@ test.describe('svelte-typerank3 baseline', () => {
   test('移动端视口会触发滚动', async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 667 });
     await page.goto('/?text=3');
-    await page.waitForSelector('.text-container');
+    await page.waitForSelector('.pitype-text-container');
     await page.addStyleTag({
-      content: '.text-container { height: 150px !important; max-height: 150px !important; }'
+      content: '.pitype-text-container { height: 150px !important; max-height: 150px !important; }'
     });
-    await page.waitForSelector('#text-display span');
-    await page.click('#text-display');
+    await page.waitForSelector('.pitype-text-display span');
+    await page.click('.pitype-text-display');
     await page.keyboard.type(SAMPLE_TEXT_CN);
     await expect
       .poll(
         async () =>
           page.evaluate(() => {
-            const el = document.querySelector('.text-container');
+            const el = document.querySelector('.pitype-text-container');
             return el ? el.scrollHeight - el.clientHeight : 0;
           }),
         { timeout: 15000 }

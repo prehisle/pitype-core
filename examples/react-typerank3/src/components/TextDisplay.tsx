@@ -151,8 +151,8 @@ export function TextDisplay({
   }, [focusInput]);
 
   return (
-    <div ref={textContainerRef} className="text-container" onClick={handleContainerClick}>
-      <div ref={textDisplayRef} id="text-display" />
+    <div ref={textContainerRef} className="pitype-text-container" onClick={handleContainerClick}>
+      <div ref={textDisplayRef} id="text-display" className="pitype-text-display" />
       <Cursor ref={cursorRef} visible={initialized} />
       <InputField ref={inputRef} />
     </div>

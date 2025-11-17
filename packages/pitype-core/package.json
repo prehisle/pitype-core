@@ -11,8 +11,16 @@
     ".": {
       "import": "./dist/index.js",
       "types": "./dist/index.d.ts"
-    }
+    },
+    "./styles/pitype-core.css": "./styles/pitype-core.css",
+    "./cursor-styles.css": "./cursor-styles.css"
   },
+  "files": [
+    "dist",
+    "styles",
+    "cursor-styles.css",
+    "README.md"
+  ],
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
     "watch": "tsc -w -p tsconfig.build.json --preserveWatchOutput false"

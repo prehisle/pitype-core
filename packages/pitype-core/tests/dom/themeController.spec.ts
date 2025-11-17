@@ -60,7 +60,7 @@ class FakeDocument {
   constructor(private nodes: FakeElement[]) {}
 
   querySelectorAll(selector: string) {
-    if (selector === '.theme-option') {
+    if (selector.includes('.pitype-theme-option')) {
       return this.nodes;
     }
     return [];
@@ -98,6 +98,7 @@ describe('createDomThemeController', () => {
     controller.init();
 
     expect(body.classList.contains('theme-nord')).toBe(true);
+    expect(body.classList.contains('pitype-theme-nord')).toBe(true);
     expect(options[1].classList.contains('active')).toBe(true);
   });
 
@@ -120,6 +121,7 @@ describe('createDomThemeController', () => {
 
     expect(storage.getItem('theme')).toBe('nord');
     expect(body.classList.contains('theme-nord')).toBe(true);
+    expect(body.classList.contains('pitype-theme-nord')).toBe(true);
     expect(options[1].classList.contains('active')).toBe(true);
   });
 

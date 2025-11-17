@@ -16,7 +16,7 @@ let currentText = '';
 let cursor = null;
 let currentSource = null;
 let inputField = null; // 将在创建时获取引用
-const textContainer = document.querySelector('.text-container');
+const textContainer = document.querySelector('.pitype-text-container');
 const textDisplay = document.getElementById('text-display');
 // 移除初始引用，因为元素将被动态创建
 // const inputField = document.getElementById('input-field');
@@ -150,7 +150,7 @@ localeHelpers.refreshLocaleText();
 function createCursor() {
   // 创建光标
   cursor = document.createElement('div');
-  cursor.className = 'cursor';
+  cursor.className = 'pitype-cursor cursor';
   textDisplay.appendChild(cursor);
   cursorAdapter.resetAnimation();
 
@@ -160,6 +160,7 @@ function createCursor() {
     newInputField.type = 'text';
     newInputField.id = 'input-field';
     newInputField.setAttribute('autofocus', '');
+    newInputField.classList.add('pitype-input');
     textDisplay.appendChild(newInputField);
 
     inputField = newInputField;

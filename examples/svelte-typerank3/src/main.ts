@@ -1,3 +1,4 @@
+import 'pitype-core/styles/pitype-core.css';
 import './app.css';
 import App from './App.svelte';
 import { texts } from './texts';

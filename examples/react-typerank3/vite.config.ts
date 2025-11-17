@@ -25,8 +25,19 @@ export default defineConfig({
     exclude: ['pitype-core']
   },
   resolve: {
-    alias: {
-      'pitype-core': resolve(__dirname, '../../packages/pitype-core/dist/index.js')
-    }
+    alias: [
+      {
+        find: /^pitype-core\/styles\/(.*)$/,
+        replacement: resolve(__dirname, '../../packages/pitype-core/styles/$1')
+      },
+      {
+        find: 'pitype-core/styles',
+        replacement: resolve(__dirname, '../../packages/pitype-core/styles')
+      },
+      {
+        find: 'pitype-core',
+        replacement: resolve(__dirname, '../../packages/pitype-core/dist/index.js')
+      }
+    ]
   }
 });

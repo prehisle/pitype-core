@@ -26,7 +26,7 @@ export function createDomThemeController(
     options.documentRef ?? (typeof document !== 'undefined' ? document : undefined);
   const storage: StorageLike | undefined =
     options.storage ?? (typeof localStorage !== 'undefined' ? localStorage : undefined);
-  const selector = options.selector ?? '.theme-option';
+  const selector = options.selector ?? '.pitype-theme-option, .theme-option';
   const target = options.target ?? (typeof document !== 'undefined' ? document.body : undefined);
 
   const themes = normalizeThemes(options.themes);
@@ -57,9 +57,9 @@ export function createDomThemeController(
     const normalized = isValidTheme(theme, themes) ? theme : defaultTheme;
 
     if (target?.classList) {
-      themes.forEach((name) => target.classList!.remove(`theme-${name}`));
+      themes.forEach((name) => target.classList!.remove(`theme-${name}`, `pitype-theme-${name}`));
       if (normalized !== defaultTheme) {
-        target.classList.add(`theme-${normalized}`);
+        target.classList.add(`theme-${normalized}`, `pitype-theme-${normalized}`);
       }
     }
 

@@ -231,23 +231,23 @@ export function updatePageText(): void {
   }
 
   // 更新统计标签
-  const accuracyLabel = document.querySelector('.stat-item:nth-child(2)');
+  const accuracyLabel = document.querySelector('.pitype-stat-item:nth-child(2)');
   if (accuracyLabel) {
-    accuracyLabel.innerHTML = `${getText('ui.statsLabels.accuracy')} <span id="accuracy" class="stat-value">100%</span>`;
+    accuracyLabel.innerHTML = `${getText('ui.statsLabels.accuracy')} <span id="accuracy" class="pitype-stat-value stat-value">100%</span>`;
   }
 
-  const timeLabel = document.querySelector('.stat-item:nth-child(3)');
+  const timeLabel = document.querySelector('.pitype-stat-item:nth-child(3)');
   if (timeLabel) {
-    timeLabel.innerHTML = `${getText('ui.statsLabels.time')} <span id="time" class="stat-value">0000.0${getText('ui.statsLabels.seconds')}</span>`;
+    timeLabel.innerHTML = `${getText('ui.statsLabels.time')} <span id="time" class="pitype-stat-value stat-value">0000.0${getText('ui.statsLabels.seconds')}</span>`;
   }
 
-  const charCountLabel = document.querySelector('.stat-item:nth-child(4)');
+  const charCountLabel = document.querySelector('.pitype-stat-item:nth-child(4)');
   if (charCountLabel) {
-    charCountLabel.innerHTML = `${getText('ui.statsLabels.charCount')} <span id="char-count" class="stat-value">0</span>`;
+    charCountLabel.innerHTML = `${getText('ui.statsLabels.charCount')} <span id="char-count" class="pitype-stat-value stat-value">0</span>`;
   }
 
   // 更新CPM文本
-  const cpmLabel = document.querySelector('.info-text');
+  const cpmLabel = document.querySelector('.pitype-info-text');
   if (cpmLabel) {
     cpmLabel.textContent = getText('ui.statsLabels.cpm');
   }
@@ -258,7 +258,7 @@ export function updatePageText(): void {
     resultTitle.innerHTML = `<i class="fas fa-trophy"></i> ${getText('ui.results.completed')}`;
   }
 
-  const resultLabels = document.querySelectorAll('#result-modal .stat-label');
+  const resultLabels = document.querySelectorAll('#result-modal .pitype-stat-label');
   if (resultLabels.length >= 6) {
     resultLabels[0].innerHTML = `<i class="fas fa-clock"></i> ${getText('ui.results.totalTime')}`;
     resultLabels[3].innerHTML = `<i class="fas fa-check-circle"></i> ${getText('ui.results.accuracy')}`;
@@ -287,7 +287,7 @@ export function updatePageText(): void {
   }
 
   // 更新页脚文本
-  const footer = document.querySelector('.footer .copyright');
+  const footer = document.querySelector('.pitype-footer .copyright');
   if (footer) {
     footer.textContent = getText('ui.footer.copyright');
   }
@@ -301,7 +301,7 @@ function updateElementsWithDataLang(): void {
     if (!key) return;
 
     // 检查是否是语言选择器按钮
-    if (element.classList.contains('language-option') && languages[key]) {
+    if (element.classList.contains('pitype-language-option') && languages[key]) {
       // 对于语言选择器按钮，使用短代码
       element.textContent = languages[key].shortCode;
     } else {
@@ -313,7 +313,7 @@ function updateElementsWithDataLang(): void {
 
 // 更新主题选择器的工具提示
 function updateThemeTooltips(): void {
-  const themeOptions = document.querySelectorAll('.theme-option');
+  const themeOptions = document.querySelectorAll('.pitype-theme-option');
   themeOptions.forEach((option) => {
     const theme = option.getAttribute('data-theme');
     if (theme) {

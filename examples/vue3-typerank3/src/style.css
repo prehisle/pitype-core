@@ -133,7 +133,7 @@ select option:checked {
   min-height: 320px;
 }
 
-.text-display {
+.pitype-text-display {
   position: relative;
   min-height: 240px;
   font-family: 'Consolas', 'Courier New', monospace;
@@ -150,13 +150,13 @@ select option:checked {
   text-align: left;
 }
 
-.text-display.hidden {
+.pitype-text-display.hidden {
   visibility: hidden;
   pointer-events: none;
 }
 
 /* 确保所有span内字符高度一致，防止输入状态变化导致位置变化 */
-.text-display span {
+.pitype-text-display span {
   line-height: 1.5;
   vertical-align: baseline;
   display: inline-block;

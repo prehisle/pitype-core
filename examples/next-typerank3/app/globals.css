@@ -1,3 +1,5 @@
+@import 'pitype-core/styles/pitype-core.css';
+
 * {
     margin: 0;
     padding: 0;
@@ -142,7 +144,7 @@ body {
     flex-shrink: 0;
 }
 
-.text-container {
+.pitype-text-container {
     flex: 1;
     overflow-y: auto;
     position: relative;
@@ -154,20 +156,20 @@ body {
 }
 
 /* 隐藏WebKit浏览器中的滚动条 */
-.text-container::-webkit-scrollbar {
+.pitype-text-container::-webkit-scrollbar {
     width: 0;
     height: 0;
     display: none; /* 完全隐藏滚动条 */
 }
 
 /* 移除滚动条轨道和滑块样式 */
-.text-container::-webkit-scrollbar-track,
-.text-container::-webkit-scrollbar-thumb {
+.pitype-text-container::-webkit-scrollbar-track,
+.pitype-text-container::-webkit-scrollbar-thumb {
     display: none;
     background: transparent;
 }
 
-#text-display {
+.pitype-text-display {
     font-family: 'Consolas', 'Courier New', monospace;
     font-size: 22px;
     line-height: 1.5;
@@ -188,7 +190,7 @@ body {
 }
 
 /* 确保所有span内字符高度一致，防止输入状态变化导致位置变化 */
-#text-display span {
+.pitype-text-display span {
     line-height: 1.5;
     vertical-align: baseline;
     display: inline-block;
@@ -344,7 +346,7 @@ body {
         min-width: auto;
     }
     
-    .text-container {
+    .pitype-text-container {
         padding: 0 15px;
         margin-bottom: 10px;
     }

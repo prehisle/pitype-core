@@ -22,7 +22,7 @@ export function initTyperank3Demo(): void {
     return;
   }
 
-  const textContainer = document.querySelector('.text-container') as HTMLElement | null;
+  const textContainer = document.querySelector('.pitype-text-container') as HTMLElement | null;
   const textDisplay = document.getElementById('text-display') as HTMLElement | null;
   const resultModal = document.getElementById('result-modal') as HTMLElement | null;
   const restartBtn = document.getElementById('restart-btn') as HTMLElement | null;
@@ -170,8 +170,9 @@ export function initTyperank3Demo(): void {
   localeHelpers.refreshLocaleText();
 
   function createCursor(): void {
+    if (!textDisplay) return;
     cursor = document.createElement('div');
-    cursor.className = 'cursor';
+    cursor.className = 'pitype-cursor cursor';
     textDisplay.appendChild(cursor);
     cursorAdapter.resetAnimation();
 
@@ -180,6 +181,7 @@ export function initTyperank3Demo(): void {
       newInputField.type = 'text';
       newInputField.id = 'input-field';
       newInputField.setAttribute('autofocus', '');
+      newInputField.classList.add('pitype-input');
       textDisplay.appendChild(newInputField);
 
       inputField = newInputField;
@@ -253,7 +255,9 @@ export function initTyperank3Demo(): void {
       });
     });
 
-    resultModal.style.display = 'none';
+    if (resultModal) {
+      resultModal.style.display = 'none';
+    }
   }
 
   function showResults(snapshot?: StatsSnapshot | null): void {

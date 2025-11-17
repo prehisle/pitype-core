@@ -204,10 +204,19 @@ export function createDomCursorAdapter(options: DomCursorAdapterOptions): DomCur
   // 应用光标外观样式
   function applyCursorStyle(cursor: HTMLElement): void {
     // 移除所有形状类
-    cursor.classList.remove('cursor-block', 'cursor-line', 'cursor-underline', 'cursor-outline');
+    cursor.classList.remove(
+      'pitype-cursor-block',
+      'pitype-cursor-line',
+      'pitype-cursor-underline',
+      'pitype-cursor-outline',
+      'cursor-block',
+      'cursor-line',
+      'cursor-underline',
+      'cursor-outline'
+    );
 
     // 添加当前形状类
-    cursor.classList.add(`cursor-${currentCursorShape}`);
+    cursor.classList.add(`pitype-cursor-${currentCursorShape}`, `cursor-${currentCursorShape}`);
 
     // 应用自定义颜色
     if (currentCursorColor) {
@@ -224,7 +233,7 @@ export function createDomCursorAdapter(options: DomCursorAdapterOptions): DomCur
 
     // 应用闪烁效果
     if (currentCursorBlinkEnabled) {
-      cursor.style.animation = `cursor-blink ${cursorBlinkRate}ms step-end infinite`;
+      cursor.style.animation = `pitype-cursor-blink ${cursorBlinkRate}ms step-end infinite`;
     } else {
       cursor.style.animation = '';
     }
@@ -362,8 +371,8 @@ export function createDomCursorAdapter(options: DomCursorAdapterOptions): DomCur
       input
     );
 
-    if (!cursor.classList.contains('cursor-visible')) {
-      cursor.classList.add('cursor-visible');
+    if (!cursor.classList.contains('pitype-cursor-visible')) {
+      cursor.classList.add('pitype-cursor-visible', 'cursor-visible');
     }
 
     const previousCursorY = lastCursorY;

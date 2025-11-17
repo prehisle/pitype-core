@@ -23,7 +23,7 @@ export function initLanguageSelector({
     ? (window as WindowWithHelpers).updatePageText
     : undefined
 }: LanguageSelectorOptions = {}): void {
-  const options = document.querySelectorAll('.language-option');
+  const options = document.querySelectorAll('.pitype-language-option');
   if (!options.length) return;
 
   const safeApplyLanguage = typeof applyLanguage === 'function' ? applyLanguage : () => {};

@@ -25,9 +25,20 @@ export default defineConfig({
     exclude: ['pitype-core']
   },
   resolve: {
-    alias: {
-      // 直接指向 pitype-core 的构建输出
-      'pitype-core': resolve(__dirname, '../../packages/pitype-core/dist/index.js')
-    }
+    alias: [
+      {
+        find: /^pitype-core\/styles\/(.*)$/,
+        replacement: resolve(__dirname, '../../packages/pitype-core/styles/$1')
+      },
+      {
+        find: 'pitype-core/styles',
+        replacement: resolve(__dirname, '../../packages/pitype-core/styles')
+      },
+      {
+        // 直接指向 pitype-core 的构建输出
+        find: 'pitype-core',
+        replacement: resolve(__dirname, '../../packages/pitype-core/dist/index.js')
+      }
+    ]
   }
 });

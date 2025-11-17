@@ -21,7 +21,7 @@ export default defineConfig({
   projects: [
     {
       name: 'typerank3-chromium',
-      testMatch: /typerank3\.spec\.ts/,
+      testMatch: /\/typerank3\.spec\.ts$/,
       use: {
         ...devices['Desktop Chrome'],
         baseURL: 'http://127.0.0.1:4173'
@@ -29,7 +29,7 @@ export default defineConfig({
     },
     {
       name: 'svelte-typerank3-chromium',
-      testMatch: /svelte-typerank3\.spec\.ts/,
+      testMatch: /\/svelte-typerank3\.spec\.ts$/,
       use: {
         ...devices['Desktop Chrome'],
         baseURL: 'http://127.0.0.1:5175'

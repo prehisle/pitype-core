@@ -142,6 +142,7 @@ body {
     flex-shrink: 0;
 }
 
+.pitype-text-container,
 .text-container {
     flex: 1;
     overflow-y: auto;
@@ -154,6 +155,7 @@ body {
 }
 
 /* 隐藏WebKit浏览器中的滚动条 */
+.pitype-text-container::-webkit-scrollbar,
 .text-container::-webkit-scrollbar {
     width: 0;
     height: 0;
@@ -161,12 +163,15 @@ body {
 }
 
 /* 移除滚动条轨道和滑块样式 */
+.pitype-text-container::-webkit-scrollbar-track,
+.pitype-text-container::-webkit-scrollbar-thumb,
 .text-container::-webkit-scrollbar-track,
 .text-container::-webkit-scrollbar-thumb {
     display: none;
     background: transparent;
 }
 
+.pitype-text-display,
 #text-display {
     font-family: 'Consolas', 'Courier New', monospace;
     font-size: 22px;
@@ -188,6 +193,7 @@ body {
 }
 
 /* 确保所有span内字符高度一致，防止输入状态变化导致位置变化 */
+.pitype-text-display span,
 #text-display span {
     line-height: 1.5;
     vertical-align: baseline;
@@ -344,12 +350,12 @@ body {
         min-width: auto;
     }
     
-    .text-container {
+    .pitype-text-container {
         padding: 0 15px;
         margin-bottom: 10px;
     }
     
-    #text-display {
+    .pitype-text-display {
         font-size: 18px;
         padding: 10px;
     }

@@ -15,6 +15,51 @@
 npm install pitype-core
 ```
 
+## 样式与主题（可选）
+
+引擎保持 headless，但提供一份可选的基础样式与主题变量：
+
+```ts
+// 在你的入口文件中按需引入（支持 ESM）
+import 'pitype-core/styles/pitype-core.css';
+```
+
+- 核心结构/状态类统一使用 `pitype-` 前缀（`.pitype-text-container`、`.pitype-text-display`、`.pitype-cursor-visible`、`.pitype-input` 等）。`createDomTextRenderer`、`createDomInputController` 不强制添加类名，宿主需在对应元素上自行添加。
+- 内置主题变量同样前缀化（如 `--pitype-bg-color`、`--pitype-accent-color`），默认主题：`dracula | serika | botanical | aether | nord`。调用 `createDomThemeController` 时会在目标元素上添加 `pitype-theme-<name>`（兼容旧的 `theme-<name>`）。
+- 可通过覆盖 `--pitype-*` 变量或新增 `.pitype-theme-yourbrand { ... }` 并传入 `themes` 配置扩展自定义配色。
+- 如果你在本仓库内开发 demo，需为打包器提供样式解析别名：
+  - **Vite**（React/TS/Vue），示例：
+    ```ts
+    resolve: {
+      alias: [
+        {
+          find: /^pitype-core\/styles\/(.*)$/,
+          replacement: path.resolve(__dirname, '../../packages/pitype-core/styles/$1')
+        },
+        {
+          find: 'pitype-core/styles',
+          replacement: path.resolve(__dirname, '../../packages/pitype-core/styles')
+        },
+        {
+          find: 'pitype-core',
+          replacement: path.resolve(__dirname, '../../packages/pitype-core/dist/index.js')
+        }
+      ];
+    }
+    ```
+  - **Next.js**，在 `next.config.mjs` 的 `webpack` 中添加：
+    ```js
+    config.resolve.alias['pitype-core/styles'] = path.resolve(
+      __dirname,
+      '../../packages/pitype-core/styles'
+    );
+    config.resolve.alias['pitype-core'] = path.resolve(
+      __dirname,
+      '../../packages/pitype-core/dist/index.js'
+    );
+    ```
+    这样本地示例可直接 `import 'pitype-core/styles/pitype-core.css'`，无需发布到 NPM。
+
 ## 核心模块
 
 ### 文本处理

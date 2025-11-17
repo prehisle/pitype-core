@@ -71,8 +71,8 @@ export default function TypeRank3Page() {
             字符数: <span id="char-count" className="stat-value">0</span>
           </div>
         </div>
-        <div className="text-container">
-          <div id="text-display" />
+        <div className="pitype-text-container">
+          <div id="text-display" className="pitype-text-display" />
         </div>
         <div className="footer">
           <span className="copyright">© 2025 TypeFree - 自由无感提升输入效率</span>

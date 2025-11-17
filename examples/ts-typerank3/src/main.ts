@@ -1,3 +1,4 @@
+import 'pitype-core/styles/pitype-core.css';
 import {
   createSessionRuntime,
   createTextSource,
@@ -19,7 +20,7 @@ let currentText = '';
 let cursor: HTMLElement | null = null;
 let inputField: HTMLInputElement | null = null;
 
-const textContainer = document.querySelector('.text-container') as HTMLElement;
+const textContainer = document.querySelector('.pitype-text-container') as HTMLElement;
 const textDisplay = document.getElementById('text-display') as HTMLElement;
 const resultModal = document.getElementById('result-modal') as HTMLElement;
 const restartBtn = document.getElementById('restart-btn') as HTMLElement;
@@ -158,7 +159,7 @@ localeHelpers.refreshLocaleText();
 function createCursor(): void {
   // 创建光标
   cursor = document.createElement('div');
-  cursor.className = 'cursor';
+  cursor.className = 'pitype-cursor cursor';
   textDisplay.appendChild(cursor);
   cursorAdapter.resetAnimation();
 
@@ -168,6 +169,7 @@ function createCursor(): void {
     newInputField.type = 'text';
     newInputField.id = 'input-field';
     newInputField.setAttribute('autofocus', '');
+    newInputField.classList.add('pitype-input');
     textDisplay.appendChild(newInputField);
 
     inputField = newInputField;

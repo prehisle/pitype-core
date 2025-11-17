@@ -41,8 +41,8 @@ test.describe('typerank3 baseline', () => {
   test('user can complete default exercise with perfect accuracy', async ({ page }) => {
     await page.goto('/index.html');
 
-    await page.waitForSelector('#text-display span');
-    await page.click('#text-display');
+    await page.waitForSelector('.pitype-text-display span');
+    await page.click('.pitype-text-display');
     await page.keyboard.type(SAMPLE_TEXT);
 
     const modal = page.locator('#result-modal');
@@ -63,8 +63,8 @@ test.describe('typerank3 baseline', () => {
     expect(textIndex).toBeGreaterThanOrEqual(0);
 
     await page.goto(`/index.html?text=${textIndex}`);
-    await page.waitForSelector('#text-display span');
-    await page.click('#text-display');
+    await page.waitForSelector('.pitype-text-display span');
+    await page.click('.pitype-text-display');
     await page.keyboard.type(SAMPLE_TEXT_CN);
 
     const modal = page.locator('#result-modal');
@@ -75,8 +75,8 @@ test.describe('typerank3 baseline', () => {
 
   test('用户输入错误并撤销后统计恢复', async ({ page }) => {
     await page.goto('/index.html');
-    await page.waitForSelector('#text-display span');
-    await page.click('#text-display');
+    await page.waitForSelector('.pitype-text-display span');
+    await page.click('.pitype-text-display');
 
     await page.keyboard.type('T'); // correct
     await page.keyboard.type('x'); // incorrect
@@ -110,8 +110,8 @@ test.describe('typerank3 baseline', () => {
     await page.addStyleTag({
       content: '.text-container { height: 150px !important; max-height: 150px !important; }'
     });
-    await page.waitForSelector('#text-display span');
-    await page.click('#text-display');
+    await page.waitForSelector('.pitype-text-display span');
+    await page.click('.pitype-text-display');
     await page.keyboard.type(SAMPLE_TEXT_CN);
     await expect
       .poll(

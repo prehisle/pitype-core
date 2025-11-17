@@ -198,10 +198,12 @@ describe('createDomCursorAdapter', () => {
 
       adapter.setCursorShape('line');
       expect(adapter.getCursorShape()).toBe('line');
+      expect(cursor.classList.contains('pitype-cursor-line')).toBe(true);
       expect(cursor.classList.contains('cursor-line')).toBe(true);
 
       adapter.setCursorShape('block');
       expect(adapter.getCursorShape()).toBe('block');
+      expect(cursor.classList.contains('pitype-cursor-block')).toBe(true);
       expect(cursor.classList.contains('cursor-block')).toBe(true);
 
       adapter.setCursorShape('underline');
@@ -252,7 +254,7 @@ describe('createDomCursorAdapter', () => {
 
       adapter.setCursorBlink(true);
       expect(adapter.getCursorBlink()).toBe(true);
-      expect(cursor.style.animation).toContain('cursor-blink');
+      expect(cursor.style.animation).toContain('pitype-cursor-blink');
 
       adapter.setCursorBlink(false);
       expect(adapter.getCursorBlink()).toBe(false);

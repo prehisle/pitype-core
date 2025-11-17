@@ -89,12 +89,12 @@ export function createDomTextRenderer(
     const ensureWord = (language?: string) => {
       if (!currentWord) {
         currentWord = doc.createElement('span');
-        currentWord.classList.add('word');
+        currentWord.classList.add('pitype-word', 'word');
         if (language === 'english') {
-          currentWord.classList.add('english-word');
+          currentWord.classList.add('pitype-english-word', 'english-word');
         }
         if (language === 'chinese') {
-          currentWord.classList.add('chinese-char');
+          currentWord.classList.add('pitype-chinese-char', 'chinese-char');
         }
         currentWord.dataset.language = language || 'other';
       }
@@ -108,9 +108,9 @@ export function createDomTextRenderer(
       if (token.type === 'newline') {
         flushWord();
         const wrapper = doc.createElement('span');
-        wrapper.classList.add('word');
+        wrapper.classList.add('pitype-word', 'word');
         const lineBreak = doc.createElement('span');
-        lineBreak.classList.add('line-break');
+        lineBreak.classList.add('pitype-line-break', 'line-break');
         lineBreak.setAttribute('data-char', '\n');
         wrapper.appendChild(lineBreak);
         fragment.appendChild(wrapper);
@@ -213,14 +213,17 @@ export function createDomTextRenderer(
   const applySpanState = (index: number, correct: boolean) => {
     const span = getSpanByIndex(index);
     if (!span) return;
-    span.classList.remove('correct', 'incorrect');
-    span.classList.add(correct ? 'correct' : 'incorrect');
+    span.classList.remove('pitype-correct', 'pitype-incorrect', 'correct', 'incorrect');
+    span.classList.add(
+      correct ? 'pitype-correct' : 'pitype-incorrect',
+      correct ? 'correct' : 'incorrect'
+    );
   };
 
   const resetSpanState = (index: number) => {
     const span = getSpanByIndex(index);
     if (!span) return;
-    span.classList.remove('correct', 'incorrect');
+    span.classList.remove('pitype-correct', 'pitype-incorrect', 'correct', 'incorrect');
   };
 
   return {
@@ -235,10 +238,13 @@ export function createDomTextRenderer(
 function createTokenSpan(token: TextToken, doc: Document): HTMLElement {
   if (token.type === 'space') {
     const wrapper = doc.createElement('span');
-    wrapper.classList.add(token.attachToPrevious ? 'no-break' : 'word-space');
+    wrapper.classList.add(
+      token.attachToPrevious ? 'pitype-no-break' : 'pitype-word-space',
+      token.attachToPrevious ? 'no-break' : 'word-space'
+    );
     wrapper.setAttribute('data-char', ' ');
     const inner = doc.createElement('span');
-    inner.classList.add('char-space');
+    inner.classList.add('pitype-char-space', 'char-space');
     inner.innerHTML = '&nbsp;';
     wrapper.appendChild(inner);
     return wrapper;
@@ -249,7 +255,7 @@ function createTokenSpan(token: TextToken, doc: Document): HTMLElement {
     punctuation.setAttribute('data-char', token.char);
     punctuation.textContent = token.char;
     if (token.attachToPrevious) {
-      punctuation.classList.add('no-break');
+      punctuation.classList.add('pitype-no-break', 'no-break');
     }
     return punctuation;
   }
@@ -349,6 +355,6 @@ function evaluateLineBreakDecision(
 }
 
 function applyNoBreak(previousSpan: HTMLElement, currentSpan: HTMLElement): void {
-  previousSpan.classList.add('no-break');
-  currentSpan.classList.add('no-break');
+  previousSpan.classList.add('pitype-no-break', 'no-break');
+  currentSpan.classList.add('pitype-no-break', 'no-break');
 }

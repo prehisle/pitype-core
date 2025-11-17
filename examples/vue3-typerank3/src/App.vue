@@ -199,21 +199,26 @@
       </div>
     </section>
 
-    <section class="text-container" ref="textContainerRef" @click="focusInput">
+    <section class="pitype-text-container" ref="textContainerRef" @click="focusInput">
       <div v-if="initError" class="overlay error-message">
         <i class="fas fa-exclamation-circle" /> {{ initError }}
       </div>
       <div v-else-if="isLoading" class="overlay loading-message">
         <i class="fas fa-spinner fa-spin" /> 加载中...
       </div>
-      <div ref="textDisplayRef" class="text-display" :class="{ hidden: initError || isLoading }">
+      <div
+        ref="textDisplayRef"
+        class="pitype-text-display"
+        :class="{ hidden: initError || isLoading }"
+      >
         <input
           ref="hiddenInputRef"
           id="input-field"
           type="text"
           autocomplete="off"
+          class="pitype-input"
         />
-        <div ref="cursorRef" class="cursor" />
+        <div ref="cursorRef" class="pitype-cursor cursor" />
       </div>
     </section>
 

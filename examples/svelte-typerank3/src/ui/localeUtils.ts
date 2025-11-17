@@ -22,19 +22,19 @@ export function createLocaleHelpers({
   const restartButton = document.getElementById('restart-btn');
 
   const updateStatsPlaceholders = (): void => {
-    const accuracyLabel = document.querySelector('.stat-item:nth-child(2)');
+    const accuracyLabel = document.querySelector('.pitype-stat-item:nth-child(2)');
     if (accuracyLabel) {
-      accuracyLabel.innerHTML = `${safeGetText('ui.statsLabels.accuracy')} <span id="accuracy" class="stat-value">100%</span>`;
+      accuracyLabel.innerHTML = `${safeGetText('ui.statsLabels.accuracy')} <span id="accuracy" class="pitype-stat-value stat-value">100%</span>`;
     }
 
-    const timeLabel = document.querySelector('.stat-item:nth-child(3)');
+    const timeLabel = document.querySelector('.pitype-stat-item:nth-child(3)');
     if (timeLabel) {
-      timeLabel.innerHTML = `${safeGetText('ui.statsLabels.time')} <span id="time" class="stat-value">0000.0${safeGetText('ui.statsLabels.seconds')}</span>`;
+      timeLabel.innerHTML = `${safeGetText('ui.statsLabels.time')} <span id="time" class="pitype-stat-value stat-value">0000.0${safeGetText('ui.statsLabels.seconds')}</span>`;
     }
 
-    const charCountLabel = document.querySelector('.stat-item:nth-child(4)');
+    const charCountLabel = document.querySelector('.pitype-stat-item:nth-child(4)');
     if (charCountLabel) {
-      charCountLabel.innerHTML = `${safeGetText('ui.statsLabels.charCount')} <span id="char-count" class="stat-value">0</span>`;
+      charCountLabel.innerHTML = `${safeGetText('ui.statsLabels.charCount')} <span id="char-count" class="pitype-stat-value stat-value">0</span>`;
     }
   };
 
@@ -44,7 +44,7 @@ export function createLocaleHelpers({
       resultTitle.innerHTML = `<i class="fas fa-trophy"></i> ${safeGetText('ui.results.completed')}`;
     }
 
-    const resultLabels = document.querySelectorAll('#result-modal .stat-label');
+    const resultLabels = document.querySelectorAll('#result-modal .pitype-stat-label');
     if (resultLabels.length >= 6) {
       resultLabels[0].innerHTML = `<i class="fas fa-clock"></i> ${safeGetText('ui.results.totalTime')}`;
       resultLabels[3].innerHTML = `<i class="fas fa-check-circle"></i> ${safeGetText('ui.results.accuracy')}`;
@@ -76,21 +76,21 @@ export function createLocaleHelpers({
   };
 
   const updateCpmLabel = (): void => {
-    const cpmLabel = document.querySelector('.info-text');
+    const cpmLabel = document.querySelector('.pitype-info-text');
     if (cpmLabel) {
       cpmLabel.textContent = safeGetText('ui.statsLabels.cpm');
     }
   };
 
   const updateFooter = (): void => {
-    const footer = document.querySelector('.footer .copyright');
+    const footer = document.querySelector('.pitype-footer .copyright');
     if (footer) {
       footer.textContent = safeGetText('ui.footer.copyright');
     }
   };
 
   const updateThemeTooltips = (): void => {
-    const themeOptions = document.querySelectorAll('.theme-option');
+    const themeOptions = document.querySelectorAll('.pitype-theme-option');
     themeOptions.forEach((option) => {
       const theme = option.getAttribute('data-theme');
       if (theme) {

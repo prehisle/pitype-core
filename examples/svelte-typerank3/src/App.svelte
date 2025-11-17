@@ -67,7 +67,7 @@
     if (!textDisplayRef) return;
 
     cursor = document.createElement('div');
-    cursor.className = 'cursor';
+    cursor.className = 'pitype-cursor cursor';
     textDisplayRef.appendChild(cursor);
     cursorAdapter?.resetAnimation();
 
@@ -76,6 +76,7 @@
       newInputField.type = 'text';
       newInputField.id = 'input-field';
       newInputField.setAttribute('autofocus', '');
+      newInputField.classList.add('pitype-input');
       textDisplayRef.appendChild(newInputField);
 
       inputField = newInputField;
@@ -330,23 +331,55 @@
   });
 </script>
 
-<div class="container">
-  <div class="header">
-    <h1>TypeFree <span class="version">v0.1.21-svelte</span></h1>
-    <div class="controls">
-      <div class="selector-container">
-        <div class="language-selector">
-          <div class="language-option lang-zh-CN active" data-lang="zh-CN" title="简体中文">CN</div>
-          <div class="language-option lang-zh-TW" data-lang="zh-TW" title="繁體中文">TW</div>
-          <div class="language-option lang-en-US" data-lang="en-US" title="English">EN</div>
+<div class="pitype-container container">
+  <div class="pitype-header header">
+    <h1>TypeFree <span class="pitype-version version">v0.1.21-svelte</span></h1>
+    <div class="pitype-controls controls">
+      <div class="pitype-selector-container selector-container">
+        <div class="pitype-language-selector language-selector">
+          <div
+            class="pitype-language-option language-option pitype-lang-zh-CN lang-zh-CN active"
+            data-lang="zh-CN"
+            title="简体中文"
+          >CN</div>
+          <div
+            class="pitype-language-option language-option pitype-lang-zh-TW lang-zh-TW"
+            data-lang="zh-TW"
+            title="繁體中文"
+          >TW</div>
+          <div
+            class="pitype-language-option language-option pitype-lang-en-US lang-en-US"
+            data-lang="en-US"
+            title="English"
+          >EN</div>
         </div>
-        <div class="selector-divider"></div>
-        <div class="theme-selector">
-          <div class="theme-option theme-dracula active" data-theme="dracula" title="Dracula 主题"></div>
-          <div class="theme-option theme-serika" data-theme="serika" title="Serika 主题"></div>
-          <div class="theme-option theme-botanical" data-theme="botanical" title="Botanical 主题"></div>
-          <div class="theme-option theme-aether" data-theme="aether" title="Aether 主题"></div>
-          <div class="theme-option theme-nord" data-theme="nord" title="Nord 主题"></div>
+        <div class="pitype-selector-divider selector-divider"></div>
+        <div class="pitype-theme-selector theme-selector">
+          <div
+            class="pitype-theme-option pitype-theme-dracula theme-option theme-dracula active"
+            data-theme="dracula"
+            title="Dracula 主题"
+          ></div>
+          <div
+            class="pitype-theme-option pitype-theme-serika theme-option theme-serika"
+            data-theme="serika"
+            title="Serika 主题"
+          ></div>
+          <div
+            class="pitype-theme-option pitype-theme-botanical theme-option theme-botanical"
+            data-theme="botanical"
+            title="Botanical 主题"
+          ></div>
+          <div
+            class="pitype-theme-option pitype-theme-aether theme-option theme-aether"
+            data-theme="aether"
+            title="Aether 主题"
+          ></div>
+          <div
+            class="pitype-theme-option pitype-theme-nord theme-option theme-nord"
+            data-theme="nord"
+            title="Nord 主题"
+          ></div>
         </div>
         <button id="restart-icon" title="重新开始" bind:this={restartIconRef}>
           <i class="fas fa-redo"></i>
@@ -355,52 +388,52 @@
     </div>
   </div>
 
-  <div class="stats">
-    <div class="cpm-container">
-      <span class="cpm-label">
-        <span class="info-text" data-info="cpm" title="点击查看CPM/WPM指标说明">CPM:</span>
+  <div class="pitype-stats stats">
+    <div class="pitype-cpm-container cpm-container">
+      <span class="pitype-cpm-label cpm-label">
+        <span class="pitype-info-text info-text" data-info="cpm" title="点击查看CPM/WPM指标说明">CPM:</span>
       </span>
-      <div class="cpm-values">
-        <span id="cpm" class="cpm-value">0</span>
-        <span id="total-cpm" class="tcpm-value">0</span>
-        <span id="wpm" class="wpm-value">0</span>
+      <div class="pitype-cpm-values cpm-values">
+        <span id="cpm" class="pitype-cpm-value cpm-value">0</span>
+        <span id="total-cpm" class="pitype-tcpm-value tcpm-value">0</span>
+        <span id="wpm" class="pitype-wpm-value wpm-value">0</span>
       </div>
     </div>
-    <div class="stat-item">
-      正确率: <span id="accuracy" class="stat-value">100%</span>
+    <div class="pitype-stat-item stat-item">
+      正确率: <span id="accuracy" class="pitype-stat-value stat-value">100%</span>
     </div>
-    <div class="stat-item">
-      时间: <span id="time" class="stat-value">0000.0秒</span>
+    <div class="pitype-stat-item stat-item">
+      时间: <span id="time" class="pitype-stat-value stat-value">0000.0秒</span>
     </div>
-    <div class="stat-item">
-      字符数: <span id="char-count" class="stat-value">0</span>
+    <div class="pitype-stat-item stat-item">
+      字符数: <span id="char-count" class="pitype-stat-value stat-value">0</span>
     </div>
   </div>
 
-  <div class="text-container" bind:this={textContainerRef}>
-    <div id="text-display" bind:this={textDisplayRef}></div>
+  <div class="pitype-text-container" bind:this={textContainerRef}>
+    <div id="text-display" class="pitype-text-display" bind:this={textDisplayRef}></div>
   </div>
 
-  <div class="footer">
+  <div class="pitype-footer footer">
     <span class="copyright">&copy; 2025 TypeFree - 自由无感提升输入效率</span>
   </div>
 </div>
 
 <div
   id="result-modal"
-  class="modal"
+  class="pitype-modal modal"
   bind:this={resultModalRef}
   style="display: none;"
 >
-  <div class="modal-content">
+  <div class="pitype-modal-content modal-content">
     <h2><i class="fas fa-trophy"></i> 练习完成！</h2>
-    <div class="result-stats">
-      <p><span class="stat-label"><i class="fas fa-clock"></i> 总用时:</span> <span id="final-time"></span></p>
-      <p><span class="stat-label"><i class="fas fa-keyboard"></i> CPM:</span> <span id="final-cpm"></span></p>
-      <p><span class="stat-label"><i class="fas fa-tachometer-alt"></i> 总CPM:</span> <span id="final-total-cpm"></span></p>
-      <p><span class="stat-label"><i class="fas fa-file-word"></i> WPM:</span> <span id="final-wpm"></span></p>
-      <p><span class="stat-label"><i class="fas fa-check-circle"></i> 正确率:</span> <span id="final-accuracy"></span></p>
-      <p><span class="stat-label"><i class="fas fa-font"></i> 总字符数:</span> <span id="final-char-count"></span></p>
+    <div class="pitype-result-stats result-stats">
+      <p><span class="pitype-stat-label stat-label"><i class="fas fa-clock"></i> 总用时:</span> <span id="final-time"></span></p>
+      <p><span class="pitype-stat-label stat-label"><i class="fas fa-keyboard"></i> CPM:</span> <span id="final-cpm"></span></p>
+      <p><span class="pitype-stat-label stat-label"><i class="fas fa-tachometer-alt"></i> 总CPM:</span> <span id="final-total-cpm"></span></p>
+      <p><span class="pitype-stat-label stat-label"><i class="fas fa-file-word"></i> WPM:</span> <span id="final-wpm"></span></p>
+      <p><span class="pitype-stat-label stat-label"><i class="fas fa-check-circle"></i> 正确率:</span> <span id="final-accuracy"></span></p>
+      <p><span class="pitype-stat-label stat-label"><i class="fas fa-font"></i> 总字符数:</span> <span id="final-char-count"></span></p>
     </div>
     <button id="restart-btn" bind:this={restartButtonRef}>
       <i class="fas fa-redo"></i> 重新开始
@@ -410,11 +443,11 @@
 
 <div
   id="info-modal"
-  class="modal"
+  class="pitype-modal modal"
   bind:this={infoModalRef}
   style="display: none;"
 >
-  <div class="modal-content">
+  <div class="pitype-modal-content modal-content">
     <h3 id="info-title" bind:this={infoTitleRef}>指标说明</h3>
     <p id="info-content" bind:this={infoContentRef}></p>
     <button id="info-close-btn" bind:this={infoCloseBtnRef}>关闭</button>
