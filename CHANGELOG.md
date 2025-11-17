@@ -2,6 +2,27 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.0](https://github.com/prehisle/pitype-core/compare/v1.0.0...v1.1.0) (2025-11-17)
+
+### ✨ Features
+
+- add angular demo ([a1376e0](https://github.com/prehisle/pitype-core/commit/a1376e0d75d3ba829ecfab397b9f9253624162cc))
+- add svelte demo baseline ([6437600](https://github.com/prehisle/pitype-core/commit/64376002fed34183a5bb3d2849dfbff99c55dad5))
+- **examples:** add next demo ([51e2e44](https://github.com/prehisle/pitype-core/commit/51e2e44f93a674be31aee7ca2079e4f459c2045a))
+- **examples:** 添加 React 版本的打字练习示例 ([fafbe19](https://github.com/prehisle/pitype-core/commit/fafbe197eeecaa46bd9c940925e797aa5c243694))
+- **pitype-core:** 改进 DomCursorAdapter 的 DOM 结构要求和易用性 ([ff6d0f7](https://github.com/prehisle/pitype-core/commit/ff6d0f70414bb80ff6e558363156960189874df6))
+
+### 🐛 Bug Fixes
+
+- **react-demo:** 修复光标初始位置偏移问题 ([bbcb6f8](https://github.com/prehisle/pitype-core/commit/bbcb6f81b666fbfafecd0c021096efffd56ef5ee))
+- **react-typerank3:** 修复 Hook 依赖问题和输入功能 ([d354385](https://github.com/prehisle/pitype-core/commit/d35438573cf467435e69ea045c625d02432338a9))
+- **react-typerank3:** 修复初始光标位置偏移问题 ([902b1ed](https://github.com/prehisle/pitype-core/commit/902b1ed804134c0c37c89a813a59c885e36dafd7))
+
+### 📝 Documentation
+
+- reorganize contributor guides ([570511e](https://github.com/prehisle/pitype-core/commit/570511e5e01e0ab74c2c830764bd910227d7c01d))
+- 添加 CLAUDE.md 中文指南 ([8a8e54f](https://github.com/prehisle/pitype-core/commit/8a8e54febc0ae42fff0e18a2d42212966e6c2c8d))
+
 ## 1.0.0 (2025-11-16)
 
 ### ✨ Features
