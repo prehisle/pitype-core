@@ -1,0 +1,167 @@
+
+:root {
+  --pitype-bg-color: #282a36;
+  --pitype-container-bg: #333842;
+  --pitype-text-bg: #3a3d4a;
+  --pitype-text-color: #f0f0f0;
+  --pitype-dim-text-color: #d0d0d0;
+  --pitype-accent-color: #6c7cdb;
+  --pitype-correct-color: #50fa7b;
+  --pitype-incorrect-color: #ff5555;
+}
+
+.pitype-theme-serika {
+  --pitype-bg-color: #323437;
+  --pitype-container-bg: #2c2e31;
+  --pitype-text-bg: #2c2e31;
+  --pitype-text-color: #e2b714;
+  --pitype-dim-text-color: #d1d0c5;
+  --pitype-accent-color: #e2b714;
+  --pitype-correct-color: #e2b714;
+  --pitype-incorrect-color: #ca4754;
+}
+
+.pitype-theme-botanical {
+  --pitype-bg-color: #7b9c98;
+  --pitype-container-bg: #1d292c;
+  --pitype-text-bg: #1d292c;
+  --pitype-text-color: #a4b5ae;
+  --pitype-dim-text-color: #a4b5ae;
+  --pitype-accent-color: #eaf1f3;
+  --pitype-correct-color: #93c49e;
+  --pitype-incorrect-color: #dd8294;
+}
+
+.pitype-theme-aether {
+  --pitype-bg-color: #101820;
+  --pitype-container-bg: #15232d;
+  --pitype-text-bg: #15232d;
+  --pitype-text-color: #cf6bdd;
+  --pitype-dim-text-color: #eedeb0;
+  --pitype-accent-color: #7eb2dd;
+  --pitype-correct-color: #95ddb2;
+  --pitype-incorrect-color: #fc719f;
+}
+
+.pitype-theme-nord {
+  --pitype-bg-color: #242933;
+  --pitype-container-bg: #2e3440;
+  --pitype-text-bg: #2e3440;
+  --pitype-text-color: #d8dee9;
+  --pitype-dim-text-color: #d8dee9;
+  --pitype-accent-color: #88c0d0;
+  --pitype-correct-color: #a3be8c;
+  --pitype-incorrect-color: #bf616a;
+}
+
+.pitype-text-container {
+  background-color: var(--pitype-container-bg);
+  border-radius: 8px;
+  padding: 0 20px;
+  position: relative;
+  overflow-y: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.pitype-text-container::-webkit-scrollbar {
+  display: none;
+}
+
+.pitype-text-display {
+  font-family: 'Consolas', 'Courier New', monospace;
+  font-size: 22px;
+  line-height: 1.5;
+  padding: 20px;
+  background-color: var(--pitype-text-bg);
+  color: var(--pitype-dim-text-color);
+  border-radius: 5px;
+  min-height: 100%;
+  word-wrap: break-word;
+  white-space: pre-wrap;
+  text-align: left;
+}
+
+.pitype-text-display span {
+  display: inline-block;
+  line-height: 1.5;
+  vertical-align: baseline;
+}
+
+.pitype-word,
+.pitype-english-word,
+.pitype-chinese-char {
+  display: inline;
+}
+
+.pitype-english-word {
+  white-space: nowrap;
+  word-break: keep-all;
+}
+
+.pitype-line-break::before {
+  content: '↵';
+  opacity: 0.6;
+}
+
+.pitype-word-space,
+.pitype-no-break {
+  display: inline;
+  white-space: nowrap;
+}
+
+.pitype-char-space {
+  display: inline-block;
+  width: 0.6em;
+}
+
+.pitype-incorrect .pitype-char-space {
+  background-color: rgba(255, 85, 85, 0.3);
+  border-radius: 2px;
+}
+
+.pitype-correct {
+  color: var(--pitype-correct-color);
+}
+
+.pitype-incorrect {
+  color: var(--pitype-incorrect-color);
+}
+
+.pitype-cursor {
+  position: absolute;
+  pointer-events: none;
+  border-radius: 2px;
+  border: 2px solid var(--pitype-accent-color);
+  background-color: rgba(108, 124, 219, 0.15);
+  transition: opacity 0.15s ease;
+  opacity: 0;
+}
+
+.pitype-cursor.pitype-cursor-visible {
+  opacity: 1;
+  animation: pitype-cursor-blink 1s step-end infinite;
+}
+
+@keyframes pitype-cursor-blink {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+
+.pitype-input {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 40px;
+  height: 33px;
+  background: transparent;
+  border: none;
+  color: transparent;
+  caret-color: transparent;
+  opacity: 0.01;
+  pointer-events: none;
+}
