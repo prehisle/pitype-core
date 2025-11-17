@@ -3,7 +3,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'TypeFree - 自由无感提升输入速度',
+  title: '[4205] Next.js - TypeFree',
   description: 'pitype-core 提供支持的 TypeRank3 Next.js 示例，完整复刻原生 TS 版本体验。'
 };
 

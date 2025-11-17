@@ -6,7 +6,7 @@ const languages = {
     name: '简体中文',
     htmlLang: 'zh',
     ui: {
-      title: 'TypeFree - 自由无感提升输入速度',
+      title: '[4200] Vanilla JS - TypeFree',
       restart: '重新开始',
       statsLabels: {
         cpm: 'CPM:',
@@ -46,7 +46,7 @@ const languages = {
     name: '繁體中文',
     htmlLang: 'zh-TW',
     ui: {
-      title: 'TypeFree - 自由無感提升輸入速度',
+      title: '[4200] Vanilla JS - TypeFree',
       restart: '重新開始',
       statsLabels: {
         cpm: 'CPM:',
@@ -86,7 +86,7 @@ const languages = {
     name: 'English',
     htmlLang: 'en',
     ui: {
-      title: 'TypeFree - Improve Typing Speed Effortlessly',
+      title: '[4200] Vanilla JS - TypeFree',
       restart: 'Restart',
       statsLabels: {
         cpm: 'CPM:',

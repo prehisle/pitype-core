@@ -49,7 +49,7 @@ const languages: Record<string, Language> = {
     name: '简体中文',
     htmlLang: 'zh',
     ui: {
-      title: 'TypeFree - 自由无感提升输入速度',
+      title: '[4202] TypeScript - TypeFree',
       restart: '重新开始',
       statsLabels: {
         cpm: 'CPM:',
@@ -89,7 +89,7 @@ const languages: Record<string, Language> = {
     name: '繁體中文',
     htmlLang: 'zh-TW',
     ui: {
-      title: 'TypeFree - 自由無感提升輸入速度',
+      title: '[4202] TypeScript - TypeFree',
       restart: '重新開始',
       statsLabels: {
         cpm: 'CPM:',
@@ -129,7 +129,7 @@ const languages: Record<string, Language> = {
     name: 'English',
     htmlLang: 'en',
     ui: {
-      title: 'TypeFree - Improve Typing Speed Effortlessly',
+      title: '[4202] TypeScript - TypeFree',
       restart: 'Restart',
       statsLabels: {
         cpm: 'CPM:',

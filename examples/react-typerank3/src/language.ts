@@ -57,7 +57,7 @@ export const languages: Record<string, Language> = {
     name: '简体中文',
     htmlLang: 'zh',
     ui: {
-      title: 'TypeRank3 React - 打字练习',
+      title: '[4203] React - TypeFree',
       restart: '重新开始',
       statsLabels: {
         cpm: 'CPM',
@@ -104,7 +104,7 @@ export const languages: Record<string, Language> = {
     name: '繁體中文',
     htmlLang: 'zh-TW',
     ui: {
-      title: 'TypeRank3 React - 打字練習',
+      title: '[4203] React - TypeFree',
       restart: '重新開始',
       statsLabels: {
         cpm: 'CPM',
@@ -151,7 +151,7 @@ export const languages: Record<string, Language> = {
     name: 'English',
     htmlLang: 'en',
     ui: {
-      title: 'TypeRank3 React - Typing Practice',
+      title: '[4203] React - TypeFree',
       restart: 'Restart',
       statsLabels: {
         cpm: 'CPM',

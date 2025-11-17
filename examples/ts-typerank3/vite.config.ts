@@ -13,7 +13,8 @@ export default defineConfig({
     }
   },
   server: {
-    port: 3000,
+    port: 4202,
+    host: '0.0.0.0',
     open: true,
     watch: {
       // 监听 pitype-core 源码变化

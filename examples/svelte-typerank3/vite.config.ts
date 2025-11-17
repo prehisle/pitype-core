@@ -15,7 +15,8 @@ export default defineConfig({
     }
   },
   server: {
-    port: 5175,
+    port: 4204,
+    host: '0.0.0.0',
     open: true,
     watch: {
       ignored: ['!**/node_modules/pitype-core/**']
