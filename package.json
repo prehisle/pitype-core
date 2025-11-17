@@ -23,6 +23,8 @@
     "next-demo:dev": "concurrently --kill-others-on-fail \"npm:watch:core\" \"npm:next-demo:serve\"",
     "svelte-demo:serve": "npm run --workspace svelte-typerank3 dev",
     "svelte-demo:dev": "concurrently --kill-others-on-fail \"npm:watch:core\" \"npm:svelte-demo:serve\"",
+    "angular-demo:serve": "npm run --workspace angular-typerank3 dev",
+    "angular-demo:dev": "concurrently --kill-others-on-fail \"npm:watch:core\" \"npm:angular-demo:serve\"",
     "test": "npm run test:baseline && npm run test:unit",
     "test:baseline": "playwright test",
     "test:unit": "vitest --run --passWithNoTests",

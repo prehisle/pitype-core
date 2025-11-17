@@ -104,23 +104,25 @@ npm run vue3-demo:dev
 
 ## 📂 文件位置
 
-| 路径                             | 说明         |
-| -------------------------------- | ------------ |
-| `packages/pitype-core/src/`      | 核心库源码   |
-| `examples/vue3-typerank3/src/`   | Vue3 示例    |
-| `examples/react-typerank3/src/`  | React 示例   |
-| `examples/next-typerank3/app/`   | Next.js 示例 |
-| `examples/svelte-typerank3/src/` | Svelte 示例  |
-| `examples/ts-typerank3/src/`     | TS 示例      |
-| `examples/typerank3/`            | JS 示例      |
-| `tests/baseline/`                | E2E 测试     |
-| `packages/pitype-core/tests/`    | 单元测试     |
+| 路径                              | 说明         |
+| --------------------------------- | ------------ |
+| `packages/pitype-core/src/`       | 核心库源码   |
+| `examples/vue3-typerank3/src/`    | Vue3 示例    |
+| `examples/react-typerank3/src/`   | React 示例   |
+| `examples/next-typerank3/app/`    | Next.js 示例 |
+| `examples/angular-typerank3/src/` | Angular 示例 |
+| `examples/svelte-typerank3/src/`  | Svelte 示例  |
+| `examples/ts-typerank3/src/`      | TS 示例      |
+| `examples/typerank3/`             | JS 示例      |
+| `tests/baseline/`                 | E2E 测试     |
+| `packages/pitype-core/tests/`     | 单元测试     |
 
 ## 🌐 访问地址
 
 - Vue3: http://localhost:4174
 - React: http://localhost:5174
 - Next.js: http://localhost:5176
+- Angular: http://localhost:4200
 - Svelte: http://localhost:5175
 - TypeScript: http://localhost:5173
 - JavaScript: http://localhost:4173
@@ -158,6 +160,9 @@ npm run --workspace react-typerank3 <command>
 
 # 在 Next.js 示例运行命令
 npm run --workspace next-typerank3 <command>
+
+# 在 Angular 示例运行命令
+npm run --workspace angular-typerank3 <command>
 
 # 在 TS 示例运行命令
 npm run --workspace ts-typerank3 <command>

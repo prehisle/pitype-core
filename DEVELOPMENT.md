@@ -74,6 +74,10 @@ npm run dev
 cd examples/next-typerank3
 npm run dev
 
+# Angular
+cd examples/angular-typerank3
+npm run dev
+
 # Svelte
 cd examples/svelte-typerank3
 npm run dev
@@ -215,7 +219,8 @@ pitype-core/
 │   ├── react-typerank3/      # React 示例
 │   ├── vue3-typerank3/       # Vue3 示例
 │   ├── next-typerank3/       # Next.js 示例
-│   └── svelte-typerank3/     # Svelte 示例
+│   ├── svelte-typerank3/     # Svelte 示例
+│   └── angular-typerank3/    # Angular 示例
 ├── tests/                    # 基线测试（Playwright）
 └── scripts/                  # 构建脚本
 ```
@@ -234,6 +239,9 @@ npm run --workspace react-typerank3 <command>
 
 # 在 Next 示例 workspace 中运行命令
 npm run --workspace next-typerank3 <command>
+
+# 在 Angular 示例 workspace 中运行命令
+npm run --workspace angular-typerank3 <command>
 
 # 在 TypeScript 示例 workspace 中运行命令
 npm run --workspace ts-typerank3 <command>

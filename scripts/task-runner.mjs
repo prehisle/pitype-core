@@ -18,7 +18,7 @@ const tasks = [
     key: 'type',
     label: 'Type Check (core + demos)',
     command:
-      'npm run type-check && cd examples/ts-typerank3 && npx tsc --noEmit && cd ../react-typerank3 && npx tsc --noEmit && cd ../vue3-typerank3 && npx vue-tsc --noEmit && cd ../next-typerank3 && npx tsc --noEmit && cd ../svelte-typerank3 && npx svelte-check --tsconfig ./tsconfig.json'
+      'npm run type-check && cd examples/ts-typerank3 && npx tsc --noEmit && cd ../react-typerank3 && npx tsc --noEmit && cd ../vue3-typerank3 && npx vue-tsc --noEmit && cd ../next-typerank3 && npx tsc --noEmit && cd ../angular-typerank3 && npx tsc --noEmit && cd ../svelte-typerank3 && npx svelte-check --tsconfig ./tsconfig.json'
   },
   {
     key: 'unit',
@@ -74,6 +74,11 @@ const tasks = [
     key: 'svelte-dev',
     label: 'Svelte demo dev server',
     command: 'npm run svelte-demo:dev'
+  },
+  {
+    key: 'angular-dev',
+    label: 'Angular demo dev server',
+    command: 'npm run angular-demo:dev'
   },
   {
     key: 'baseline-dev',
