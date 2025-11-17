@@ -43,6 +43,20 @@
 - **`examples/svelte-typerank3`**：Svelte 4 + TypeScript（workspace 依赖）
 - **`examples/typerank3`**：原生 JS（使用生成的 `vendor/` 目录，E2E 基线）
 
+## 演示应用端口配置
+
+所有demo统一使用4200-4206端口段，避免与其他开发项目冲突：
+
+- **4200**: Vanilla JS (`examples/typerank3`)
+- **4201**: Vue 3 (`examples/vue3-typerank3`)
+- **4202**: TypeScript (`examples/ts-typerank3`)
+- **4203**: React (`examples/react-typerank3`)
+- **4204**: Svelte (`examples/svelte-typerank3`)
+- **4205**: Next.js (`examples/next-typerank3`)
+- **4206**: Angular (`examples/angular-typerank3`)
+
+所有dev服务器都绑定到 `0.0.0.0`，支持局域网访问。浏览器标题格式为 `[端口] 框架名称 - TypeFree`，便于多标签页区分。
+
 ## 核心命令
 
 ### 初始化
@@ -56,17 +70,23 @@ npm run sync:demo        # 仅原生 JS 示例需要
 ### 开发
 
 ```bash
-# 开发服务器（自动重新构建）
-npm run vue3-demo:dev    # http://localhost:4174 ✨ 推荐
-npm run react-demo:dev   # http://localhost:5174
-npm run next-demo:dev    # http://localhost:5176
-npm run ts-demo:dev      # http://localhost:5173
-npm run baseline:dev     # http://localhost:4173
+# 一次性启动所有demos（推荐）
+npm run demo:all         # 同时启动所有7个demo + 核心包监听
+
+# 单个demo开发服务器（自动重新构建）
+npm run vue3-demo:dev    # http://localhost:4201 ✨ 推荐
+npm run react-demo:dev   # http://localhost:4203
+npm run next-demo:dev    # http://localhost:4205
+npm run ts-demo:dev      # http://localhost:4202
+npm run svelte-demo:dev  # http://localhost:4204
+npm run angular-demo:dev # http://localhost:4206
+npm run baseline:dev     # http://localhost:4200
 
 # 核心包
 npm run build:core       # 单次构建
 npm run watch:core       # 监听模式
 npm run sync:demo        # 同步到 examples/typerank3/vendor/
+npm run demo:clean       # 清理所有demo的编译缓存
 ```
 
 ### 测试
@@ -88,7 +108,7 @@ npx vitest --inspect-brk  # 使用 chrome://inspect
 **测试结构：**
 
 - 单元测试：`packages/pitype-core/tests/**/*.spec.ts`（Vitest，覆盖率阈值：80%/80%/80%/70%）
-- E2E 测试：`tests/baseline/**/*.spec.ts`（Playwright，运行于 http://127.0.0.1:4173）
+- E2E 测试：`tests/baseline/**/*.spec.ts`（Playwright，运行于 http://127.0.0.1:4200）
 
 ### 代码质量
 

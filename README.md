@@ -69,7 +69,7 @@ npm run sync:demo
 npm run vue3-demo:dev
 ```
 
-访问 http://localhost:4174
+访问 http://localhost:4201
 
 **自动热更新内容：**
 
@@ -84,7 +84,7 @@ npm run vue3-demo:dev
 npm run baseline:dev
 ```
 
-访问 http://localhost:4173
+访问 http://localhost:4200
 
 **自动热更新内容：**
 
@@ -98,7 +98,7 @@ npm run baseline:dev
 npm run ts-demo:dev
 ```
 
-访问 http://localhost:5173
+访问 http://localhost:4202
 
 **自动热更新内容：**
 
@@ -128,7 +128,7 @@ npm run angular-demo:dev
 npm run next-demo:dev
 ```
 
-访问 http://localhost:5176
+访问 http://localhost:4205
 
 **自动热更新内容：**
 
@@ -143,7 +143,7 @@ npm run next-demo:dev
 npm run svelte-demo:dev
 ```
 
-访问 http://localhost:5175
+访问 http://localhost:4204
 
 **自动热更新内容：**
 
@@ -263,7 +263,7 @@ Next.js 14 App Router 示例，复刻了 `ts-typerank3` 的 DOM 结构与交互�
 - DOM 模板与原生版本保持一致，可复用基线计分脚本
 - `initTyperank3Demo()` 封装所有 DOM 逻辑，仅在浏览器端运行，避免 SSR 报错
 - workspace 依赖主仓库的 `pitype-core`，开发时自动消费最新构建
-- 端口 5176，兼容 Fast Refresh
+- 端口 4205，兼容 Fast Refresh
 
 查看 [examples/next-typerank3](./examples/next-typerank3) 了解更多。
 
