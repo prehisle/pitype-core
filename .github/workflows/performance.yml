@@ -17,8 +17,9 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          npm-version: 10
           cache: npm
+      - name: Upgrade npm
+        run: npm install -g npm@10
 
       - name: Install dependencies
         run: npm ci
@@ -74,8 +75,9 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          npm-version: 10
           cache: npm
+      - name: Upgrade npm
+        run: npm install -g npm@10
 
       - name: Install dependencies
         run: npm ci
