@@ -10,7 +10,7 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
-    "pitype-core": "1.0.0"
+    "pitype-core": "workspace:*"
   },
   "devDependencies": {
     "typescript": "^5.3.3",
