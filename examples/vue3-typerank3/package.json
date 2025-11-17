@@ -10,7 +10,7 @@
     "type-check": "vue-tsc --noEmit"
   },
   "dependencies": {
-    "pitype-core": "workspace:*",
+    "pitype-core": "*",
     "vue": "^3.4.0"
   },
   "devDependencies": {
