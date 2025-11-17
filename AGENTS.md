@@ -21,6 +21,7 @@
 
 - 统一使用 ES Module、TypeScript、两空格缩进以及具描述性的 camelCase 文件名（例如 `textSource.ts`）。
 - 公共 API 保持无副作用、无 UI 依赖；与演示相关的钩子或样式仅能放在 `examples/typerank3`。
+- 所有 demo（`examples/*-typerank3`）在 `package.json` 中必须以 `workspace:*` 依赖当前仓库的 `pitype-core`，禁止写死版本号，确保同步使用最新构建。
 - 通过 `npm run format` 维持引号、空格与导入顺序；如需共享类型，优先使用 `type` 导入导出。
 
 ## 测试规范

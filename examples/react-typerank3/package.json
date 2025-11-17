@@ -10,7 +10,7 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
-    "pitype-core": "^0.0.4",
+    "pitype-core": "workspace:*",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },

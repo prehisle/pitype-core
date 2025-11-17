@@ -23,6 +23,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
+          npm-version: 10
           cache: npm
 
       - name: Install dependencies
@@ -46,6 +47,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
+          npm-version: 10
           cache: npm
 
       - name: Install dependencies
@@ -84,6 +86,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
+          npm-version: 10
           cache: npm
 
       - name: Install dependencies
@@ -117,6 +120,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
+          npm-version: 10
           cache: npm
 
       - name: Install dependencies
@@ -143,6 +147,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
+          npm-version: 10
           cache: npm
 
       - name: Install dependencies
@@ -182,6 +187,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
+          npm-version: 10
 
       - name: Run npm audit
         run: npm audit --audit-level=moderate
@@ -207,6 +213,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
+          npm-version: 10
           cache: npm
 
       - name: Install dependencies
@@ -258,6 +265,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
+          npm-version: 10
 
       - name: Install commitlint
         run: |

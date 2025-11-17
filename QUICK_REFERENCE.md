@@ -65,7 +65,7 @@ npm run format        # Prettier 格式化
 
 发布/CI 相关：
 
-- `npx semantic-release`（CI 自动执行）按 commit 类型计算版本并发布 npm/GitHub，需要配置 `NPM_TOKEN`、`GITHUB_TOKEN`。
+- `npx semantic-release`（CI 自动执行）按 commit 类型计算版本并发布 npm/GitHub，需要配置 `NPM_TOKEN`、`GITHUB_TOKEN`，并确保 CI 使用 Node 18+/npm ≥ 10 以支持 `workspace:*` 依赖。
 - `npm run task:menu` → `release` 子任务（未来可扩展）帮助本地模拟。
 - Playwright 浏览器安装、Rollup 原生依赖都会在 `pretest`/`postinstall` 阶段自动完成。
 

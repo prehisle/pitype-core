@@ -176,7 +176,7 @@ npm run lint
 
 - **Quality Gate**（`.github/workflows/quality-gate.yml`）：lint、unit + coverage（上传 Codecov）、Playwright 基线、type-check、build、npm audit/Snyk，全都通过才算成功。
 - **Performance Monitoring**（`.github/workflows/performance.yml`）：构建核心 & 统计 bundle 大小，运行 TypingSession 基准测试并输出 Step Summary。
-- **自动发布**：`npx semantic-release` 依据 commit 类型自动发布 npm/GitHub Release。必须在 CI Secret 中配置 `NPM_TOKEN`、`GITHUB_TOKEN`；首次发布前确保已有 `v0.x.x` tag 以维持版本线。
+- **自动发布**：`npx semantic-release` 依据 commit 类型自动发布 npm/GitHub Release。必须在 CI Secret 中配置 `NPM_TOKEN`、`GITHUB_TOKEN`；首次发布前确保已有 `v0.x.x` tag 以维持版本线，且 CI Runner 需使用 Node 18+/npm ≥ 10，才能解析仓库里的 `workspace:*` 依赖（demo 也依赖当前仓库构建的 `pitype-core`）。
 - **安装脚本**：
   - `postinstall`：在 Linux x64 环境下载 Rollup 原生二进制（`scripts/install-rollup-native.mjs`），避免 Vite/ts-demo 构建失败。
   - `pretest`：执行 `npx playwright install --with-deps chromium`，确保基线测试始终具备浏览器。

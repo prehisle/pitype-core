@@ -297,7 +297,7 @@ Angular 19 独立组件示例，以 SPA 方式复刻 TypeScript 版本全部交�
 
 - **Quality Gate**（`quality-gate.yml`）：在 PR/main push 时执行 lint、unit + coverage、Playwright 基线、type-check、构建和安全审计，所有检查通过后才允许合并。
 - **Performance Monitoring**（`performance.yml`）：在 push/PR 时运行 bundle 分析与 TypingSession 基准测试，结果写入 GitHub Step Summary。
-- **自动发布**：`npx semantic-release` 根据 commit 信息决定版本（`feat` → `minor`，`fix` → `patch`），并发布到 npm / GitHub Release。需要在 CI 中配置 `NPM_TOKEN`、`GITHUB_TOKEN`。
+- **自动发布**：`npx semantic-release` 根据 commit 信息决定版本（`feat` → `minor`，`fix` → `patch`），并发布到 npm / GitHub Release。需要在 CI 中配置 `NPM_TOKEN`、`GITHUB_TOKEN`，且 GitHub Runner 必须使用 Node 18+/npm ≥ 10 才能正确安装 `workspace:*` 依赖。
 - **脚本自动化**：`pretest` 会安装 Playwright 浏览器，`postinstall` 会在 Linux x64 环境拉取 Rollup 原生二进制，确保 CI、本地环境一致。
 
 👉 详细流程与常见故障排除，参见 [DEVELOPMENT.md](./DEVELOPMENT.md#ci--release)。
