@@ -1,6 +1,6 @@
 {
   "name": "pitype-core",
-  "version": "0.1.0",
+  "version": "0.0.5",
   "description": "Headless typing session engine powering pitype applications.",
   "license": "MIT",
   "type": "module",
