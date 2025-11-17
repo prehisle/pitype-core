@@ -38,6 +38,9 @@
     "type-check": "cd packages/pitype-core && tsc --noEmit -p tsconfig.typecheck.json",
     "prepare": "husky install",
     "release": "semantic-release",
+    "release:patch": "npm version patch --workspace pitype-core && git push --follow-tags",
+    "release:minor": "npm version minor --workspace pitype-core && git push --follow-tags",
+    "release:major": "npm version major --workspace pitype-core && git push --follow-tags",
     "task:menu": "node scripts/task-runner.mjs"
   },
   "workspaces": [
